@@ -162,7 +162,7 @@ def order_epochs(all_epochs):
             if k != 'immobility':
         
                 # Add the current run to ordered_all_runs
-                ordered_all_epochs.append(all_epochs[k][i])
+                ordered_all_epochs.append([k] + all_epochs[k][i])
                 # Add the first frame of the current run to ordered_all_runs_frames
                 ordered_all_epochs_frames.append(all_epochs[k][i][0])
 
@@ -178,14 +178,14 @@ def order_epochs(all_epochs):
                 reformated_epoch[0] = [start_frame,end_frame]
 
                 # Add the current run to ordered_all_runs                
-                ordered_all_epochs.append(reformated_epoch)
+                ordered_all_epochs.append([k] + reformated_epoch)
                 # Add the first frame of the current run to ordered_all_runs_frames
                 ordered_all_epochs_frames.append(reformated_epoch[0])
 
     # Sort the frames list based on the first element of each frame
-    ordered_all_epochs_frames = sorted(ordered_all_epochs_frames, key=lambda x: x[0])
+    ordered_all_epochs_frames = sorted(ordered_all_epochs_frames, key=lambda x: x[1])
     # Sort the runs list based on the first element of each run
-    ordered_all_epochs = sorted(ordered_all_epochs, key=lambda x: x[0])
+    ordered_all_epochs = sorted(ordered_all_epochs, key=lambda x: x[1])
 
     # Return the ordered lists of runs and their first frames
     return ordered_all_epochs, ordered_all_epochs_frames
