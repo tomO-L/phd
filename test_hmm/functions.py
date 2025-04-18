@@ -14,6 +14,61 @@ from hmmlearn import hmm
 ########################
 
 # Data manipulation #
+def order_epochs(all_epochs):
+
+    """
+    Sort epochs in chronological order, omitting immobility epochs.
+
+    Arguments:
+        all_epoch (dict): dictionnary containing all the epochs, sorted by type of epoch. Each key is a different type of epoch.
+
+    Returns:
+        list: ordered_all_runs containing all the epochs omitting immobility epochs, sorted in chronological way.
+        list: ordered_all_runs_frames containing all the epoch's frame intervals, omitting immobility epochs, sorted in chronological way.
+
+    """
+
+    # Initialize empty lists to store ordered runs and their first frames
+    ordered_all_epochs = []
+    ordered_all_epochs_frames = []
+
+    # Loop through each key in the all_epochs dictionary
+    for k in all_epochs.keys():
+        
+        # Loop through each run in the current key's list
+        for i in range(len(all_epochs[k])):
+            
+            # Treats immobility differently because of a structure difference of the epoch variables
+            if k != 'immobility':
+        
+                # Add the current run to ordered_all_runs
+                ordered_all_epochs.append([k] + all_epochs[k][i])
+                # Add the first frame of the current run to ordered_all_runs_frames
+                ordered_all_epochs_frames.append(all_epochs[k][i][0])
+
+            else: 
+            
+                # TODO: deal with this hellish format
+
+                start_frame = all_epochs[k][i][0]
+                end_frame = all_epochs[k][i][1]
+
+                reformated_epoch = all_epochs[k][i].copy()
+                reformated_epoch.remove(reformated_epoch[0])
+                reformated_epoch[0] = [start_frame,end_frame]
+
+                # Add the current run to ordered_all_runs                
+                ordered_all_epochs.append([k] + reformated_epoch)
+                # Add the first frame of the current run to ordered_all_runs_frames
+                ordered_all_epochs_frames.append(reformated_epoch[0])
+
+    # Sort the frames list based on the first element of each frame
+    ordered_all_epochs_frames = sorted(ordered_all_epochs_frames, key=lambda x: x[1])
+    # Sort the runs list based on the first element of each run
+    ordered_all_epochs = sorted(ordered_all_epochs, key=lambda x: x[1])
+
+    # Return the ordered lists of runs and their first frames
+    return ordered_all_epochs, ordered_all_epochs_frames
 
 def load_data(folder_path_mouse_to_analyse,session_index):
 
@@ -81,61 +136,6 @@ def extract_epoch_sequence(path_to_data_folder, mouse, session_index):
 
 
 
-def order_epochs(all_epochs):
-
-    """
-    Sort epochs in chronological order, omitting immobility epochs.
-
-    Arguments:
-        all_epoch (dict): dictionnary containing all the epochs, sorted by type of epoch. Each key is a different type of epoch.
-
-    Returns:
-        list: ordered_all_runs containing all the epochs omitting immobility epochs, sorted in chronological way.
-        list: ordered_all_runs_frames containing all the epoch's frame intervals, omitting immobility epochs, sorted in chronological way.
-
-    """
-
-    # Initialize empty lists to store ordered runs and their first frames
-    ordered_all_epochs = []
-    ordered_all_epochs_frames = []
-
-    # Loop through each key in the all_epochs dictionary
-    for k in all_epochs.keys():
-        
-        # Loop through each run in the current key's list
-        for i in range(len(all_epochs[k])):
-            
-            # Treats immobility differently because of a structure difference of the epoch variables
-            if k != 'immobility':
-        
-                # Add the current run to ordered_all_runs
-                ordered_all_epochs.append([k] + all_epochs[k][i])
-                # Add the first frame of the current run to ordered_all_runs_frames
-                ordered_all_epochs_frames.append(all_epochs[k][i][0])
-
-            else: 
-            
-                # TODO: deal with this hellish format
-
-                start_frame = all_epochs[k][i][0]
-                end_frame = all_epochs[k][i][1]
-
-                reformated_epoch = all_epochs[k][i].copy()
-                reformated_epoch.remove(reformated_epoch[0])
-                reformated_epoch[0] = [start_frame,end_frame]
-
-                # Add the current run to ordered_all_runs                
-                ordered_all_epochs.append([k] + reformated_epoch)
-                # Add the first frame of the current run to ordered_all_runs_frames
-                ordered_all_epochs_frames.append(reformated_epoch[0])
-
-    # Sort the frames list based on the first element of each frame
-    ordered_all_epochs_frames = sorted(ordered_all_epochs_frames, key=lambda x: x[1])
-    # Sort the runs list based on the first element of each run
-    ordered_all_epochs = sorted(ordered_all_epochs, key=lambda x: x[1])
-
-    # Return the ordered lists of runs and their first frames
-    return ordered_all_epochs, ordered_all_epochs_frames
 
 
 
@@ -207,18 +207,18 @@ def plot_epoch_sequence(ax, ordered_epochs_types_number):
 
 
 
-def infer_best_model(x_train, x_validate, n_to_test, seed=13):
+def infer_best_model(x_train, x_validate, lengths, n_to_test, seed=13):
     # check optimal score
 
     best_score = best_model = None
-    n_fits = 50
+    n_fits = 200
     np.random.seed(seed)
 
     for n in n_to_test:
         for idx in range(n_fits):
             model = hmm.CategoricalHMM(
                 n_components=n, random_state=idx,
-                init_params='se')  # don't init transition, set it below
+                init_params='ste', algorithm='viterbi', n_features=4)  # don't init transition, set it below
             # we need to initialize with random transition matrix probabilities
             # because the default is an even likelihood transition
             # we know transitions are rare (otherwise the casino would get caught!)
@@ -226,18 +226,18 @@ def infer_best_model(x_train, x_validate, n_to_test, seed=13):
             # (0.1, 0.9) to enforce our assumption transitions happen roughly 10%
             # of the time
 
-            transmat = []
-            for _ in range(n):
+            # transmat = []
+            # for _ in range(n):
 
-                row = np.random.uniform(size=n)
-                row = row/np.sum(row)
+            #     row = np.random.uniform(size=n)
+            #     row = row/np.sum(row)
                 
-                transmat.append(row)
+            #     transmat.append(row)
 
-            transmat = np.array(transmat)
-            model.transmat_ = transmat
+            # transmat = np.array(transmat)
+            # model.transmat_ = transmat
             
-            model.fit(x_train)
+            model.fit(x_train, lengths)
             score = model.score(x_validate)
             # print(f'Model {n} components #{idx}\tScore: {score}')
             if best_score is None or score > best_score:

@@ -34,11 +34,12 @@ mice_to_analyse = ['MOU3974','MOU3975', 'MOU3987', 'MOU3988', 'MOU3991', 'MOU399
 ### Parameters ###
 ##################
 
-training_mouse = mice_to_analyse[0]
-validation_mouse = mice_to_analyse[1]
+## XXX
+training_mice = mice_to_analyse[0:6]
+##
 
-training_mouse_folder_path = os.path.join(path_to_data_folder, training_mouse)
-validation_mouse_folder_path = os.path.join(path_to_data_folder, validation_mouse)
+#training_mouse = mice_to_analyse[1]
+validation_mouse = mice_to_analyse[12]
 
 epoch_types = ['run_around_tower', 'run_between_towers', 'run_toward_tower', 'exploratory_run']
 session_index = 19
@@ -47,20 +48,36 @@ session_index = 19
 ### Extract epochs ###
 ######################
 
-training_ordered_epochs_types_number = extract_epoch_sequence(path_to_data_folder, training_mouse, session_index)
+## XXX
+training_mice_ordered_epochs_types_number = [extract_epoch_sequence(path_to_data_folder, mouse, session_index) for mouse in training_mice]
+##
+
+# training_ordered_epochs_types_number = extract_epoch_sequence(path_to_data_folder, training_mouse, session_index)
 validation_ordered_epochs_types_number = extract_epoch_sequence(path_to_data_folder, validation_mouse, session_index)
 
-training_num_epoch = len(training_ordered_epochs_types_number)
+# training_num_epoch = len(training_ordered_epochs_types_number)
 validation_num_epoch = len(validation_ordered_epochs_types_number)
 
 ###################
 ### Infer model ###
 ###################
 
-emissions = np.int8(training_ordered_epochs_types_number.reshape(-1,1))
-training_set = np.int8(validation_ordered_epochs_types_number.reshape(-1,1))
+## XXX
 
-best_model, best_score = infer_best_model(emissions, training_set, [2,3,4], seed=13)
+emissions = np.array([])
+
+for x in training_mice_ordered_epochs_types_number:
+
+    emissions = np.concatenate((emissions, x))
+
+emissions = np.int8(emissions).reshape(-1,1)
+lengths = [len(x) for x in training_mice_ordered_epochs_types_number]
+##
+
+# emissions = np.int8(training_ordered_epochs_types_number.reshape(-1,1))
+validation_set = np.int8(validation_ordered_epochs_types_number.reshape(-1,1))
+
+best_model, best_score = infer_best_model(emissions, validation_set, lengths, [2,3,4,5], seed=13)
 
 states = best_model.predict(emissions.reshape(-1,1))
 
@@ -91,19 +108,33 @@ gen_ordered_epochs_types_number, gen_states = best_model.sample(validation_num_e
 plot_epoch_distribution(ax3, gen_ordered_epochs_types_number.reshape(1,-1)[0])
 plot_epoch_sequence(ax4, gen_ordered_epochs_types_number.reshape(1,-1)[0])
 
+ax1.set_title('Validation')
+ax3.set_title('Recovered')
+
 states = best_model.predict(np.int8(validation_ordered_epochs_types_number.reshape(-1,1)))
 
 # TODO: why gen_states and states have different numbers of states ?
 
 # plot our recovered states compared to generated (aim 1)
 fig, ax = plt.subplots()
-ax.plot(gen_states[:500], label='generated')
-ax.plot(abs(states[:500]-1) + 1.5, label='recovered')
+ax.plot(abs(gen_states-1) + 1.5, label='generated')
+ax.plot(abs(states-1) + 1.5, label='recovered')
 ax.set_yticks([])
 ax.set_title('States compared to generated')
 ax.set_xlabel('Time (# rolls)')
 ax.set_xlabel('State')
 ax.legend()
+
+
+# fig, ax = plt.subplots()
+# ax.plot(gen_states[:500] + 1.5, label='generated')
+# ax.plot(abs(states[:500]-1) + 1.5, label='recovered')
+# ax.set_yticks([])
+# ax.set_title('States compared to generated')
+# ax.set_xlabel('Time (# rolls)')
+# ax.set_xlabel('State')
+# ax.legend()
+
 
 plt.show()
 
