@@ -49,11 +49,11 @@ session_index = 19
 ######################
 
 ## XXX
-training_mice_ordered_epochs_types_number = [extract_epoch_sequence(path_to_data_folder, mouse, session_index) for mouse in training_mice]
+training_mice_ordered_epochs_types_number = [extract_runs_sequence(path_to_data_folder, mouse, session_index)[0] for mouse in training_mice]
 ##
 
 # training_ordered_epochs_types_number = extract_epoch_sequence(path_to_data_folder, training_mouse, session_index)
-validation_ordered_epochs_types_number = extract_epoch_sequence(path_to_data_folder, validation_mouse, session_index)
+validation_ordered_epochs_types_number, validation_ordered_runs_frames = extract_runs_sequence(path_to_data_folder, validation_mouse, session_index)
 
 # training_num_epoch = len(training_ordered_epochs_types_number)
 validation_num_epoch = len(validation_ordered_epochs_types_number)
@@ -100,13 +100,13 @@ ax2 = plt.subplot(row1[1,0])
 ax3 = plt.subplot(row1[0,1])
 ax4 = plt.subplot(row1[1,1])
 
-plot_epoch_distribution(ax1, validation_ordered_epochs_types_number)
-plot_epoch_sequence(ax2, validation_ordered_epochs_types_number)
+plot_runs_distribution(ax1, validation_ordered_epochs_types_number)
+plot_runs_sequence(ax2, validation_ordered_epochs_types_number)
 
 gen_ordered_epochs_types_number, gen_states = best_model.sample(validation_num_epoch)
 
-plot_epoch_distribution(ax3, gen_ordered_epochs_types_number.reshape(1,-1)[0])
-plot_epoch_sequence(ax4, gen_ordered_epochs_types_number.reshape(1,-1)[0])
+plot_runs_distribution(ax3, gen_ordered_epochs_types_number.reshape(1,-1)[0])
+plot_runs_sequence(ax4, gen_ordered_epochs_types_number.reshape(1,-1)[0])
 
 ax1.set_title('Validation')
 ax3.set_title('Recovered')
@@ -122,8 +122,17 @@ ax.plot(abs(states-1) + 1.5, label='recovered')
 ax.set_yticks([])
 ax.set_title('States compared to generated')
 ax.set_xlabel('Time (# rolls)')
-ax.set_xlabel('State')
+ax.set_ylabel('State')
 ax.legend()
+
+# plot runs sequence with number of frames
+
+# fig, ax = plt.subplots()
+# plot_runs_sequence(ax, validation_ordered_epochs_types_number, ordered_runs_frames=validation_ordered_runs_frames)
+# ax.set_title('Raster plot')
+# ax.set_xlabel('Frame')
+# ax.set_ylabel('Run type')
+# ax.legend()
 
 
 # fig, ax = plt.subplots()

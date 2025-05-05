@@ -101,7 +101,7 @@ def load_data(folder_path_mouse_to_analyse,session_index):
 
     return session_data
 
-def extract_epoch_sequence(path_to_data_folder, mouse, session_index):
+def extract_runs_sequence(path_to_data_folder, mouse, session_index):
 
     ### Parameters ###
 
@@ -114,26 +114,28 @@ def extract_epoch_sequence(path_to_data_folder, mouse, session_index):
 
     ordered_epochs, ordered_epochs_frames = order_epochs(data['all_epochs'])
 
-    ordered_epochs_types = []
+    ordered_runs_types = []
+    ordered_runs_frames = []
 
-    for e in ordered_epochs:
+    for i in range(len(ordered_epochs)):
 
-        ordered_epochs_types.append(e[0])
+        ordered_runs_types.append(ordered_epochs[i][0])
+        ordered_runs_frames.append(ordered_epochs_frames[i])
 
-    while 'immobility' in ordered_epochs_types:
+    while 'immobility' in ordered_runs_types:
 
-        ordered_epochs_types.remove('immobility')
+        first_occurence = ordered_runs_types.index('immobility')
+        ordered_runs_types.remove('immobility')
+        ordered_runs_frames.pop(first_occurence)
 
-    num_epoch = len(ordered_epochs_types)
+    num_epoch = len(ordered_runs_types)
 
-    ordered_epochs_types_number = np.nan * np.ones(num_epoch)
+    ordered_runs_types_number = np.nan * np.ones(num_epoch)
 
     for i, e_type in enumerate(epoch_types):
-        ordered_epochs_types_number = np.where(np.array(ordered_epochs_types)==e_type, i, ordered_epochs_types_number)
+        ordered_runs_types_number = np.where(np.array(ordered_runs_types)==e_type, i, ordered_runs_types_number)
 
-    return ordered_epochs_types_number
-
-
+    return ordered_runs_types_number, ordered_runs_frames
 
 
 
@@ -165,26 +167,39 @@ def extract_epoch_sequence(path_to_data_folder, mouse, session_index):
 
 
 
-def plot_epoch_distribution(ax, ordered_epochs_types_number):
+
+
+def plot_runs_distribution(ax, ordered_runs_types_number):
 
     epoch_types = ['run_around_tower', 'run_between_towers', 'run_toward_tower', 'exploratory_run']
 
-    gen_epoch_types_ditribution = [np.count_nonzero(ordered_epochs_types_number==i) for i in range(4)]
+    gen_epoch_types_ditribution = [np.count_nonzero(ordered_runs_types_number==i) for i in range(4)]
                                 
     ax.bar(epoch_types, gen_epoch_types_ditribution)
 
 
 
-def plot_epoch_sequence(ax, ordered_epochs_types_number):
+def plot_runs_sequence(ax, ordered_runs_types_number, ordered_runs_frames=[]):
 
     epoch_types = ['run_around_tower', 'run_between_towers', 'run_toward_tower', 'exploratory_run']
-    num_epochs = len(ordered_epochs_types_number)
+    num_runs = len(ordered_runs_types_number)
 
     for i in range(len(epoch_types)):
 
-        ordered_epochs_type_number = np.where(np.array(ordered_epochs_types_number)==i, np.arange(num_epochs)-0.25, np.nan)
 
-        x_barh = np.transpose([ordered_epochs_type_number,0.5*np.ones(num_epochs)])
+        if len(ordered_runs_frames)==0:
+
+            ordered_runs_type_number = np.where(np.array(ordered_runs_types_number)==i, np.arange(num_runs)-0.25, np.nan)
+            x_barh = np.transpose([ordered_runs_type_number,0.5*np.ones(num_runs)])
+        
+        else:
+
+            ordered_runs_frames = np.array(ordered_runs_frames)
+            ordered_runs_frame = np.where(np.array(ordered_runs_types_number)==i, ordered_runs_frames[:,0], np.nan)
+            ordered_runs_width = np.where(np.array(ordered_runs_types_number)==i, ordered_runs_frames[:,1] - ordered_runs_frames[:,0], np.nan)
+
+            x_barh = np.transpose([ordered_runs_frame,ordered_runs_width])
+
         y_barh = [i-0.25,0.5]
 
         ax.broken_barh(x_barh, y_barh)
