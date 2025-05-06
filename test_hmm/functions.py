@@ -6,7 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 import pickle
-from hmmlearn import hmm
+from hmmlearn import hmm, vhmm
 
 
 ########################
@@ -137,8 +137,33 @@ def extract_runs_sequence(path_to_data_folder, mouse, session_index):
 
     return ordered_runs_types_number, ordered_runs_frames
 
+def extract_epochs_sequence(path_to_data_folder, mouse, session_index):
 
+    ### Parameters ###
 
+    mouse_folder_path = os.path.join(path_to_data_folder, mouse)
+    epoch_types = ['run_around_tower', 'run_between_towers', 'run_toward_tower', 'exploratory_run', 'immobility']
+
+    ### Extract epochs ###
+
+    data = load_data(mouse_folder_path, session_index)
+
+    ordered_epochs, ordered_epochs_frames = order_epochs(data['all_epochs'])
+
+    ordered_epochs_types = []
+
+    for e in ordered_epochs:
+
+        ordered_epochs_types.append(e[0])
+
+    num_epoch = len(ordered_epochs_types)
+
+    ordered_epochs_types_number = np.nan * np.ones(num_epoch)
+
+    for i, e_type in enumerate(epoch_types):
+        ordered_epochs_types_number = np.where(np.array(ordered_epochs_types)==e_type, i, ordered_epochs_types_number)
+
+    return ordered_epochs_types_number
 
 
 
@@ -206,6 +231,42 @@ def plot_runs_sequence(ax, ordered_runs_types_number, ordered_runs_frames=[]):
 
     ax.set_yticks(np.arange(len(epoch_types)), epoch_types)
 
+def plot_epochs_distribution(ax, ordered_runs_types_number):
+
+    epoch_types = ['run_around_tower', 'run_between_towers', 'run_toward_tower', 'exploratory_run', 'immobility']
+
+    gen_epoch_types_ditribution = [np.count_nonzero(ordered_runs_types_number==i) for i in range(len(epoch_types))]
+                                
+    ax.bar(epoch_types, gen_epoch_types_ditribution)
+
+
+
+def plot_epochs_sequence(ax, ordered_epochs_types_number, ordered_epochs_frames=[]):
+
+    epoch_types = ['run_around_tower', 'run_between_towers', 'run_toward_tower', 'exploratory_run', 'immobility']
+    num_epochs = len(ordered_epochs_types_number)
+
+    for i in range(len(epoch_types)):
+
+
+        if len(ordered_epochs_frames)==0:
+
+            ordered_epochs_type_number = np.where(np.array(ordered_epochs_types_number)==i, np.arange(num_epochs)-0.25, np.nan)
+            x_barh = np.transpose([ordered_epochs_type_number,0.5*np.ones(num_epochs)])
+        
+        else:
+
+            ordered_epochs_frames = np.array(ordered_epochs_frames)
+            ordered_epochs_frame = np.where(np.array(ordered_epochs_types_number)==i, ordered_epochs_frames[:,0], np.nan)
+            ordered_epochs_width = np.where(np.array(ordered_epochs_types_number)==i, ordered_epochs_frames[:,1] - ordered_epochs_frames[:,0], np.nan)
+
+            x_barh = np.transpose([ordered_epochs_frame,ordered_epochs_width])
+
+        y_barh = [i-0.25,0.5]
+
+        ax.broken_barh(x_barh, y_barh)
+
+    ax.set_yticks(np.arange(len(epoch_types)), epoch_types)
 
 
 
@@ -222,7 +283,11 @@ def plot_runs_sequence(ax, ordered_runs_types_number, ordered_runs_frames=[]):
 
 
 
-def infer_best_model(x_train, x_validate, lengths, n_to_test, seed=13):
+
+
+
+
+def infer_best_model(x_train, x_validate, lengths, n_to_test, n_features = 4, seed=13):
     # check optimal score
 
     best_score = best_model = None
@@ -231,9 +296,10 @@ def infer_best_model(x_train, x_validate, lengths, n_to_test, seed=13):
 
     for n in n_to_test:
         for idx in range(n_fits):
-            model = hmm.CategoricalHMM(
+            # model = hmm.CategoricalHMM(
+            model = vhmm.VariationalCategoricalHMM(
                 n_components=n, random_state=idx,
-                init_params='ste', algorithm='viterbi', n_features=4)  # don't init transition, set it below
+                init_params='ste', algorithm='viterbi', n_features=n_features)  # don't init transition, set it below
             # we need to initialize with random transition matrix probabilities
             # because the default is an even likelihood transition
             # we know transitions are rare (otherwise the casino would get caught!)
@@ -260,3 +326,4 @@ def infer_best_model(x_train, x_validate, lengths, n_to_test, seed=13):
                 best_score = score
 
     return best_model, best_score
+

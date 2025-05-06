@@ -4,7 +4,7 @@
 
 from functions import *
 import matplotlib.pyplot as plt
-from hmmlearn import hmm, vhmm
+from hmmlearn import hmm
 import sys
 from IPython.core import ultratb
 sys.excepthook = ultratb.FormattedTB(call_pdb=False)
@@ -35,7 +35,7 @@ mice_to_analyse = ['MOU3974','MOU3975', 'MOU3987', 'MOU3988', 'MOU3991', 'MOU399
 ##################
 
 ## XXX
-training_mice = mice_to_analyse[0:3]
+training_mice = mice_to_analyse[0:6]
 ##
 
 #training_mouse = mice_to_analyse[1]
@@ -48,11 +48,11 @@ session_index = 19
 ######################
 
 ## XXX
-training_mice_ordered_epochs_types_number = [extract_runs_sequence(path_to_data_folder, mouse, session_index)[0] for mouse in training_mice]
+training_mice_ordered_epochs_types_number = [extract_epochs_sequence(path_to_data_folder, mouse, session_index) for mouse in training_mice]
 ##
 
 # training_ordered_epochs_types_number = extract_epoch_sequence(path_to_data_folder, training_mouse, session_index)
-validation_ordered_epochs_types_number, validation_ordered_runs_frames = extract_runs_sequence(path_to_data_folder, validation_mouse, session_index)
+validation_ordered_epochs_types_number = extract_epochs_sequence(path_to_data_folder, validation_mouse, session_index)
 
 # training_num_epoch = len(training_ordered_epochs_types_number)
 validation_num_epoch = len(validation_ordered_epochs_types_number)
@@ -76,7 +76,7 @@ lengths = [len(x) for x in training_mice_ordered_epochs_types_number]
 # emissions = np.int8(training_ordered_epochs_types_number.reshape(-1,1))
 validation_set = np.int8(validation_ordered_epochs_types_number.reshape(-1,1))
 
-best_model, best_score = infer_best_model(emissions, validation_set, lengths, [2,3,4,5], n_features=4, seed=13)
+best_model, best_score = infer_best_model(emissions, validation_set, lengths, [2,3,4,5], n_features=5, seed=13)
 
 states = best_model.predict(emissions.reshape(-1,1))
 
@@ -99,13 +99,13 @@ ax2 = plt.subplot(row1[1,0])
 ax3 = plt.subplot(row1[0,1])
 ax4 = plt.subplot(row1[1,1])
 
-plot_runs_distribution(ax1, validation_ordered_epochs_types_number)
-plot_runs_sequence(ax2, validation_ordered_epochs_types_number)
+plot_epochs_distribution(ax1, validation_ordered_epochs_types_number)
+plot_epochs_sequence(ax2, validation_ordered_epochs_types_number)
 
 gen_ordered_epochs_types_number, gen_states = best_model.sample(validation_num_epoch)
 
-plot_runs_distribution(ax3, gen_ordered_epochs_types_number.reshape(1,-1)[0])
-plot_runs_sequence(ax4, gen_ordered_epochs_types_number.reshape(1,-1)[0])
+plot_epochs_distribution(ax3, gen_ordered_epochs_types_number.reshape(1,-1)[0])
+plot_epochs_sequence(ax4, gen_ordered_epochs_types_number.reshape(1,-1)[0])
 
 ax1.set_title('Validation')
 ax3.set_title('Recovered')
@@ -116,45 +116,13 @@ states = best_model.predict(np.int8(validation_ordered_epochs_types_number.resha
 
 # plot our recovered states compared to generated (aim 1)
 fig, ax = plt.subplots()
-ax.plot(abs(gen_states-1) + 0.5, label='generated')
-ax.plot(abs(states-1) + 0.5, label='recovered')
+ax.plot(abs(gen_states-1) + 1.5, label='generated')
+ax.plot(abs(states-1) + 1.5, label='recovered')
 ax.set_yticks([])
 ax.set_title('States compared to generated')
 ax.set_xlabel('Run rank')
 ax.set_ylabel('State')
 ax.legend()
-
-
-
-
-# plot runs sequence with number of frames
-
-fig=plt.figure(figsize=(3.5, 3), dpi=300, constrained_layout=False, facecolor='w')
-gs = fig.add_gridspec(1, 1)
-row = gs[0].subgridspec(1,2)
-ax4 = plt.subplot(row1[0,0])
-ax5 = plt.subplot(row1[0,1])
-
-
-ax4.imshow(best_model.transmat_)
-ax4.set_title('Transition matrix')
-ax4.set_xlabel('To')
-ax4.set_ylabel('From')
-
-
-ax5.imshow(best_model.emissionprob_)
-ax5.set_title('Emission matrix')
-ax5.set_xlabel('Action')
-ax5.set_ylabel('State')
-
-# plot runs sequence with number of frames
-
-# fig, ax = plt.subplots()
-# plot_runs_sequence(ax, validation_ordered_epochs_types_number, ordered_runs_frames=validation_ordered_runs_frames)
-# ax.set_title('Raster plot')
-# ax.set_xlabel('Frame')
-# ax.set_ylabel('Run type')
-# ax.legend()
 
 
 # fig, ax = plt.subplots()
