@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import os
 import pickle
 from hmmlearn import hmm, vhmm
-
+from tqdm import tqdm
 
 ########################
 ### Define functions ###
@@ -295,7 +295,8 @@ def infer_best_model(x_train, x_validate, lengths, n_to_test, n_features = 4, se
     np.random.seed(seed)
 
     for n in n_to_test:
-        for idx in range(n_fits):
+        print(f"Building {n} components model")
+        for idx in tqdm(range(n_fits)):
             # model = hmm.CategoricalHMM(
             model = vhmm.VariationalCategoricalHMM(
                 n_components=n, random_state=idx,

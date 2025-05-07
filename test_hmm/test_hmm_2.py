@@ -6,10 +6,13 @@ from functions import *
 import matplotlib.pyplot as plt
 from hmmlearn import hmm, vhmm
 import sys
+import time
 from IPython.core import ultratb
 sys.excepthook = ultratb.FormattedTB(call_pdb=False)
 
 plt.style.use('paper.mplstyle')
+
+start_time = time.time()
 
 ######################
 ### Mice selection ###
@@ -35,7 +38,7 @@ mice_to_analyse = ['MOU3974','MOU3975', 'MOU3987', 'MOU3988', 'MOU3991', 'MOU399
 ##################
 
 ## XXX
-training_mice = mice_to_analyse[0:3]
+training_mice = mice_to_analyse[0:6]
 ##
 
 #training_mouse = mice_to_analyse[1]
@@ -76,7 +79,7 @@ lengths = [len(x) for x in training_mice_ordered_epochs_types_number]
 # emissions = np.int8(training_ordered_epochs_types_number.reshape(-1,1))
 validation_set = np.int8(validation_ordered_epochs_types_number.reshape(-1,1))
 
-best_model, best_score = infer_best_model(emissions, validation_set, lengths, [2,3,4,5], n_features=4, seed=13)
+best_model, best_score = infer_best_model(emissions, validation_set, lengths, [2,3,4,5,6,7,8,9], n_features=4, seed=13)
 
 states = best_model.predict(emissions.reshape(-1,1))
 
@@ -86,6 +89,10 @@ print(f'Transmission Matrix Recovered:\n{best_model.transmat_.round(3)}\n\n')
 
 print(f'Emission Matrix Recovered:\n{best_model.emissionprob_.round(3)}\n\n')
 
+
+end_time = time.time()
+
+print(f"Ca a pris {(end_time-start_time)//60} min {(end_time-start_time)%60} s")
 
 # with open('/home/david/Documents/code/phd/best_model.pkl', 'wb') as file:
 #                 pickle.dump(best_model, file)
@@ -116,36 +123,45 @@ states = best_model.predict(np.int8(validation_ordered_epochs_types_number.resha
 
 # plot our recovered states compared to generated (aim 1)
 fig, ax = plt.subplots()
-ax.plot(abs(gen_states-1) + 0.5, label='generated')
-ax.plot(abs(states-1) + 0.5, label='recovered')
+ax.plot(abs(states), label='recovered')
 ax.set_yticks([])
-ax.set_title('States compared to generated')
+ax.set_title('Recovered states')
+ax.set_xlabel('Run rank')
+ax.set_ylabel('State')
+ax.legend()
+
+# plot our generated states 
+fig, ax = plt.subplots()
+ax.plot(abs(gen_states), label='generated')
+ax.set_yticks([])
+ax.set_title('Generated states')
 ax.set_xlabel('Run rank')
 ax.set_ylabel('State')
 ax.legend()
 
 
-
-
 # plot runs sequence with number of frames
+
+epoch_types = ['run_around_tower', 'run_between_towers', 'run_toward_tower', 'exploratory_run']
 
 fig=plt.figure(figsize=(3.5, 3), dpi=300, constrained_layout=False, facecolor='w')
 gs = fig.add_gridspec(1, 1)
 row = gs[0].subgridspec(1,2)
-ax4 = plt.subplot(row1[0,0])
-ax5 = plt.subplot(row1[0,1])
+ax5 = plt.subplot(row1[0,0])
+ax6 = plt.subplot(row1[0,1])
 
 
-ax4.imshow(best_model.transmat_)
-ax4.set_title('Transition matrix')
-ax4.set_xlabel('To')
-ax4.set_ylabel('From')
+ax5.imshow(best_model.transmat_)
+ax5.set_title('Transition matrix')
+ax5.set_xlabel('To state')
+ax5.set_ylabel('From state')
 
 
-ax5.imshow(best_model.emissionprob_)
-ax5.set_title('Emission matrix')
-ax5.set_xlabel('Action')
-ax5.set_ylabel('State')
+ax6.imshow(best_model.emissionprob_)
+ax6.set_xticks(range(len(epoch_types)), labels=epoch_types, rotation=30, ha="right", rotation_mode="anchor")
+ax6.set_title('Emission matrix')
+ax6.set_xlabel('Action')
+ax6.set_ylabel('State')
 
 # plot runs sequence with number of frames
 
