@@ -44,7 +44,7 @@ training_mice = mice_to_analyse[0:6]
 #training_mouse = mice_to_analyse[1]
 validation_mouse = mice_to_analyse[12]
 
-session_index = 19
+session_index = 11
 
 ######################
 ### Extract epochs ###
@@ -79,7 +79,7 @@ lengths = [len(x) for x in training_mice_ordered_epochs_types_number]
 # emissions = np.int8(training_ordered_epochs_types_number.reshape(-1,1))
 validation_set = np.int8(validation_ordered_epochs_types_number.reshape(-1,1))
 
-best_model, best_score = infer_best_model(emissions, validation_set, lengths, [2,3,4,5,6,7,8,9], n_features=4, seed=13)
+best_model, best_score = infer_best_model(emissions, validation_set, lengths, [2,3,4,5], n_features=4, seed=13)
 
 states = best_model.predict(emissions.reshape(-1,1))
 
@@ -124,7 +124,7 @@ states = best_model.predict(np.int8(validation_ordered_epochs_types_number.resha
 # plot our recovered states compared to generated (aim 1)
 fig, ax = plt.subplots()
 ax.plot(abs(states), label='recovered')
-ax.set_yticks([])
+ax.set_yticks(range(set(states)))
 ax.set_title('Recovered states')
 ax.set_xlabel('Run rank')
 ax.set_ylabel('State')
@@ -133,7 +133,7 @@ ax.legend()
 # plot our generated states 
 fig, ax = plt.subplots()
 ax.plot(abs(gen_states), label='generated')
-ax.set_yticks([])
+ax.set_yticks(range(set(states)))
 ax.set_title('Generated states')
 ax.set_xlabel('Run rank')
 ax.set_ylabel('State')

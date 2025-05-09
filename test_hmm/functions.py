@@ -70,7 +70,7 @@ def order_epochs(all_epochs):
     # Return the ordered lists of runs and their first frames
     return ordered_all_epochs, ordered_all_epochs_frames
 
-def load_data(folder_path_mouse_to_analyse,session_index):
+def load_pickle_data(folder_path_mouse_to_analyse,session_index):
 
     """
     Load pickle data file
@@ -110,7 +110,7 @@ def extract_runs_sequence(path_to_data_folder, mouse, session_index):
 
     ### Extract epochs ###
 
-    data = load_data(mouse_folder_path, session_index)
+    data = load_pickle_data(mouse_folder_path, session_index)
 
     ordered_epochs, ordered_epochs_frames = order_epochs(data['all_epochs'])
 
@@ -146,7 +146,7 @@ def extract_epochs_sequence(path_to_data_folder, mouse, session_index):
 
     ### Extract epochs ###
 
-    data = load_data(mouse_folder_path, session_index)
+    data = load_pickle_data(mouse_folder_path, session_index)
 
     ordered_epochs, ordered_epochs_frames = order_epochs(data['all_epochs'])
 
