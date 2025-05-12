@@ -13,7 +13,7 @@ from tqdm import tqdm
 ### Define functions ###
 ########################
 
-# Data manipulation #
+# Data  #
 def order_epochs(all_epochs):
 
     """

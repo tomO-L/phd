@@ -38,7 +38,7 @@ mice_to_analyse = ['MOU3974','MOU3975', 'MOU3987', 'MOU3988', 'MOU3991', 'MOU399
 ##################
 
 ## XXX
-training_mice = mice_to_analyse[0:6]
+training_mice = mice_to_analyse[0:3]
 ##
 
 #training_mouse = mice_to_analyse[1]
@@ -124,7 +124,7 @@ states = best_model.predict(np.int8(validation_ordered_epochs_types_number.resha
 # plot our recovered states compared to generated (aim 1)
 fig, ax = plt.subplots()
 ax.plot(abs(states), label='recovered')
-ax.set_yticks(range(set(states)))
+ax.set_yticks(range(len(set(states))))
 ax.set_title('Recovered states')
 ax.set_xlabel('Run rank')
 ax.set_ylabel('State')
@@ -133,7 +133,7 @@ ax.legend()
 # plot our generated states 
 fig, ax = plt.subplots()
 ax.plot(abs(gen_states), label='generated')
-ax.set_yticks(range(set(states)))
+ax.set_yticks(range(len(set(states))))
 ax.set_title('Generated states')
 ax.set_xlabel('Run rank')
 ax.set_ylabel('State')

@@ -4,9 +4,11 @@
 
 from functions import *
 import matplotlib.pyplot as plt
+from matplotlib import colormaps
 from hmmlearn import hmm, vhmm
 import sys
 import time
+from matplotlib.colors import Normalize
 from IPython.core import ultratb
 sys.excepthook = ultratb.FormattedTB(call_pdb=False)
 
@@ -41,7 +43,7 @@ mouse = mice_to_analyse[0]
 
 folder_path_mouse_to_analyse = os.path.join(path_to_data_folder, mouse)
 
-session_index = 11
+session_index = 8
 
 ####################
 ### Computations ###
@@ -50,10 +52,57 @@ session_index = 11
 
 turns_per_visit,rewarded_turns_per_visit,visits_time,max_rewards = compute_turns_per_rewarded_visit(folder_path_mouse_to_analyse, session_index)
 
+### Extract first direction per visit
+
+# Load data
+data = load_pickle_data(folder_path_mouse_to_analyse,session_index)
+# Order epochs
+ordered_epochs, ordered_epochs_frames = order_runs(data['all_epochs'])
+# Find visits
+visits = find_visits(data['all_epochs'])
+
+def find_tat_by_time(tats,time):
+
+    """
+    Find a TAT by its occurence time
+    """
+
+    for tat in tats:
+
+        if tat[4]['epoch_time']==time:
+            
+            return tat
+        
+    print("WARNING: TAT not found")
+
+first_direction_per_visit = []
+visits_time = []
+
+for i in range(len(turns_per_visit)):
+    
+    visit_time = visits[i]['visit_time']
+    visits_time.append(visit_time)
+
+    first_turn = find_tat_by_time(data['all_epochs']['run_around_tower'],visit_time)
+    first_direction_per_visit.append(first_turn[3]['direction'])
+
+numcoded_first_direction_per_visit = np.where(np.array(first_direction_per_visit)=='CCW',0,1)
+numcoded_rewarded_visit = np.where(rewarded_turns_per_visit!=0,1,0)
+visits_time_rewarded_visits = np.where(rewarded_turns_per_visit!=0,visits_time,np.nan)
+
+cmap = plt.cm.viridis
+norm = Normalize(vmin=0, vmax=max(turns_per_visit-rewarded_turns_per_visit))
+
 
 # turns_per_rewarded_visit = np.where(np.logical_not(np.equal(rewarded_turns_per_visit,0)),turns_per_visit,np.nan)
 # turns_per_rewarded_visit = np.where(np.logical_not(np.isnan(rewarded_turns_per_visit)),turns_per_rewarded_visit,np.nan)
 # turns_vs_maxreward_per_rewarded_visit = np.where(np.logical_not(np.equal(rewarded_turns_per_visit,0)),turns_per_visit-max_rewards,np.nan)
+
+print(f"Number of good first guess: {np.sum(numcoded_first_direction_per_visit)}")
+
+print(f"Number of good visits: {np.sum(numcoded_rewarded_visit)}")
+
+print(f"Number of bad visits: {len(numcoded_rewarded_visit) - np.sum(numcoded_rewarded_visit)}")
 
 #############
 ### Plots ###
@@ -64,8 +113,14 @@ gs = fig.add_gridspec(1, 1)
 row1 = gs[0].subgridspec(1, 1)
 ax1 = plt.subplot(row1[0])
 
-ax1.plot(visits_time, rewarded_turns_per_visit, marker='o', markersize=1)
-ax1.plot(visits_time, turns_per_visit-rewarded_turns_per_visit, marker='o', markersize=1)
+ax1.scatter(visits_time,numcoded_first_direction_per_visit, linewidth=1, marker='|', c=cmap(norm(turns_per_visit-rewarded_turns_per_visit)))
+# ax1.plot(visits_time_rewarded_visits,numcoded_first_direction_per_rewarded_visit, linewidth=0.2, marker='|')
+
+ax1.set_yticks([0,1],['CW','CCW'])
+ax1.set_ylim([-0.5,1.5])
+# ax1.plot(visits_time, rewarded_turns_per_visit, marker='o', markersize=1)
+# ax1.plot(visits_time, turns_per_visit-rewarded_turns_per_visit, marker='o', markersize=1)
+
 
 plt.show()
 

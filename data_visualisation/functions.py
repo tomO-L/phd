@@ -70,6 +70,38 @@ def load_pickle_data(folder_path_mouse_to_analyse,session_index):
 
     return session_data
 
+
+def load_pickle_data(folder_path_mouse_to_analyse,session_index):
+
+    """
+    Load pickle data file
+
+    Arguments:
+        folder_path_mouse_to_analyse (str): path to mouse folder
+        session_index (int): index of the session from which to load the pickle data file
+    
+    Returns:
+        (list) data from pickle file 
+
+    """
+
+    # Get all session folders that start with 'MOU' and sort them
+    sessions_to_analyse = sorted([name for name in os.listdir(folder_path_mouse_to_analyse)
+                                  if os.path.isdir(os.path.join(folder_path_mouse_to_analyse, name))
+                                  and name.startswith('MOU')])
+
+    session_to_analyse = sessions_to_analyse[session_index]
+
+    # Define the output pickle filename and its full path
+    output_pickle_filename = f"{session_to_analyse}_basic_processing_output.pickle"        
+    output_pickle_filepath = os.path.join(folder_path_mouse_to_analyse, session_to_analyse, output_pickle_filename)
+
+    # Open and load the session data from the pickle file
+    with open(output_pickle_filepath, 'rb') as file:
+        session_data = pickle.load(file)
+
+    return session_data
+
 def finding_mouse_rewarded_direction(folder_path_mouse_to_process, session_index):
     
     """
@@ -174,7 +206,7 @@ def order_runs(all_epochs):
 
     return ordered_all_runs, ordered_all_runs_frames
 
-def turns_by_visit_by_reward(all_epochs):
+def find_visits(all_epochs):
 
     visits = []
 
@@ -242,7 +274,7 @@ def compute_turns_per_rewarded_visit(folder_path_mouse_to_analyse, session_index
 
     #runs_around_towers = session_data['all_epochs']['run_around_tower']
         
-    visit = turns_by_visit_by_reward(session_data['all_epochs'])
+    visit = find_visits(session_data['all_epochs'])
     
     # print(len(visit), ' number of visits')
 
