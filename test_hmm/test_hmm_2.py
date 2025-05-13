@@ -38,13 +38,13 @@ mice_to_analyse = ['MOU3974','MOU3975', 'MOU3987', 'MOU3988', 'MOU3991', 'MOU399
 ##################
 
 ## XXX
-training_mice = mice_to_analyse[0:3]
+training_mice = mice_to_analyse[0:6]
 ##
 
 #training_mouse = mice_to_analyse[1]
-validation_mouse = mice_to_analyse[12]
+validation_mouse = mice_to_analyse[19]
 
-session_index = 11
+session_index = 19
 
 ######################
 ### Extract epochs ###

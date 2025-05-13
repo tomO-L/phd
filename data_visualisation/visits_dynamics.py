@@ -8,6 +8,7 @@ from matplotlib import colormaps
 from hmmlearn import hmm, vhmm
 import sys
 import time
+from matplotlib import cm
 from matplotlib.colors import Normalize
 from IPython.core import ultratb
 sys.excepthook = ultratb.FormattedTB(call_pdb=False)
@@ -43,7 +44,7 @@ mouse = mice_to_analyse[0]
 
 folder_path_mouse_to_analyse = os.path.join(path_to_data_folder, mouse)
 
-session_index = 8
+session_index = 19
 
 ####################
 ### Computations ###
@@ -91,7 +92,7 @@ numcoded_rewarded_visit = np.where(rewarded_turns_per_visit!=0,1,0)
 visits_time_rewarded_visits = np.where(rewarded_turns_per_visit!=0,visits_time,np.nan)
 
 cmap = plt.cm.viridis
-norm = Normalize(vmin=0, vmax=max(turns_per_visit-rewarded_turns_per_visit))
+norm = Normalize(vmin=0, vmax=max(turns_per_visit))
 
 
 # turns_per_rewarded_visit = np.where(np.logical_not(np.equal(rewarded_turns_per_visit,0)),turns_per_visit,np.nan)
@@ -113,11 +114,13 @@ gs = fig.add_gridspec(1, 1)
 row1 = gs[0].subgridspec(1, 1)
 ax1 = plt.subplot(row1[0])
 
-ax1.scatter(visits_time,numcoded_first_direction_per_visit, linewidth=1, marker='|', c=cmap(norm(turns_per_visit-rewarded_turns_per_visit)))
+plot = ax1.scatter(visits_time,numcoded_first_direction_per_visit, linewidth=1, marker='|', c=cmap(norm(turns_per_visit)))
 # ax1.plot(visits_time_rewarded_visits,numcoded_first_direction_per_rewarded_visit, linewidth=0.2, marker='|')
 
 ax1.set_yticks([0,1],['CW','CCW'])
 ax1.set_ylim([-0.5,1.5])
+cbar = fig.colorbar(cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax1, extend='both')
+
 # ax1.plot(visits_time, rewarded_turns_per_visit, marker='o', markersize=1)
 # ax1.plot(visits_time, turns_per_visit-rewarded_turns_per_visit, marker='o', markersize=1)
 
