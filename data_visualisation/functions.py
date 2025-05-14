@@ -159,6 +159,61 @@ def finding_mouse_rewarded_direction(folder_path_mouse_to_process, session_index
     return rewarded_direction
 
 
+def order_epochs(all_epochs):
+
+    """
+    Sort epochs in chronological order, omitting immobility epochs.
+
+    Arguments:
+        all_epoch (dict): dictionnary containing all the epochs, sorted by type of epoch. Each key is a different type of epoch.
+
+    Returns:
+        list: ordered_all_runs containing all the epochs omitting immobility epochs, sorted in chronological way.
+        list: ordered_all_runs_frames containing all the epoch's frame intervals, omitting immobility epochs, sorted in chronological way.
+
+    """
+
+    # Initialize empty lists to store ordered runs and their first frames
+    ordered_all_epochs = []
+    ordered_all_epochs_frames = []
+
+    # Loop through each key in the all_epochs dictionary
+    for k in all_epochs.keys():
+        
+        # Loop through each run in the current key's list
+        for i in range(len(all_epochs[k])):
+            
+            # Treats immobility differently because of a structure difference of the epoch variables
+            if k != 'immobility':
+        
+                # Add the current run to ordered_all_runs
+                ordered_all_epochs.append([k] + all_epochs[k][i])
+                # Add the first frame of the current run to ordered_all_runs_frames
+                ordered_all_epochs_frames.append(all_epochs[k][i][0])
+
+            else: 
+            
+                # TODO: deal with this hellish format
+
+                start_frame = all_epochs[k][i][0]
+                end_frame = all_epochs[k][i][1]
+
+                reformated_epoch = all_epochs[k][i].copy()
+                reformated_epoch.remove(reformated_epoch[0])
+                reformated_epoch[0] = [start_frame,end_frame]
+
+                # Add the current run to ordered_all_runs                
+                ordered_all_epochs.append([k] + reformated_epoch)
+                # Add the first frame of the current run to ordered_all_runs_frames
+                ordered_all_epochs_frames.append(reformated_epoch[0])
+
+    # Sort the frames list based on the first element of each frame
+    ordered_all_epochs_frames = sorted(ordered_all_epochs_frames, key=lambda x: x[1])
+    # Sort the runs list based on the first element of each run
+    ordered_all_epochs = sorted(ordered_all_epochs, key=lambda x: x[1])
+
+    # Return the ordered lists of runs and their first frames
+    return ordered_all_epochs, ordered_all_epochs_frames
 
 
 
@@ -307,3 +362,115 @@ def compute_turns_per_rewarded_visit(folder_path_mouse_to_analyse, session_index
 
 
     return [np.array(turns_per_visit),np.array(rewarded_turns_per_visit),np.array(visits_time),np.array(max_rewards)]
+
+def extract_runs_sequence(path_to_data_folder, mouse, session_index):
+
+    ### Parameters ###
+
+    mouse_folder_path = os.path.join(path_to_data_folder, mouse)
+    epoch_types = ['run_around_tower', 'run_between_towers', 'run_toward_tower', 'exploratory_run']
+
+    ### Extract epochs ###
+
+    data = load_pickle_data(mouse_folder_path, session_index)
+
+    ordered_epochs, ordered_epochs_frames = order_epochs(data['all_epochs'])
+
+    ordered_runs = []
+    ordered_runs_types = []
+    ordered_runs_frames = []
+
+    for i in range(len(ordered_epochs)):
+
+        ordered_runs.append(ordered_epochs[i])
+        ordered_runs_types.append(ordered_epochs[i][0])
+        ordered_runs_frames.append(ordered_epochs_frames[i])
+
+    while 'immobility' in ordered_runs_types:
+
+        first_occurence = ordered_runs_types.index('immobility')
+        ordered_runs_types.remove('immobility')
+        ordered_runs.pop(first_occurence)
+        ordered_runs_frames.pop(first_occurence)
+
+    num_epoch = len(ordered_runs_types)
+
+    ordered_runs_types_number = np.nan * np.ones(num_epoch)
+
+    for i, e_type in enumerate(epoch_types):
+        ordered_runs_types_number = np.where(np.array(ordered_runs_types)==e_type, i, ordered_runs_types_number)
+
+    return ordered_runs, ordered_runs_types_number, ordered_runs_frames
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# def plot_runs_sequence(ax, ordered_runs_types_number, cmaps=['black', 'black', 'black', 'black'], ordered_runs_frames=[]):
+
+#     epoch_types = ['run_around_tower', 'run_between_towers', 'run_toward_tower', 'exploratory_run']
+#     num_runs = len(ordered_runs_types_number)
+
+#     for i in range(len(epoch_types)):
+
+#         if len(ordered_runs_frames)==0:
+
+#             ordered_runs_type_number = np.where(np.array(ordered_runs_types_number)==i, np.arange(num_runs)-0.01, np.nan)
+#             x_barh = np.transpose([ordered_runs_type_number,0.02*np.ones(num_runs)])
+        
+#         else:
+
+#             ordered_runs_frames = np.array(ordered_runs_frames)
+#             ordered_runs_frame = np.where(np.array(ordered_runs_types_number)==i, ordered_runs_frames[:,0], np.nan)
+#             ordered_runs_width = np.where(np.array(ordered_runs_types_number)==i, ordered_runs_frames[:,1] - ordered_runs_frames[:,0], np.nan)
+
+#             x_barh = np.transpose([ordered_runs_frame,ordered_runs_width])
+
+#         y_barh = [i-0.25,0.5]
+
+#         ax.broken_barh(x_barh, y_barh, color=cmaps[i])
+
+#     ax.set_yticks(np.arange(len(epoch_types)), epoch_types)
+
+
+
+def plot_runs_sequence(ax, ordered_runs_types_number, cmaps=['black', 'black', 'black', 'black']):
+
+    epoch_types = ['run_around_tower', 'run_between_towers', 'run_toward_tower', 'exploratory_run']
+    num_runs = len(ordered_runs_types_number)
+
+    for i in range(len(epoch_types)):
+
+        ordered_runs_type_number = np.where(np.array(ordered_runs_types_number)==i, np.arange(num_runs)-0.1, np.nan)
+        x = ordered_runs_type_number
+
+        y = i * np.ones(len(x))
+
+        ax.scatter(x, y, c=cmaps, marker='|')
+
+    ax.set_yticks(np.arange(len(epoch_types)), epoch_types)

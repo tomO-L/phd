@@ -22,18 +22,18 @@ start_time = time.time()
 
 # defining data folder path and mice list
 # path_to_data_folder is the path of the folder where you store the folders of your different mice.
-path_to_data_folder='/LocalData/ForagingMice/4TowersTaskMethodPaper_Data/AurelienData/'
-# path_to_data_folder='/LocalData/ForagingMice/4TowersTaskMethodPaper_Data/MaudData/'
+# path_to_data_folder='/LocalData/ForagingMice/4TowersTaskMethodPaper_Data/AurelienData/'
+path_to_data_folder='/LocalData/ForagingMice/4TowersTaskMethodPaper_Data/MaudData/'
 
 # Analysing the entire group of mice
-mice_to_analyse = [
-    "MOUEml1_5", "MOUEml1_8", "MOUEml1_11", "MOUEml1_12", "MOUEml1_13", "MOUEml1_15", "MOUEml1_18", "MOUEml1_20",
-    "MOURhoA_2", "MOURhoA_5", "MOURhoA_6", "MOURhoA_8", "MOURhoA_9", "MOURhoA_12", "MOURhoA_14",
-    "MOUB6NN_4", "MOUB6NN_6", "MOUB6NN_13", "MOUB6NN_15"
-]
+# mice_to_analyse = [
+#     "MOUEml1_5", "MOUEml1_8", "MOUEml1_11", "MOUEml1_12", "MOUEml1_13", "MOUEml1_15", "MOUEml1_18", "MOUEml1_20",
+#     "MOURhoA_2", "MOURhoA_5", "MOURhoA_6", "MOURhoA_8", "MOURhoA_9", "MOURhoA_12", "MOURhoA_14",
+#     "MOUB6NN_4", "MOUB6NN_6", "MOUB6NN_13", "MOUB6NN_15"
+# ]
 
-# mice_to_analyse = ['MOU3974','MOU3975', 'MOU3987', 'MOU3988', 'MOU3991', 'MOU3992', 'MOU4551', 'MOU4552', 'MOU4560', 'MOU4561', 'MOU4562',
-#                    'MOU4563', 'MOU4623', 'MOU4964', 'MOU4965', 'MOU4986', 'MOU4987', 'MOU4988', 'MOU4993', 'MOU5007', 'MOU5008']
+mice_to_analyse = ['MOU3974','MOU3975', 'MOU3987', 'MOU3988', 'MOU3991', 'MOU3992', 'MOU4551', 'MOU4552', 'MOU4560', 'MOU4561', 'MOU4562',
+                   'MOU4563', 'MOU4623', 'MOU4964', 'MOU4965', 'MOU4986', 'MOU4987', 'MOU4988', 'MOU4993', 'MOU5007', 'MOU5008']
 
 ##################
 ### Parameters ###
@@ -156,11 +156,23 @@ median_values = np.nanmedian(all_mice_values_persessions, axis=0)
 upper_quartile_values = np.nanpercentile(all_mice_values_persessions, 75, axis=0)
 lower_quartile_values = np.nanpercentile(all_mice_values_persessions, 25, axis=0)
 
+# day_diff = []
+
+# for i in np.arange(1,len(median_values), step=2):
+
+#     res = median_values[i]/median_values[i-1]
+
+#     day_diff.append(res)
+
 print([median_values-lower_quartile_values, upper_quartile_values-median_values])
 
 ax1.errorbar(values_persessions[0],median_values, yerr=[median_values-lower_quartile_values, upper_quartile_values-median_values], color='black')
+ax1.axhline(0.5,0,20, color='grey', linestyle='--')
+
+# ax1.plot(np.arange(1,len(median_values),step=2)+1, day_diff, color='grey')
 
 ax1.set_xticks(values_persessions[0])
+
 
 #ax1.scatter(visits_time,numcoded_first_direction_per_visit, linewidth=1, marker='|', c=cmap(norm(turns_per_visit-rewarded_turns_per_visit)))
 # ax1.plot(visits_time_rewarded_visits,numcoded_first_direction_per_rewarded_visit, linewidth=0.2, marker='|')
