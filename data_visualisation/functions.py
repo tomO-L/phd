@@ -3,6 +3,7 @@ import os
 import pickle
 import numpy as np
 import pandas as pd
+import matplotlib.path as mpath
 
 def load_csv_data(mouseFolder_Path, session):
 
@@ -474,3 +475,12 @@ def plot_runs_sequence(ax, ordered_runs_types_number, cmaps=['black', 'black', '
         ax.scatter(x, y, c=cmaps, marker='|')
 
     ax.set_yticks(np.arange(len(epoch_types)), epoch_types)
+
+
+
+
+
+
+
+
+

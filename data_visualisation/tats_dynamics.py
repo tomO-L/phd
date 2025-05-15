@@ -103,7 +103,7 @@ plot_runs_sequence(ax1,ordered_runs_types_number, cmaps=cmap(norm(mapping)))
 
 # ax1.set_yticks([0,1],['CW','CCW'])
 # ax1.set_ylim([-0.5,1.5])
-# cbar = fig.colorbar(cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax1, extend='both')
+cbar = fig.colorbar(cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax1, extend='both')
 
 # ax1.plot(visits_time, rewarded_turns_per_visit, marker='o', markersize=1)
 # ax1.plot(visits_time, turns_per_visit-rewarded_turns_per_visit, marker='o', markersize=1)
