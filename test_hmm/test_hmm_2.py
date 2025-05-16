@@ -38,11 +38,8 @@ mice_to_analyse = ['MOU3974','MOU3975', 'MOU3987', 'MOU3988', 'MOU3991', 'MOU399
 ##################
 
 ## XXX
-training_mice = mice_to_analyse[0:6]
-##
-
-#training_mouse = mice_to_analyse[1]
-validation_mouse = mice_to_analyse[19]
+training_mice = mice_to_analyse[0:9]
+validation_mice = mice_to_analyse[9:18]
 
 session_index = 19
 
@@ -52,13 +49,10 @@ session_index = 19
 
 ## XXX
 training_mice_ordered_epochs_types_number = [extract_runs_sequence(path_to_data_folder, mouse, session_index)[0] for mouse in training_mice]
-##
-
-# training_ordered_epochs_types_number = extract_epoch_sequence(path_to_data_folder, training_mouse, session_index)
-validation_ordered_epochs_types_number, validation_ordered_runs_frames = extract_runs_sequence(path_to_data_folder, validation_mouse, session_index)
+validation_mice_ordered_epochs_types_number = [extract_runs_sequence(path_to_data_folder, mouse, session_index)[0] for mouse in validation_mice]
 
 # training_num_epoch = len(training_ordered_epochs_types_number)
-validation_num_epoch = len(validation_ordered_epochs_types_number)
+# validation_num_epoch = len(validation_ordered_epochs_types_number)
 
 ###################
 ### Infer model ###
@@ -66,22 +60,30 @@ validation_num_epoch = len(validation_ordered_epochs_types_number)
 
 ## XXX
 
-emissions = np.array([])
+training_emissions = np.array([]) 
+validation_emissions = np.array([])
 
-for x in training_mice_ordered_epochs_types_number:
+for x,y in zip(training_mice_ordered_epochs_types_number,validation_mice_ordered_epochs_types_number):
 
-    emissions = np.concatenate((emissions, x))
+    training_emissions = np.concatenate((training_emissions, x))
+    validation_emissions = np.concatenate((validation_emissions, y))
 
-emissions = np.int8(emissions).reshape(-1,1)
-lengths = [len(x) for x in training_mice_ordered_epochs_types_number]
+training_emissions = np.int8(training_emissions).reshape(-1,1)
+training_emissions_lengths = [len(x) for x in training_mice_ordered_epochs_types_number]
+
+validation_emissions = np.int8(validation_emissions).reshape(-1,1)
+validation_emissions_lengths = [len(y) for y in validation_mice_ordered_epochs_types_number]
+
 ##
 
+# validation_set = np.int8(validation_ordered_epochs_types_number.reshape(-1,1))
 # emissions = np.int8(training_ordered_epochs_types_number.reshape(-1,1))
-validation_set = np.int8(validation_ordered_epochs_types_number.reshape(-1,1))
 
-best_model, best_score = infer_best_model(emissions, validation_set, lengths, [2,3,4,5], n_features=4, seed=13)
+best_model, best_score = infer_best_model(training_emissions, validation_emissions, 
+                                          training_emissions_lengths, validation_emissions_lengths, 
+                                          [2,3,4,5], n_features=4, seed=13)
 
-states = best_model.predict(emissions.reshape(-1,1))
+states = best_model.predict(training_emissions.reshape(-1,1))
 
 print(f'Best score:      {best_score}')
 
@@ -106,18 +108,21 @@ ax2 = plt.subplot(row1[1,0])
 ax3 = plt.subplot(row1[0,1])
 ax4 = plt.subplot(row1[1,1])
 
-plot_runs_distribution(ax1, validation_ordered_epochs_types_number)
-plot_runs_sequence(ax2, validation_ordered_epochs_types_number)
+example_mouse_index = 0
+example_mouse_num_runs = len(validation_mice_ordered_epochs_types_number[example_mouse_index])
 
-gen_ordered_epochs_types_number, gen_states = best_model.sample(validation_num_epoch)
+plot_runs_distribution(ax1, validation_mice_ordered_epochs_types_number[example_mouse_index])
+plot_runs_sequence(ax2, validation_mice_ordered_epochs_types_number[example_mouse_index])
 
-plot_runs_distribution(ax3, gen_ordered_epochs_types_number.reshape(1,-1)[0])
-plot_runs_sequence(ax4, gen_ordered_epochs_types_number.reshape(1,-1)[0])
+gen_ordered_epochs_types_number, gen_states = best_model.sample(example_mouse_num_runs)
+
+plot_runs_distribution(ax3, gen_ordered_epochs_types_number.reshape(1,-1)[example_mouse_index])
+plot_runs_sequence(ax4, gen_ordered_epochs_types_number.reshape(1,-1)[example_mouse_index])
 
 ax1.set_title('Validation')
 ax3.set_title('Recovered')
 
-states = best_model.predict(np.int8(validation_ordered_epochs_types_number.reshape(-1,1)))
+states = best_model.predict(np.int8(validation_mice_ordered_epochs_types_number[0].reshape(-1,1)))
 
 # TODO: why gen_states and states have different numbers of states ?
 
