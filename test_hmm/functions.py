@@ -197,14 +197,15 @@ def extract_epochs_sequence(path_to_data_folder, mouse, session_index):
 def plot_runs_distribution(ax, ordered_runs_types_number):
 
     epoch_types = ['run_around_tower', 'run_between_towers', 'run_toward_tower', 'exploratory_run']
+    epoch_names = ['Around tower', 'Between towers', 'Toward tower', 'Exploratory']
 
     gen_epoch_types_ditribution = [np.count_nonzero(ordered_runs_types_number==i) for i in range(4)]
                                 
-    ax.bar(epoch_types, gen_epoch_types_ditribution)
+    ax.bar(epoch_names, gen_epoch_types_ditribution)
 
 
 
-def plot_runs_sequence(ax, ordered_runs_types_number, ordered_runs_frames=[]):
+def plot_runs_sequence(ax, ordered_runs_types_number, ordered_runs_frames=[], show_yticks=True):
 
     epoch_types = ['run_around_tower', 'run_between_towers', 'run_toward_tower', 'exploratory_run']
     num_runs = len(ordered_runs_types_number)
@@ -229,7 +230,8 @@ def plot_runs_sequence(ax, ordered_runs_types_number, ordered_runs_frames=[]):
 
         ax.broken_barh(x_barh, y_barh)
 
-    ax.set_yticks(np.arange(len(epoch_types)), epoch_types)
+    if show_yticks:
+        ax.set_yticks(np.arange(len(epoch_types)), epoch_types)
 
 def plot_epochs_distribution(ax, ordered_runs_types_number):
 
@@ -241,7 +243,7 @@ def plot_epochs_distribution(ax, ordered_runs_types_number):
 
 
 
-def plot_epochs_sequence(ax, ordered_epochs_types_number, ordered_epochs_frames=[]):
+def plot_epochs_sequence(ax, ordered_epochs_types_number, ordered_epochs_frames=[], show_yticks=True):
 
     epoch_types = ['run_around_tower', 'run_between_towers', 'run_toward_tower', 'exploratory_run', 'immobility']
     num_epochs = len(ordered_epochs_types_number)
@@ -266,7 +268,8 @@ def plot_epochs_sequence(ax, ordered_epochs_types_number, ordered_epochs_frames=
 
         ax.broken_barh(x_barh, y_barh)
 
-    ax.set_yticks(np.arange(len(epoch_types)), epoch_types)
+    if show_yticks:
+        ax.set_yticks(np.arange(len(epoch_types)), epoch_types)
 
 
 

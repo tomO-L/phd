@@ -109,7 +109,7 @@ print(f"Number of bad visits: {len(numcoded_rewarded_visit) - np.sum(numcoded_re
 ### Plots ###
 #############
 
-fig=plt.figure(figsize=(4, 7), dpi=300, constrained_layout=False, facecolor='w')
+fig=plt.figure(figsize=(5, 1), dpi=300, constrained_layout=False, facecolor='w')
 gs = fig.add_gridspec(1, 1)
 row1 = gs[0].subgridspec(1, 1)
 ax1 = plt.subplot(row1[0])
@@ -119,11 +119,12 @@ plot = ax1.scatter(visits_time,numcoded_first_direction_per_visit, linewidth=1, 
 
 ax1.set_yticks([0,1],['CW','CCW'])
 ax1.set_ylim([-0.5,1.5])
-cbar = fig.colorbar(cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax1, extend='both')
+cbar = fig.colorbar(cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax1, extend='both', drawedges=False)
 
 # ax1.plot(visits_time, rewarded_turns_per_visit, marker='o', markersize=1)
 # ax1.plot(visits_time, turns_per_visit-rewarded_turns_per_visit, marker='o', markersize=1)
 
+fig.tight_layout()
 
 plt.show()
 

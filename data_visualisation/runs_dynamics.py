@@ -91,7 +91,7 @@ norm = Normalize(vmin=-1, vmax=1)
 ### Plots ###
 #############
 
-fig=plt.figure(figsize=(4, 7), dpi=300, constrained_layout=False, facecolor='w')
+fig=plt.figure(figsize=(5, 1.5), dpi=300, constrained_layout=False, facecolor='w')
 gs = fig.add_gridspec(1, 1)
 row1 = gs[0].subgridspec(1, 1)
 ax1 = plt.subplot(row1[0])
@@ -108,6 +108,7 @@ cbar = fig.colorbar(cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax1, extend='bot
 # ax1.plot(visits_time, rewarded_turns_per_visit, marker='o', markersize=1)
 # ax1.plot(visits_time, turns_per_visit-rewarded_turns_per_visit, marker='o', markersize=1)
 
+fig.tight_layout()
 
 plt.show()
 

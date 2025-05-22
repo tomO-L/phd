@@ -36,9 +36,9 @@ mice_to_analyse = ['MOU3974','MOU3975', 'MOU3987', 'MOU3988', 'MOU3991', 'MOU399
 ### Loading data ###
 ####################
 
-best_model = 'best_model'
-training_set = 'training_set'
-validation_set = 'validation_set'
+best_model = 'best_model_2'
+training_set = 'training_set_2'
+validation_set = 'validation_set_2'
 
 with open(f'test_hmm/{best_model}.pkl', 'rb') as file:
     best_model = dill.load(file)
@@ -76,7 +76,7 @@ plot_runs_sequence(ax2, validation_mice_ordered_epochs_types_number[example_mous
 gen_ordered_epochs_types_number, gen_states = best_model.sample(example_mouse_num_runs)
 
 plot_runs_distribution(ax3, gen_ordered_epochs_types_number.reshape(1,-1)[example_mouse_index])
-plot_runs_sequence(ax4, gen_ordered_epochs_types_number.reshape(1,-1)[example_mouse_index])
+plot_runs_sequence(ax4, gen_ordered_epochs_types_number.reshape(1,-1)[example_mouse_index], show_yticks=False)
 
 ax1.set_title('Validation')
 ax3.set_title('Recovered')
@@ -87,7 +87,7 @@ states = best_model.predict(np.int8(validation_mice_ordered_epochs_types_number[
 
 fig, ax = plt.subplots()
 ax.plot(abs(states), label='recovered')
-ax.set_yticks(range(len(set(states))))
+ax.set_yticks(list(set(states)))
 ax.set_title('Recovered states')
 ax.set_xlabel('Run rank')
 ax.set_ylabel('State')
@@ -97,7 +97,7 @@ ax.legend()
 
 fig, ax = plt.subplots()
 ax.plot(abs(gen_states), label='generated')
-ax.set_yticks(range(len(set(states))))
+ax.set_yticks(list(set(states)))
 ax.set_title('Generated states')
 ax.set_xlabel('Run rank')
 ax.set_ylabel('State')
