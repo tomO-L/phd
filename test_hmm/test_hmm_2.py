@@ -41,7 +41,7 @@ mice_to_analyse = ['MOU3974','MOU3975', 'MOU3987', 'MOU3988', 'MOU3991', 'MOU399
 training_mice = mice_to_analyse[0:9]
 validation_mice = mice_to_analyse[9:18]
 
-session_index = 3
+session_index = 19
 
 ######################
 ### Extract epochs ###
@@ -72,21 +72,26 @@ validation_emissions_lengths = [len(y) for y in validation_mice_ordered_epochs_t
 
 # Infer best model
 
-best_model, best_score = infer_best_model(training_emissions, validation_emissions, 
+# best_model, best_score = infer_best_model_score(training_emissions, validation_emissions, 
+#                                           training_emissions_lengths, validation_emissions_lengths, 
+#                                           [2,3,4,5,6,7,8,9], n_features=4, seed=13)
+
+best_model, best_score = infer_best_model_aic(training_emissions, validation_emissions, 
                                           training_emissions_lengths, validation_emissions_lengths, 
-                                          [2,3,4,5,6,7,8,9], n_features=4, seed=13)
+                                          [2,3,4,5,6,7,8,9,10], n_features=4, seed=13)
+
 
 ###########################
 ### Save model and sets ###
 ###########################
 
-with open('test_hmm/best_model_6.pkl', 'wb') as file:
+with open('test_hmm/best_model_aic_10.pkl', 'wb') as file:
     dill.dump(best_model, file)
 
-with open('test_hmm/training_set_6.pkl', 'wb') as file:
+with open('test_hmm/training_set_aic_10.pkl', 'wb') as file:
     dill.dump([training_mice, training_mice_ordered_epochs_types_number], file)
 
-with open('test_hmm/validation_set_6.pkl', 'wb') as file:
+with open('test_hmm/validation_set_aic_10.pkl', 'wb') as file:
     dill.dump([validation_mice, validation_mice_ordered_epochs_types_number], file)
 
 print(f'Best score:      {best_score}')

@@ -36,9 +36,9 @@ mice_to_analyse = ['MOU3974','MOU3975', 'MOU3987', 'MOU3988', 'MOU3991', 'MOU399
 ### Loading data ###
 ####################
 
-best_model = 'best_model_2'
-training_set = 'training_set_2'
-validation_set = 'validation_set_2'
+best_model = 'best_model_aic_10'
+training_set = 'training_set_aic_10'
+validation_set = 'validation_set_aic_10'
 
 with open(f'test_hmm/{best_model}.pkl', 'rb') as file:
     best_model = dill.load(file)
@@ -102,7 +102,6 @@ ax.set_title('Generated states')
 ax.set_xlabel('Run rank')
 ax.set_ylabel('State')
 ax.legend()
-
 
 # plot matrices
 
