@@ -9,6 +9,7 @@ import sys
 import time
 from IPython.core import ultratb
 import dill
+import numpy as np
 sys.excepthook = ultratb.FormattedTB(call_pdb=False)
 
 plt.style.use('paper.mplstyle')

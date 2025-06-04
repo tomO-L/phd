@@ -40,6 +40,7 @@ best_model = 'best_model_aic_10'
 training_set = 'training_set_aic_10'
 validation_set = 'validation_set_aic_10'
 
+
 with open(f'test_hmm/{best_model}.pkl', 'rb') as file:
     best_model = dill.load(file)
 
