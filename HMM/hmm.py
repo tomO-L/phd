@@ -85,18 +85,19 @@ best_model, best_score = infer_best_model_aic(training_emissions, validation_emi
                                           training_emissions_lengths, validation_emissions_lengths, 
                                           n_to_test, seed=13)
 
+type_number = 3
 
 ###########################
 ### Save model and sets ###
 ###########################
 
-with open(f'HMM/best_model_aic_{n_to_test[-1]}.pkl', 'wb') as file:
+with open(f'HMM/best_model_aic_{n_to_test[-1]}_type{type_number}.pkl', 'wb') as file:
     dill.dump(best_model, file)
 
-with open(f'HMM/training_set_aic_{n_to_test[-1]}.pkl', 'wb') as file:
+with open(f'HMM/training_set_aic_{n_to_test[-1]}_type{type_number}.pkl', 'wb') as file:
     dill.dump([training_mice, training_mice_ordered_actions_types_number], file)
 
-with open(f'HMM/validation_set_aic_{n_to_test[-1]}.pkl', 'wb') as file:
+with open(f'HMM/validation_set_aic_{n_to_test[-1]}_type{type_number}.pkl', 'wb') as file:
     dill.dump([validation_mice, validation_mice_ordered_actions_types_number], file)
 
 print(f'Best score:      {best_score}')

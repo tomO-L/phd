@@ -4,6 +4,9 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib import cm
+from matplotlib.colors import Normalize
+from matplotlib.patches import Rectangle
 import os
 import pickle
 from hmmlearn import hmm, vhmm
@@ -51,8 +54,55 @@ def plot_actions_sequence(ax, ordered_actions_types_number, ordered_actions_fram
     if show_yticks:
         ax.set_yticks(np.arange(len(action_types)), action_types)
 
+# def plot_states_sequence(ax, states):
 
+#     cmap = plt.cm.viridis
+#     norm = Normalize(vmin=0, vmax=max(states))
 
+#     colors = cmap(norm(states))
+
+#     # for i in set(states):
+
+#     #     print(i)
+#     #     print(colors[i])
+
+#     for i,s in enumerate(states):
+
+#         ax.add_patch(Rectangle((i, 0), 1, 2,color=colors[s]))
+#         # ax.axvspan(i,i+1,color=colors[s])
+
+#     ax.set_xlabel('Rank')
+
+#     ax.set_xlim([0,len(states)+1])
+#     ax.set_ylim([-5,5])
+
+#     fig = ax.get_figure()
+#     cbar = fig.colorbar(cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax, drawedges=False)
+
+def plot_states_sequence(ax, states, xticks=[]):
+
+    cmap = plt.cm.plasma
+    norm = Normalize(vmin=min(states), vmax=max(states))
+
+    # for i in set(states):
+
+    #     print(i)
+    #     print(colors[i])
+
+    ax.imshow([states], cmap=cmap, aspect='auto')
+
+    ax.set_xlim([0,len(states)+1])
+    ax.set_ylim([-3,3])
+
+    ax.set_xticks(xticks)
+    ax.set_yticks([])
+
+    ticks = list(set(states))
+
+    fig = ax.get_figure()
+    cbar = fig.colorbar(cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax, drawedges=False, orientation='horizontal', label='States', location='top', ticks=ticks)
+
+    
 
 
 

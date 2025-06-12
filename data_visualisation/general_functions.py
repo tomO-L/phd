@@ -3,6 +3,7 @@ import os
 import pickle
 import numpy as np
 import pandas as pd
+import ast
 import matplotlib.path as mpath
 
 def load_csv_data(mouseFolder_Path, session):
@@ -40,37 +41,6 @@ def load_csv_data(mouseFolder_Path, session):
 
     return trajectory_df, turns_df, param_df
 
-def load_pickle_data(folder_path_mouse_to_analyse,session_index):
-
-    """
-    Load pickle data file
-
-    Arguments:
-        folder_path_mouse_to_analyse (str): path to mouse folder
-        session_index (int): index of the session from which to load the pickle data file
-    
-    Returns:
-        (list) data from pickle file 
-
-    """
-
-    # Get all session folders that start with 'MOU' and sort them
-    sessions_to_analyse = sorted([name for name in os.listdir(folder_path_mouse_to_analyse)
-                                  if os.path.isdir(os.path.join(folder_path_mouse_to_analyse, name))
-                                  and name.startswith('MOU')])
-
-    session_to_analyse = sessions_to_analyse[session_index]
-
-    # Define the output pickle filename and its full path
-    output_pickle_filename = f"{session_to_analyse}_basic_processing_output.pickle"        
-    output_pickle_filepath = os.path.join(folder_path_mouse_to_analyse, session_to_analyse, output_pickle_filename)
-
-    # Open and load the session data from the pickle file
-    with open(output_pickle_filepath, 'rb') as file:
-        session_data = pickle.load(file)
-
-    return session_data
-
 
 def load_pickle_data(folder_path_mouse_to_analyse,session_index):
 
@@ -102,6 +72,204 @@ def load_pickle_data(folder_path_mouse_to_analyse,session_index):
         session_data = pickle.load(file)
 
     return session_data
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+def get_trapeze_and_tower_data(folder_path_mouse_to_process, session_to_process):
+
+    """
+    Function to extract trapeze width and tower coordinates from a session parameter CSV file.
+    
+    Parameters:
+        folder_path_mouse_to_process (str): The folder path where the mouse data is stored.
+        session_to_process (str): The specific session to process.
+
+    Returns:
+        trapeze_width (int or float): The width of the trapeze.
+        towers_coordinates (dict): The coordinates of the towers.
+    """
+    # Load the session parameters CSV file
+    param_file_path = os.path.join(folder_path_mouse_to_process, session_to_process, f"{session_to_process}_sessionparam.csv")
+    param_df = pd.read_csv(param_file_path)
+
+    # Check if the towers coordinates exist in the CSV file
+    if "SE_coords" in param_df.columns:
+        towers_coordinates = {
+            "NW": param_df["NW_coords"].values[0],
+            "NE": param_df["NE_coords"].values[0],
+            "SW": param_df["SW_coords"].values[0],
+            "SE": param_df["SE_coords"].values[0]
+        }
+        
+        # Convert string representations of lists into actual lists
+        towers_coordinates = {key: ast.literal_eval(value) for key, value in towers_coordinates.items()}
+
+        #print('Coordinates from parameter file:')
+    else:
+        # Default tower coordinates
+        towers_coordinates = {
+            "NW": [[104, 125], [173, 125], [173, 201], [104, 201]],
+            "NE": [[330, 120], [400, 120], [400, 200], [330, 200]],
+            "SW": [[109, 351], [181, 351], [181, 410], [109, 410]],
+            "SE": [[330, 350], [400, 350], [400, 410], [330, 410]]
+        }
+        towers_coordinates = {
+            "NW": [[114, 125], [183, 125], [183, 201], [114, 201]],
+            "NE": [[330, 120], [400, 120], [400, 200], [330, 200]],
+            "SW": [[119, 351], [191, 351], [191, 410], [119, 410]],
+            "SE": [[327, 350], [397, 350], [397, 410], [327, 410]]
+        }
+        #small modification due to Aurelien's setting
+    #print(towers_coordinates)
+
+    # Check if the trapeze size exists in the CSV file
+    if "TrapezeSize" in param_df.columns:
+        trapeze_width = param_df["TrapezeSize"].values[0]
+        #print('Trapeze width from parameter file:')
+    else:
+        trapeze_width = 50  # Default trapeze width
+        #print('Default trapeze width')
+    #print(trapeze_width)
+
+    return trapeze_width, towers_coordinates
+
+def generate_trapeze_and_tower_coordinates(towers_coordinates, trapeze_width):
+    """
+    Generates the coordinates of trapezes surrounding towers and converts all coordinates from pixels to centimeters.
+    
+    Parameters:
+    towers_coordinates (dict): Dictionary containing the pixel coordinates of the 4 towers.
+    trapeze_width (int): The width of the trapeze in pixels.
+    
+    
+    Returns:
+    tuple: 
+        - all_trapezes_coordinates_cm (dict): Coordinates of the trapezes in cm.
+        - towers_coordinates_cm (dict): Coordinates of the towers in cm.
+    """
+    
+    #video_dimension_pixels (tuple): The resolution of the video in pixels 
+    #arena_width_cm (float): The width of the arena in centimeters 
+    #arena_width_pixels (int): The width of the arena in pixels 
+    video_dimension_pixels=(512, 512)
+    arena_width_cm=84
+    arena_width_pixels=453
+
+
+
+    # Conversion factor to go from pixel to cm
+    conversion_factor = arena_width_cm / arena_width_pixels
+    
+    # Function to convert pixel coordinates to cm
+    def convert_pix_to_cm(coordinate):
+        return [round(coordinate[0] * conversion_factor, 2), round(coordinate[1] * conversion_factor, 2)]
+    
+    # Transform the coordinates to have the origin at the lower left (for plotting)
+    max_y = video_dimension_pixels[1]
+    transformed_towers_coordinates = {
+        label: [[x, max_y - y] for x, y in vertices]
+        for label, vertices in towers_coordinates.items()
+    }
+    
+    # Function to generate trapeze coordinates surrounding a tower
+    def trapeze_coordinates_from_tower(tower_coordinates, trapeze_width):
+        trapeze_N = [
+            tower_coordinates[0], tower_coordinates[1],
+            [tower_coordinates[1][0] + trapeze_width, tower_coordinates[1][1] + trapeze_width],
+            [tower_coordinates[0][0] - trapeze_width, tower_coordinates[0][1] + trapeze_width]
+        ]
+        trapeze_E = [
+            tower_coordinates[1], tower_coordinates[2],
+            [tower_coordinates[2][0] + trapeze_width, tower_coordinates[2][1] - trapeze_width],
+            [tower_coordinates[1][0] + trapeze_width, tower_coordinates[1][1] + trapeze_width]
+        ]
+        trapeze_S = [
+            tower_coordinates[2], tower_coordinates[3],
+            [tower_coordinates[3][0] - trapeze_width, tower_coordinates[3][1] - trapeze_width],
+            [tower_coordinates[2][0] + trapeze_width, tower_coordinates[2][1] - trapeze_width]
+        ]
+        trapeze_W = [
+            tower_coordinates[3], tower_coordinates[0],
+            [tower_coordinates[0][0] - trapeze_width, tower_coordinates[0][1] + trapeze_width],
+            [tower_coordinates[3][0] - trapeze_width, tower_coordinates[3][1] - trapeze_width]
+        ]
+        return trapeze_N, trapeze_E, trapeze_S, trapeze_W
+    
+    # Initialize dictionaries to store trapeze and tower coordinates in cm
+    all_trapezes_coordinates = {key: {} for key in towers_coordinates}
+    all_trapezes_coordinates_cm = {}
+    
+    # Generate trapeze coordinates for each tower
+    for tower_name, tower_coordinates in transformed_towers_coordinates.items():
+        all_trapezes_coordinates[tower_name]["N"], \
+        all_trapezes_coordinates[tower_name]["E"], \
+        all_trapezes_coordinates[tower_name]["S"], \
+        all_trapezes_coordinates[tower_name]["W"] = trapeze_coordinates_from_tower(tower_coordinates, trapeze_width)
+
+    # Convert all trapeze coordinates from pixel to cm
+    for tower, trapezes in all_trapezes_coordinates.items():
+        all_trapezes_coordinates_cm[tower] = {
+            trapeze: [convert_pix_to_cm(coord) for coord in coords]
+            for trapeze, coords in trapezes.items()
+        }
+    
+    # Convert tower coordinates from pixel to cm
+    towers_coordinates_cm = {
+        key: [convert_pix_to_cm(coord) for coord in transformed_towers_coordinates[key]]
+    for key in transformed_towers_coordinates}
+
+    return all_trapezes_coordinates_cm, towers_coordinates_cm
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 def finding_mouse_rewarded_direction(folder_path_mouse_to_process, session_index):
     
@@ -460,6 +628,7 @@ def extract_runs_sequence(path_to_data_folder, mouse, session_index):
 
 
 
+
 def plot_runs_sequence(ax, ordered_runs_types_number, cmaps=['black', 'black', 'black', 'black']):
 
     epoch_types = ['run_around_tower', 'run_between_towers', 'run_toward_tower', 'exploratory_run']
@@ -476,6 +645,27 @@ def plot_runs_sequence(ax, ordered_runs_types_number, cmaps=['black', 'black', '
 
     ax.set_yticks(np.arange(len(epoch_types)), epoch_types)
 
+
+def plot_learning_curve(values_persessions_permouse, mice_to_analyse, ax):
+
+    all_mice_values_persessions = []
+
+    for mouse in mice_to_analyse:
+
+        values_persessions = values_persessions_permouse[mouse]
+
+        values_persessions = np.transpose(values_persessions)
+        all_mice_values_persessions.append(values_persessions[1])
+
+        ax.plot(values_persessions[0],values_persessions[1], alpha=0.3)
+
+    median_values = np.nanmedian(all_mice_values_persessions, axis=0)
+    upper_quartile_values = np.nanpercentile(all_mice_values_persessions, 75, axis=0)
+    lower_quartile_values = np.nanpercentile(all_mice_values_persessions, 25, axis=0)
+
+    ax.errorbar(values_persessions[0],median_values, yerr=[median_values-lower_quartile_values, upper_quartile_values-median_values], color='black')
+    
+    ax.set_xticks(values_persessions[0])
 
 
 

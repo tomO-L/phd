@@ -2,7 +2,7 @@
 ### Import packages ###
 #######################
 
-from functions import *
+from general_functions import *
 import matplotlib.pyplot as plt
 from matplotlib import colormaps
 from hmmlearn import hmm, vhmm

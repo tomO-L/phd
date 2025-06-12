@@ -76,20 +76,45 @@ def identify_action(epoch):
     Identify action type 
     """
 
-    action_types = ['run_around_tower_CW', 'run_around_tower_CCW', 'run_between_towers', 'run_toward_tower', 'exploratory_run']
+    action_types = ['run_around_tower_CW', 'run_around_tower_CCW', 'run_toward_tower', 'exploratory_run']
 
-    if epoch[0]!='run_around_tower':
-
-        action_name = epoch[0]
-
-    else:
+    if epoch[0]=='run_around_tower':
 
         direction = epoch[4]['direction']
         action_name = f'{epoch[0]}_{direction}'
 
+    elif epoch[0]=='run_between_towers' or epoch[0]=='run_toward_tower':
+
+        action_name = 'run_toward_tower'
+
+    else:
+
+        action_name = epoch[0]
+
     action = action_types.index(action_name)
 
     return action, action_types
+
+# def identify_action(epoch):
+
+#     """
+#     Identify action type 
+#     """
+
+#     action_types = ['run_around_tower_CW', 'run_around_tower_CCW', 'run_between_towers', 'run_toward_tower', 'exploratory_run']
+
+#     if epoch[0]!='run_around_tower':
+
+#         action_name = epoch[0]
+
+#     else:
+
+#         direction = epoch[4]['direction']
+#         action_name = f'{epoch[0]}_{direction}'
+
+#     action = action_types.index(action_name)
+
+#     return action, action_types
 
 # def identify_action(epoch):
 
