@@ -60,32 +60,6 @@ def shitty_harvest_function(time, dt):
 
     return reward*dt # Shitty fix here
 
-
-# def harvest_function(time, dt):
-
-#     tau = 1
-
-#     d_energy = np.exp(-time/tau)*(1 - np.exp(-dt/tau))
-
-#     return d_energy
-
-def harvest_function_1(time, dt):
-
-    tau = 1
-
-    d_energy = np.exp(-time/tau)*(1 - np.exp(-dt/tau))
-
-    return d_energy
-
-def harvest_function_2(time, dt):
-
-    tau = 2
-
-    d_energy = np.exp(-time/tau)*(1 - np.exp(-dt/tau))
-
-    return d_energy
-
-
 def exploitation_effort_function(time, dt):
 
     return 0
