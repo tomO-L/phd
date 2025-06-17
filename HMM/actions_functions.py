@@ -70,10 +70,47 @@ def order_epochs(all_epochs):
     # Return the ordered lists of runs and their first frames
     return ordered_all_epochs, ordered_all_epochs_frames
 
+# def identify_action(epoch):
+
+#     """
+#     Identify action type (1)
+#     """
+
+#     action_types = ['run_around_tower', 'run_between_towers', 'run_toward_tower', 'exploratory_run']
+
+#     action_name = epoch[0]
+
+
+#     action = action_types.index(action_name)
+
+#     return action, action_types
+
+# def identify_action(epoch):
+
+#     """
+#     Identify action type (2)
+#     """
+
+#     action_types = ['run_around_tower_CW', 'run_around_tower_CCW', 'run_between_towers', 'run_toward_tower', 'exploratory_run']
+
+#     if epoch[0]!='run_around_tower':
+
+#         action_name = epoch[0]
+
+#     else:
+
+#         direction = epoch[4]['direction']
+#         action_name = f'{epoch[0]}_{direction}'
+
+#     action = action_types.index(action_name)
+
+#     return action, action_types
+
+
 def identify_action(epoch):
 
     """
-    Identify action type 
+    Identify action type (3)
     """
 
     action_types = ['run_around_tower_CW', 'run_around_tower_CCW', 'run_toward_tower', 'exploratory_run']
@@ -94,43 +131,6 @@ def identify_action(epoch):
     action = action_types.index(action_name)
 
     return action, action_types
-
-# def identify_action(epoch):
-
-#     """
-#     Identify action type 
-#     """
-
-#     action_types = ['run_around_tower_CW', 'run_around_tower_CCW', 'run_between_towers', 'run_toward_tower', 'exploratory_run']
-
-#     if epoch[0]!='run_around_tower':
-
-#         action_name = epoch[0]
-
-#     else:
-
-#         direction = epoch[4]['direction']
-#         action_name = f'{epoch[0]}_{direction}'
-
-#     action = action_types.index(action_name)
-
-#     return action, action_types
-
-# def identify_action(epoch):
-
-#     """
-#     Identify action type 
-#     """
-
-#     action_types = ['run_around_tower', 'run_between_towers', 'run_toward_tower', 'exploratory_run']
-
-#     action_name = epoch[0]
-
-
-#     action = action_types.index(action_name)
-
-#     return action, action_types
-
 
 def load_pickle_data(folder_path_mouse_to_analyse,session_index):
 

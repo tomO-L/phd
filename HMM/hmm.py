@@ -85,7 +85,7 @@ best_model, best_score = infer_best_model_aic(training_emissions, validation_emi
                                           training_emissions_lengths, validation_emissions_lengths, 
                                           n_to_test, seed=13)
 
-type_number = 3
+type_number = 1
 
 ###########################
 ### Save model and sets ###
