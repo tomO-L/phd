@@ -3,6 +3,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Button, Slider
 
+import sys
+from IPython.core import ultratb
+sys.excepthook = ultratb.FormattedTB(call_pdb=False)
+
+
 #################
 ### Functions ###
 #################
@@ -60,6 +65,32 @@ def shitty_harvest_function(time, dt):
 
     return reward*dt # Shitty fix here
 
+
+# def harvest_function(time, dt):
+
+#     tau = 1
+
+#     d_energy = np.exp(-time/tau)*(1 - np.exp(-dt/tau))
+
+#     return d_energy
+
+def harvest_function_1(time, dt):
+
+    tau = 1
+
+    d_energy = np.exp(-time/tau)*(1 - np.exp(-dt/tau))
+
+    return d_energy
+
+def harvest_function_2(time, dt):
+
+    tau = 2
+
+    d_energy = np.exp(-time/tau)*(1 - np.exp(-dt/tau))
+
+    return d_energy
+
+
 def exploitation_effort_function(time, dt):
 
     return 0
@@ -76,11 +107,11 @@ def perform_foraging_session(t_travel, t_leave):
     # patch_1 = patch(harvest_function, exploitation_effort_function)
     # patch_2 = patch(harvest_function, exploitation_effort_function)
 
-    patch_0 = patch(shitty_harvest_function, exploitation_effort_function)
+    patch_0 = patch(harvest_function_1, exploitation_effort_function)
     # patch_1 = patch(harvest_function_2, exploitation_effort_function)
 
 
-    # patches = [patch_0,patch_1,patch_2]
+    # patches = [patch_0,patch_1]
     patches = [patch_0]
 
     i = 0
@@ -109,7 +140,7 @@ def perform_foraging_session(t_travel, t_leave):
 ##################
 
 t_travel = 1
-t_leave = 1
+t_leave = 1.1433
 
 #############
 ### Plots ###
@@ -154,7 +185,7 @@ leave_slider = Slider(
     ax=ax_leave,
     label='Leaving Time',
     valmin=0.01,
-    valmax=20,
+    valmax=5,
     valinit=t_leave,
 )
 

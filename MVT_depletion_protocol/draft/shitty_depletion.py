@@ -1,7 +1,13 @@
-from classes_and_functions import *
+from MVT_depletion_protocol.draft.classes_and_functions import *
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Button, Slider
+import bisect
+
+import sys
+from IPython.core import ultratb
+sys.excepthook = ultratb.FormattedTB(call_pdb=False)
+
 
 #################
 ### Functions ###
@@ -29,20 +35,19 @@ def is_rewarded(n_rewards, turns_since_last_reward) : #Function that sets up the
     
     return result
 
-def shitty_harvest_function(time, dt):
+def generate_reward_chronology(time):
 
-    n_tot_reward = 0
+    n_tot_reward_list = [0]
     n_turns_since_last_reward = 0
 
+    # Assuming every turn takes 1 time unit to be performed 
     n_turns = int(time)
 
     reward = 0
 
     for i in range(n_turns+1):
 
-        # if i==n_turns-1:
-        
-        #     n_turns_since_last_reward = time
+        n_tot_reward = n_tot_reward_list[i]
 
         reward = is_rewarded(n_tot_reward, n_turns_since_last_reward)
 
@@ -54,36 +59,28 @@ def shitty_harvest_function(time, dt):
 
             n_turns_since_last_reward += 1
 
-        n_tot_reward += reward
+        new_n_tot_reward = n_tot_reward + reward
 
-    print(reward)
+        n_tot_reward_list.append(new_n_tot_reward)
 
-    return reward*dt # Shitty fix here
+    return n_tot_reward_list 
 
+REWARD_CHRONOLOGY = generate_reward_chronology(50)
+CHRONOLOGY = np.arange(len(REWARD_CHRONOLOGY))
 
-# def harvest_function(time, dt):
+def harvest_function(time,dt):
 
-#     tau = 1
+    # Assuming every turn takes 1 time unit to be performed 
 
-#     d_energy = np.exp(-time/tau)*(1 - np.exp(-dt/tau))
+    position_in_list = bisect.bisect(CHRONOLOGY,time)-1
+    next_position_in_list = bisect.bisect(CHRONOLOGY,time+dt)-1
 
-#     return d_energy
+    print(time,position_in_list,next_position_in_list, REWARD_CHRONOLOGY[position_in_list],REWARD_CHRONOLOGY[next_position_in_list])
 
-def harvest_function_1(time, dt):
+    d_reward = REWARD_CHRONOLOGY[next_position_in_list] - REWARD_CHRONOLOGY[position_in_list]
 
-    tau = 1
+    return d_reward
 
-    d_energy = np.exp(-time/tau)*(1 - np.exp(-dt/tau))
-
-    return d_energy
-
-def harvest_function_2(time, dt):
-
-    tau = 2
-
-    d_energy = np.exp(-time/tau)*(1 - np.exp(-dt/tau))
-
-    return d_energy
 
 
 def exploitation_effort_function(time, dt):
@@ -102,7 +99,7 @@ def perform_foraging_session(t_travel, t_leave):
     # patch_1 = patch(harvest_function, exploitation_effort_function)
     # patch_2 = patch(harvest_function, exploitation_effort_function)
 
-    patch_0 = patch(shitty_harvest_function, exploitation_effort_function)
+    patch_0 = patch(harvest_function, exploitation_effort_function)
     # patch_1 = patch(harvest_function_2, exploitation_effort_function)
 
 
@@ -171,7 +168,7 @@ travel_slider = Slider(
     ax=ax_travel,
     label='Travel Time',
     valmin=0.01,
-    valmax=1,
+    valmax=5,
     valinit=t_travel,
 )
 
