@@ -79,28 +79,31 @@ def plot_actions_sequence(ax, ordered_actions_types_number, ordered_actions_fram
 #     fig = ax.get_figure()
 #     cbar = fig.colorbar(cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax, drawedges=False)
 
-def plot_states_sequence(ax, states, xticks=[]):
+def plot_states_sequence(ax, states, xticks=[], show_cbar = True):
 
     cmap = plt.cm.plasma
-    norm = Normalize(vmin=min(states), vmax=max(states))
+    norm = Normalize(vmin=np.nanmin(states), vmax=np.nanmax(states))
 
     # for i in set(states):
 
     #     print(i)
     #     print(colors[i])
 
-    ax.imshow([states], cmap=cmap, aspect='auto')
+    
+    ax.imshow(states, cmap=cmap, aspect='auto')
 
-    ax.set_xlim([0,len(states)+1])
-    ax.set_ylim([-3,3])
+    # ax.set_xlim([0,len(states)+1])
+    # ax.set_ylim([-3,3])
 
     ax.set_xticks(xticks)
     ax.set_yticks([])
 
-    ticks = list(set(states))
+    ticks = np.arange(np.nanmax(states)+1)
 
     fig = ax.get_figure()
-    cbar = fig.colorbar(cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax, drawedges=False, orientation='horizontal', label='States', location='top', ticks=ticks)
+
+    if show_cbar:
+        cbar = fig.colorbar(cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax, drawedges=False, orientation='horizontal', label='States', location='top', ticks=ticks)
 
     
 

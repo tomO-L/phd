@@ -24,18 +24,46 @@ start_time = time.time()
 
 # defining data folder path and mice list
 # path_to_data_folder is the path of the folder where you store the folders of your different mice.
-path_to_data_folder='/LocalData/ForagingMice/4TowersTaskMethodPaper_Data/AurelienData/'
-# path_to_data_folder='/LocalData/ForagingMice/4TowersTaskMethodPaper_Data/MaudData/'
+# path_to_data_folder='/LocalData/ForagingMice/4TowersTaskMethodPaper_Data/AurelienData/'
+path_to_data_folder='/LocalData/ForagingMice/4TowersTaskMethodPaper_Data/MaudData/'
 
 # Analysing the entire group of mice
-mice_to_analyse = [
-    "MOUEml1_5", "MOUEml1_8", "MOUEml1_11", "MOUEml1_12", "MOUEml1_13", "MOUEml1_15", "MOUEml1_18", "MOUEml1_20",
-    "MOURhoA_2", "MOURhoA_5", "MOURhoA_6", "MOURhoA_8", "MOURhoA_9", "MOURhoA_12", "MOURhoA_14",
-    "MOUB6NN_4", "MOUB6NN_6", "MOUB6NN_13", "MOUB6NN_15"
-]
+# mice_to_analyse = [
+#     "MOUEml1_5", "MOUEml1_8", "MOUEml1_11", "MOUEml1_12", "MOUEml1_13", "MOUEml1_15", "MOUEml1_18", "MOUEml1_20",
+#     "MOURhoA_2", "MOURhoA_5", "MOURhoA_6", "MOURhoA_8", "MOURhoA_9", "MOURhoA_12", "MOURhoA_14",
+#     "MOUB6NN_4", "MOUB6NN_6", "MOUB6NN_13", "MOUB6NN_15"
+# ]
 
-# mice_to_analyse = ['MOU3974','MOU3975', 'MOU3987', 'MOU3988', 'MOU3991', 'MOU3992', 'MOU4551', 'MOU4552', 'MOU4560', 'MOU4561', 'MOU4562',
-#                    'MOU4563', 'MOU4623', 'MOU4964', 'MOU4965', 'MOU4986', 'MOU4987', 'MOU4988', 'MOU4993', 'MOU5007', 'MOU5008']
+mice_to_analyse = ['MOU3974','MOU3975', 'MOU3987', 'MOU3988', 'MOU3991', 'MOU3992', 'MOU4551', 'MOU4552', 'MOU4560', 'MOU4561', 'MOU4562',
+                   'MOU4563', 'MOU4623', 'MOU4964', 'MOU4965', 'MOU4986', 'MOU4987', 'MOU4988', 'MOU4993', 'MOU5007', 'MOU5008']
+
+### CW mice on session 5 ###
+# MOU3975
+# MOU3988
+# MOU3991
+# MOU4551
+# MOU4552
+# MOU4623
+# MOU4964
+# MOU4965
+# MOU4993
+
+### Training
+## CW
+# MOU3988
+# MOU3991
+# MOU4551
+# MOU4623
+
+### Validation
+## CW
+# MOU3975
+# MOU4552
+# MOU4964
+# MOU4965
+
+### Test
+# MOU4993
 
 ##################
 ### Parameters ###
@@ -44,7 +72,7 @@ mice_to_analyse = [
 training_mice = mice_to_analyse[0:9]
 validation_mice = mice_to_analyse[9:18]
 
-session_index = 13
+session_index = 19
 
 ######################
 ### Extract actions ###
@@ -85,7 +113,11 @@ best_model, best_score = infer_best_model_aic(training_emissions, validation_emi
                                           training_emissions_lengths, validation_emissions_lengths, 
                                           n_to_test, seed=13)
 
-type_number = 3
+# best_model, best_score = infer_best_model_variational(training_emissions, validation_emissions, 
+#                                           training_emissions_lengths, validation_emissions_lengths, 
+#                                           n_to_test, seed=13)
+
+type_number = 2
 
 ###########################
 ### Save model and sets ###
@@ -99,6 +131,15 @@ with open(f'HMM/training_set_aic_{n_to_test[-1]}_type{type_number}.pkl', 'wb') a
 
 with open(f'HMM/validation_set_aic_{n_to_test[-1]}_type{type_number}.pkl', 'wb') as file:
     dill.dump([validation_mice, validation_mice_ordered_actions_types_number], file)
+
+# with open(f'HMM/best_model_variational_{n_to_test[-1]}_type{type_number}.pkl', 'wb') as file:
+#     dill.dump(best_model, file)
+
+# with open(f'HMM/training_set_variational_{n_to_test[-1]}_type{type_number}.pkl', 'wb') as file:
+#     dill.dump([training_mice, training_mice_ordered_actions_types_number], file)
+
+# with open(f'HMM/validation_set_variational_{n_to_test[-1]}_type{type_number}.pkl', 'wb') as file:
+#     dill.dump([validation_mice, validation_mice_ordered_actions_types_number], file)
 
 print(f'Best score:      {best_score}')
 

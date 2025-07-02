@@ -109,7 +109,7 @@ def infer_best_model_aic(x_train, x_validate, training_lengths, validation_lengt
     return best_model, min_aic
 
 
-def infer_best_model_variational(x_train, x_validate, training_lengths, validation_lengths, n_to_test, n_features = 4, seed=13):
+def infer_best_model_variational(x_train, x_validate, training_lengths, validation_lengths, n_to_test, n_features = None, seed=13):
     # check optimal score
 
     best_score = best_model = None
