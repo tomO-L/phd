@@ -1,4 +1,4 @@
-from MVT_depletion_protocol.draft.classes_and_functions import *
+from classes_and_functions import *
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Button, Slider
@@ -13,59 +13,132 @@ sys.excepthook = ultratb.FormattedTB(call_pdb=False)
 ### Functions ###
 #################
 
-def is_rewarded(n_rewards, turns_since_last_reward) : #Function that sets up the kind of protocole you are using
+# def is_rewarded(n_rewards, turns_since_last_reward) : #Function that sets up the kind of protocole you are using
     
-    # Here a turn takes 1 time unit to be performed
+#     # Here a turn takes 1 time unit to be performed
 
+#     DELAY = 2
+#     PLATEAU = 100
+#     DEPLETING_SLOPE = 0.2
+
+#     t = DEPLETING_SLOPE * (n_rewards - DELAY) # [DEPLETING_SLOPE] more turns than the previous one are requiered to get the reward
+    
+#     if n_rewards < DELAY :
+        
+#         t = 0
+    
+#     elif t > PLATEAU :
+
+#         t = PLATEAU
+    
+#     result = 1 if turns_since_last_reward >= t else 0
+    
+#     return result
+
+# def is_rewarded(X, since_last_reward) : #Function that sets up the kind of protocole you are using
+    
+#     #p is the probability to get a reward
+    
+#     DELAY = 2
+#     PLATEAU = 100
+#     DEPLETING_SLOPE = 0.2
+
+#     if X < DELAY :
+#         t = 0
+    
+#     else :
+#         t = DEPLETING_SLOPE * (X - DELAY) # [DEPLETING_SLOPE] more turns than the previous one are requiered to get the reward
+    
+#     if t > PLATEAU :
+#         t = PLATEAU
+    
+#     result = 1 if since_last_reward >= t else 0
+    
+#     # print(f"p = {p}, result = {result}")
+#     return result
+
+import random
+
+def is_rewarded(X, since_last_reward) : #Function that sets up the kind of protocole you are using
+    
     DELAY = 2
     PLATEAU = 100
     DEPLETING_SLOPE = 0.2
 
-    t = DEPLETING_SLOPE * (n_rewards - DELAY) # [DEPLETING_SLOPE] more turns than the previous one are requiered to get the reward
+    #p is the probability to get a reward
     
-    if n_rewards < DELAY :
-        
+    if X < DELAY :
         t = 0
-    
-    elif t > PLATEAU :
-
+    else :
+        t = DEPLETING_SLOPE * (X - DELAY) # [DEPLETING_SLOPE] more turns than the previous one are requiered to get the reward
+    if t > PLATEAU :
         t = PLATEAU
-    
-    result = 1 if turns_since_last_reward >= t else 0
-    
+    p = 1 if since_last_reward >= t else 0
+    result = 1 if random.random() <= p else 0
+    # print(f"p = {p}, result = {result}")
     return result
 
 def generate_reward_chronology(time):
 
-    n_tot_reward_list = [0]
-    n_turns_since_last_reward = 0
+    time_list =  np.arange(int(time))
 
-    # Assuming every turn takes 1 time unit to be performed 
-    n_turns = int(time)
+    since_last_reward = 0
 
-    reward = 0
+    reward_list = []
 
-    for i in range(n_turns+1):
+    tot_reward = 0
 
-        n_tot_reward = n_tot_reward_list[i]
+    for _ in time_list:
 
-        reward = is_rewarded(n_tot_reward, n_turns_since_last_reward)
+        reward = is_rewarded(tot_reward, since_last_reward)
+        
+        reward_list.append(reward)
+
+        tot_reward += reward
 
         if reward:
 
-            n_turns_since_last_reward = 0
-        
+            since_last_reward = 0
+
         else:
 
-            n_turns_since_last_reward += 1
+            since_last_reward += 1
 
-        new_n_tot_reward = n_tot_reward + reward
+    return np.cumsum(reward_list)
 
-        n_tot_reward_list.append(new_n_tot_reward)
+# def generate_reward_chronology(time):
 
-    return n_tot_reward_list 
+#     n_tot_reward_list = [0]
+#     n_turns_since_last_reward = 0
+#     reward = 0
 
-REWARD_CHRONOLOGY = generate_reward_chronology(50)
+#     # Assuming every turn takes 1 time unit to be performed 
+#     n_turns = int(time)
+
+
+#     for i in range(n_turns+1):
+
+#         # n_tot_reward = n_tot_reward_list[i]
+#         n_tot_reward = n_tot_reward_list[-1]
+
+
+#         reward = is_rewarded(n_tot_reward, n_turns_since_last_reward)
+
+#         if reward:
+
+#             n_turns_since_last_reward = 0
+        
+#         else:
+
+#             n_turns_since_last_reward += 1
+
+#         new_n_tot_reward = n_tot_reward + reward
+
+#         n_tot_reward_list.append(new_n_tot_reward)
+
+#     return n_tot_reward_list 
+
+REWARD_CHRONOLOGY = generate_reward_chronology(200)
 CHRONOLOGY = np.arange(len(REWARD_CHRONOLOGY))
 
 def harvest_function(time,dt):
@@ -75,7 +148,7 @@ def harvest_function(time,dt):
     position_in_list = bisect.bisect(CHRONOLOGY,time)-1
     next_position_in_list = bisect.bisect(CHRONOLOGY,time+dt)-1
 
-    print(time,position_in_list,next_position_in_list, REWARD_CHRONOLOGY[position_in_list],REWARD_CHRONOLOGY[next_position_in_list])
+    # print(time,position_in_list,next_position_in_list, REWARD_CHRONOLOGY[position_in_list],REWARD_CHRONOLOGY[next_position_in_list])
 
     d_reward = REWARD_CHRONOLOGY[next_position_in_list] - REWARD_CHRONOLOGY[position_in_list]
 
@@ -177,7 +250,7 @@ leave_slider = Slider(
     ax=ax_leave,
     label='Leaving Time',
     valmin=0.01,
-    valmax=20,
+    valmax=200,
     valinit=t_leave,
 )
 
@@ -199,7 +272,42 @@ def update(val):
 
     fig.canvas.draw_idle()
 
+    print(x0,y0)
+
+ax.plot(CHRONOLOGY, REWARD_CHRONOLOGY)
+
 travel_slider.on_changed(update)
 leave_slider.on_changed(update)
 
 plt.show()
+
+
+
+# def reward_function(X, since_last_reward) : #Function that sets up the kind of protocole you are using
+    
+#     #p is the probability to get a reward
+    
+#     DELAY = 2
+#     PLATEAU = 100
+#     DEPLETING_SLOPE = 0.2
+
+#     if X < DELAY :
+#         t = 0
+    
+#     else :
+#         t = DEPLETING_SLOPE * (X - DELAY) # [DEPLETING_SLOPE] more turns than the previous one are requiered to get the reward
+    
+#     if t > PLATEAU :
+#         t = PLATEAU
+    
+#     p = 1 if since_last_reward >= t else 0
+#     result = True if random.random() <= p else False
+    
+#     # print(f"p = {p}, result = {result}")
+#     return result
+    
+#     # if random.random() <= p : return 1 #Sees if the random value is a greater value than the current threshold, given by the first part and a degressive function
+#     # else : return 0
+
+
+

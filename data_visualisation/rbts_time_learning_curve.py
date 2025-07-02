@@ -24,25 +24,25 @@ start_time = time.time()
 
 # defining data folder path and mice list
 # path_to_data_folder is the path of the folder where you store the folders of your different mice.
-path_to_data_folder='/LocalData/ForagingMice/4TowersTaskMethodPaper_Data/AurelienData/'
-# path_to_data_folder='/LocalData/ForagingMice/4TowersTaskMethodPaper_Data/MaudData/'
+# path_to_data_folder='/LocalData/ForagingMice/4TowersTaskMethodPaper_Data/AurelienData/'
+path_to_data_folder='/LocalData/ForagingMice/4TowersTaskMethodPaper_Data/MaudData/'
 
 # Analysing the entire group of mice
-mice_to_analyse = [
-    "MOUEml1_5", "MOUEml1_8", "MOUEml1_11", "MOUEml1_12", "MOUEml1_13", "MOUEml1_15", "MOUEml1_18", "MOUEml1_20",
-    "MOURhoA_2", "MOURhoA_5", "MOURhoA_6", "MOURhoA_8", "MOURhoA_9", "MOURhoA_12", "MOURhoA_14",
-    "MOUB6NN_4", "MOUB6NN_6", "MOUB6NN_13", "MOUB6NN_15"
-]
+# mice_to_analyse = [
+#     "MOUEml1_5", "MOUEml1_8", "MOUEml1_11", "MOUEml1_12", "MOUEml1_13", "MOUEml1_15", "MOUEml1_18", "MOUEml1_20",
+#     "MOURhoA_2", "MOURhoA_5", "MOURhoA_6", "MOURhoA_8", "MOURhoA_9", "MOURhoA_12", "MOURhoA_14",
+#     "MOUB6NN_4", "MOUB6NN_6", "MOUB6NN_13", "MOUB6NN_15"
+# ]
 
-# mice_to_analyse = ['MOU3974','MOU3975', 'MOU3987', 'MOU3988', 'MOU3991', 'MOU3992', 'MOU4551', 'MOU4552', 'MOU4560', 'MOU4561', 'MOU4562',
-#                    'MOU4563', 'MOU4623', 'MOU4964', 'MOU4965', 'MOU4986', 'MOU4987', 'MOU4988', 'MOU4993', 'MOU5007', 'MOU5008']
+mice_to_analyse = ['MOU3974','MOU3975', 'MOU3987', 'MOU3988', 'MOU3991', 'MOU3992', 'MOU4551', 'MOU4552', 'MOU4560', 'MOU4561', 'MOU4562',
+                   'MOU4563', 'MOU4623', 'MOU4964', 'MOU4965', 'MOU4986', 'MOU4987', 'MOU4988', 'MOU4993', 'MOU5007', 'MOU5008']
 
 ##################
 ### Parameters ###
 ##################
 
 first_and_last_session_indexes = [0,20]
-rewrite = False
+rewrite = True
 trapeze_width = 40
 
 ####################
@@ -164,22 +164,22 @@ ax2 = plt.subplot(row1[0,1])
 ax3 = plt.subplot(row1[1,0])
 ax4 = plt.subplot(row1[1,1])
 
-plot_learning_curve(int_nw_time_ratio_persession, mice_to_analyse, ax1)
+plot_learning_curve(int_nw_time_ratio_persession, mice_to_analyse, ax1, wilcoxon_test_h0=0.25)
 ax1.set_ylabel('NW interior time ratio')
 ax1.set_ylim([0,1])
 ax1.axhline(0.5,0,20, color='grey', linestyle='--')
 
-plot_learning_curve(int_ne_time_ratio_persession, mice_to_analyse, ax2)
+plot_learning_curve(int_ne_time_ratio_persession, mice_to_analyse, ax2, wilcoxon_test_h0=0.25)
 ax2.set_ylabel('NE interior time ratio')
 ax2.set_ylim([0,1])
 ax2.axhline(0.5,0,20, color='grey', linestyle='--')
 
-plot_learning_curve(int_sw_time_ratio_persession, mice_to_analyse, ax3)
+plot_learning_curve(int_sw_time_ratio_persession, mice_to_analyse, ax3, wilcoxon_test_h0=0.25)
 ax3.set_ylabel('SW interior time ratio')
 ax3.set_ylim([0,1])
 ax3.axhline(0.5,0,20, color='grey', linestyle='--')
 
-plot_learning_curve(int_se_time_ratio_persession, mice_to_analyse, ax4)
+plot_learning_curve(int_se_time_ratio_persession, mice_to_analyse, ax4, wilcoxon_test_h0=0.25)
 ax4.set_ylabel('SE interior time ratio')
 ax4.set_ylim([0,1])
 ax4.axhline(0.5,0,20, color='grey', linestyle='--')

@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 import ast
 import matplotlib.path as mpath
+from scipy.stats import wilcoxon
 
 def load_csv_data(mouseFolder_Path, session):
 
@@ -598,8 +599,6 @@ def extract_runs_sequence(path_to_data_folder, mouse, session_index):
 
 
 
-
-
 # def plot_runs_sequence(ax, ordered_runs_types_number, cmaps=['black', 'black', 'black', 'black'], ordered_runs_frames=[]):
 
 #     epoch_types = ['run_around_tower', 'run_between_towers', 'run_toward_tower', 'exploratory_run']
@@ -628,6 +627,11 @@ def extract_runs_sequence(path_to_data_folder, mouse, session_index):
 
 
 
+def one_sample_wilcoxon_test(sample, med0):
+
+    w, p = wilcoxon(np.array(sample) - med0)
+
+    return p
 
 def plot_runs_sequence(ax, ordered_runs_types_number, cmaps=['black', 'black', 'black', 'black']):
 
@@ -646,7 +650,7 @@ def plot_runs_sequence(ax, ordered_runs_types_number, cmaps=['black', 'black', '
     ax.set_yticks(np.arange(len(epoch_types)), epoch_types)
 
 
-def plot_learning_curve(values_persessions_permouse, mice_to_analyse, ax):
+def plot_learning_curve(values_persessions_permouse, mice_to_analyse, ax, wilcoxon_test_h0=np.nan):
 
     all_mice_values_persessions = []
 
@@ -657,15 +661,32 @@ def plot_learning_curve(values_persessions_permouse, mice_to_analyse, ax):
         values_persessions = np.transpose(values_persessions)
         all_mice_values_persessions.append(values_persessions[1])
 
+        # Plot individual mice
         ax.plot(values_persessions[0],values_persessions[1], alpha=0.3)
 
+    # Plot median and quartiles
     median_values = np.nanmedian(all_mice_values_persessions, axis=0)
     upper_quartile_values = np.nanpercentile(all_mice_values_persessions, 75, axis=0)
     lower_quartile_values = np.nanpercentile(all_mice_values_persessions, 25, axis=0)
 
+    # Perform one sample Wilcoxon test
+
+    if not(np.isnan(wilcoxon_test_h0)):
+
+        for i in range(len(values_persessions[0])):
+
+            p = one_sample_wilcoxon_test(np.transpose(all_mice_values_persessions)[i], wilcoxon_test_h0)
+
+            # print(p)
+        
+            if p<=0.05:
+
+                ax.scatter(i+1,median_values[i],color='#1f77b4', edgecolor='black', marker='*',s=20, linewidths=0.5, zorder=1000)
+
     ax.errorbar(values_persessions[0],median_values, yerr=[median_values-lower_quartile_values, upper_quartile_values-median_values], color='black')
     
     ax.set_xticks(values_persessions[0])
+
 
 
 
