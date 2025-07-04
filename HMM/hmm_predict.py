@@ -11,6 +11,8 @@ import sys
 import time
 from IPython.core import ultratb
 import dill
+from analysis_functions import *
+
 sys.excepthook = ultratb.FormattedTB(call_pdb=False)
 
 plt.style.use('paper.mplstyle')
@@ -34,7 +36,25 @@ path_to_data_folder='/LocalData/ForagingMice/4TowersTaskMethodPaper_Data/MaudDat
 mice_sample = ['MOU3974','MOU3975', 'MOU3987', 'MOU3988', 'MOU3991', 'MOU3992', 'MOU4551', 'MOU4552', 'MOU4560', 'MOU4561', 'MOU4562',
                'MOU4563', 'MOU4623', 'MOU4964', 'MOU4965', 'MOU4986', 'MOU4987', 'MOU4988', 'MOU4993', 'MOU5007', 'MOU5008']
 
-mice_to_analyse = mice_sample[-3:]
+test_mice = ['MOU4993',
+             'MOU3974',
+             'MOU3992',
+             'MOU4987',
+             'MOU4988'
+            ]
+
+### Test mice ###
+
+## CW
+# MOU4993
+
+## CCW
+# MOU3974
+# MOU3992
+# MOU4987 
+# MOU4988
+
+mice_to_analyse = test_mice
 
 #####################
 ### Loading Model ###
@@ -74,7 +94,7 @@ print(f'Emission Matrix Recovered:\n{model.emissionprob_.round(3)}\n\n')
 sessions_index = np.arange(0,20)
 nb_of_sessions = len(sessions_index)
 
-mouse_index = 0
+mouse_index = 4
 mouse_name = mice_to_analyse[mouse_index]
 
 states_sequences = []
@@ -87,8 +107,9 @@ for session_index in sessions_index:
     states_sequence = model.predict(np.int16(mouse_actions_sequence.reshape(-1,1)))
     states_sequences.append(states_sequence)
 
-action_types = extract_actions_sequence(path_to_data_folder, mouse_name, session_index)[2]
+states_distributions = compute_states_distribution_persession(path_to_data_folder,mouse_name,sessions_index,model)
 
+action_types = extract_actions_sequence(path_to_data_folder, mouse_name, 0)[2]
 
 #############
 ### Plots ###
@@ -114,10 +135,29 @@ for states_sequence in states_sequences:
     padded_states_sequence = np.pad(np.array(states_sequence, dtype=float), (0,max_length-len(states_sequence)+1), mode='constant', constant_values=(np.nan,np.nan))
     padded_states_sequences.append(padded_states_sequence)
     
-
 plot_states_sequence(ax, padded_states_sequences)
+
 ax.set_yticks(np.arange(nb_of_sessions),np.arange(nb_of_sessions)+1)
 ax.set_xticks(np.arange(0,max_length,50))
+
+### State distribution ###
+
+## One session
+
+# fig=plt.figure(figsize=(4, 7), dpi=300, constrained_layout=False, facecolor='w')
+# gs = fig.add_gridspec(1, 1)
+# row = gs[0,0].subgridspec(1, 1)
+# ax = plt.subplot(row[0,0])
+
+# plot_states_distribution(states_sequence,ax)
+
+## Across sessions
+fig=plt.figure(figsize=(4, 7), dpi=300, constrained_layout=False, facecolor='w')
+gs = fig.add_gridspec(1, 1)
+row = gs[0,0].subgridspec(1, 1)
+ax = plt.subplot(row[0,0])
+
+plot_states_distri_across_sessions(states_distributions, ax)
 
 ### Action and transition matrixes ###
 

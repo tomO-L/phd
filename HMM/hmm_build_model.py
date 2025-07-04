@@ -37,7 +37,7 @@ path_to_data_folder='/LocalData/ForagingMice/4TowersTaskMethodPaper_Data/MaudDat
 mice_to_analyse = ['MOU3974','MOU3975', 'MOU3987', 'MOU3988', 'MOU3991', 'MOU3992', 'MOU4551', 'MOU4552', 'MOU4560', 'MOU4561', 'MOU4562',
                    'MOU4563', 'MOU4623', 'MOU4964', 'MOU4965', 'MOU4986', 'MOU4987', 'MOU4988', 'MOU4993', 'MOU5007', 'MOU5008']
 
-### CW mice on session 5 ###
+# -- CW mice on session 5 --
 # MOU3975
 # MOU3988
 # MOU3991
@@ -48,29 +48,80 @@ mice_to_analyse = ['MOU3974','MOU3975', 'MOU3987', 'MOU3988', 'MOU3991', 'MOU399
 # MOU4965
 # MOU4993
 
-### Training
+# -- CCW mice on session 5 --
+# MOU3974 
+# MOU3987 
+# MOU3992 
+# MOU4560 
+# MOU4561 
+# MOU4562
+# MOU4563 
+# MOU4986 
+# MOU4987 
+# MOU4988 
+# MOU5007 
+# MOU5008
+
+### Training ###
 ## CW
 # MOU3988
 # MOU3991
 # MOU4551
 # MOU4623
 
-### Validation
+## CCW
+# MOU4562
+# MOU5007
+# MOU5008
+# MOU4563
+
+### Validation ###
 ## CW
 # MOU3975
 # MOU4552
 # MOU4964
 # MOU4965
 
-### Test
+## CCW
+# MOU3987
+# MOU4561
+# MOU4560
+# MOU4986
+
+### Test ##
+## CW
 # MOU4993
+
+## CCW
+# MOU3974
+# MOU3992
+# MOU4987 
+# MOU4988
 
 ##################
 ### Parameters ###
 ##################
 
-training_mice = mice_to_analyse[0:9]
-validation_mice = mice_to_analyse[9:18]
+# training_mice = mice_to_analyse[0:9]
+# validation_mice = mice_to_analyse[9:18]
+
+training_mice = ['MOU3988',
+                 'MOU3991',
+                 'MOU4551',
+                 'MOU4623',
+                 'MOU4562',
+                 'MOU5007',
+                 'MOU5008',
+                 'MOU4563']
+
+validation_mice = ['MOU3975',
+                   'MOU4552',
+                   'MOU4964',
+                   'MOU4965',
+                   'MOU3987',
+                   'MOU4561',
+                   'MOU4560',
+                   'MOU4986']
 
 session_index = 19
 
