@@ -24,24 +24,29 @@ plt.style.use('paper.mplstyle')
 # defining data folder path and mice list
 # path_to_data_folder is the path of the folder where you store the folders of your different mice.
 # path_to_data_folder='/LocalData/ForagingMice/4TowersTaskMethodPaper_Data/AurelienData/'
-path_to_data_folder='/LocalData/ForagingMice/4TowersTaskMethodPaper_Data/MaudData/'
+path_to_data_folder='/LocalData/ForagingMice/4TowersTaskMethodPaper_Data/AurelienData_temp/'
+# path_to_data_folder='/LocalData/ForagingMice/4TowersTaskMethodPaper_Data/MaudData_temp/'
 
 # Analysing the entire group of mice
-# mice_sample = [
-#     "MOUEml1_5", "MOUEml1_8", "MOUEml1_11", "MOUEml1_12", "MOUEml1_13", "MOUEml1_15", "MOUEml1_18", "MOUEml1_20",
-#     "MOURhoA_2", "MOURhoA_5", "MOURhoA_6", "MOURhoA_8", "MOURhoA_9", "MOURhoA_12", "MOURhoA_14",
-#     "MOUB6NN_4", "MOUB6NN_6", "MOUB6NN_13", "MOUB6NN_15"
-# ]
+mice_sample_group_1 = [
+    "MOUEml1_5", "MOUEml1_8", "MOUEml1_11", "MOUEml1_12", "MOUEml1_13", "MOUEml1_15", "MOUEml1_18", "MOUEml1_20",
+    "MOURhoA_2", "MOURhoA_5", "MOURhoA_6", "MOURhoA_8", "MOURhoA_9", "MOURhoA_12", "MOURhoA_14",
+    "MOUB6NN_4", "MOUB6NN_6", "MOUB6NN_13", "MOUB6NN_15"
+]
 
-mice_sample = ['MOU3974','MOU3975', 'MOU3987', 'MOU3988', 'MOU3991', 'MOU3992', 'MOU4551', 'MOU4552', 'MOU4560', 'MOU4561', 'MOU4562',
+mice_sample_group_2 = ['MOU3974','MOU3975', 'MOU3987', 'MOU3988', 'MOU3991', 'MOU3992', 'MOU4551', 'MOU4552', 'MOU4560', 'MOU4561', 'MOU4562',
                'MOU4563', 'MOU4623', 'MOU4964', 'MOU4965', 'MOU4986', 'MOU4987', 'MOU4988', 'MOU4993', 'MOU5007', 'MOU5008']
 
-test_mice = ['MOU4993',
+test_mice_group_1 = mice_sample_group_1
+
+test_mice_group_2 = ['MOU4993',
              'MOU3974',
              'MOU3992',
              'MOU4987',
              'MOU4988'
             ]
+
+test_mice = test_mice_group_1
 
 ### Test mice ###
 
@@ -55,6 +60,12 @@ test_mice = ['MOU4993',
 # MOU4988
 
 mice_to_analyse = test_mice
+
+sessions_index = np.arange(0,20)
+nb_of_sessions = len(sessions_index)
+
+mouse_index = 4
+mouse_name = mice_to_analyse[mouse_index]
 
 #####################
 ### Loading Model ###
@@ -91,11 +102,6 @@ print(f'Emission Matrix Recovered:\n{model.emissionprob_.round(3)}\n\n')
 # action_types = extract_actions_sequence(path_to_data_folder, mouse_name, session_index)[2]
 
 
-sessions_index = np.arange(0,20)
-nb_of_sessions = len(sessions_index)
-
-mouse_index = 4
-mouse_name = mice_to_analyse[mouse_index]
 
 states_sequences = []
 
@@ -108,6 +114,7 @@ for session_index in sessions_index:
     states_sequences.append(states_sequence)
 
 states_distributions = compute_states_distribution_persession(path_to_data_folder,mouse_name,sessions_index,model)
+states_time_distributions, states_time_ratio_distributions = compute_time_in_states_persession(path_to_data_folder,mouse_name,sessions_index,model)
 
 action_types = extract_actions_sequence(path_to_data_folder, mouse_name, 0)[2]
 
@@ -117,7 +124,7 @@ action_types = extract_actions_sequence(path_to_data_folder, mouse_name, 0)[2]
 
 ### States Sequences ###
 
-fig=plt.figure(figsize=(4, 7), dpi=300, constrained_layout=False, facecolor='w')
+fig=plt.figure(figsize=(7, 4), dpi=300, constrained_layout=False, facecolor='w')
 gs = fig.add_gridspec(1, 1)
 row = gs[0,0].subgridspec(1, 1)
 ax = plt.subplot(row[0,0])
@@ -140,6 +147,11 @@ plot_states_sequence(ax, padded_states_sequences)
 ax.set_yticks(np.arange(nb_of_sessions),np.arange(nb_of_sessions)+1)
 ax.set_xticks(np.arange(0,max_length,50))
 
+ax.set_title(mouse_name, y=1.3)
+
+fig.tight_layout()
+fig.savefig(f"HMM/figures/{mouse_name}_states_sequences.png", facecolor='w', edgecolor='none', bbox_inches='tight', format="png", dpi=300)
+
 ### State distribution ###
 
 ## One session
@@ -151,13 +163,22 @@ ax.set_xticks(np.arange(0,max_length,50))
 
 # plot_states_distribution(states_sequence,ax)
 
+
 ## Across sessions
-fig=plt.figure(figsize=(4, 7), dpi=300, constrained_layout=False, facecolor='w')
+fig=plt.figure(figsize=(7, 4), dpi=300, constrained_layout=False, facecolor='w')
 gs = fig.add_gridspec(1, 1)
 row = gs[0,0].subgridspec(1, 1)
 ax = plt.subplot(row[0,0])
 
-plot_states_distri_across_sessions(states_distributions, ax)
+# plot_states_distri_across_sessions(states_distributions, ax)
+
+# plot_states_distri_across_sessions(states_time_distributions/25, ax)
+
+plot_states_distri_across_sessions(states_time_ratio_distributions, ax)
+
+ax.set_title(mouse_name)
+
+fig.savefig(f"HMM/figures/{mouse_name}_states_time_ratio.png", facecolor='w', edgecolor='none', bbox_inches='tight', format="png", dpi=300)
 
 ### Action and transition matrixes ###
 

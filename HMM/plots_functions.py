@@ -108,7 +108,8 @@ def plot_states_sequence(ax, states, xticks=[], show_cbar = True):
     fig = ax.get_figure()
 
     if show_cbar:
-        cbar = fig.colorbar(cm.ScalarMappable(norm=norm,cmap=cmap), ax=ax, drawedges=False, orientation='horizontal', label='States', location='top', ticks=ticks)
+        cbar = fig.colorbar(cm.ScalarMappable(norm=norm,cmap=cmap), ax=ax, drawedges=False, orientation='horizontal', label='States', location='top')
+        cbar.set_ticks(ticks=ticks+0.5, labels=np.int8(ticks))
 
     
 def plot_states_distribution(states_sequence,ax):
@@ -174,10 +175,12 @@ def plot_states_distri_across_sessions(states_distributions, ax):
 
     for i in range(len(states_distributions)):
 
-        ax.plot(sessions_index,states_distributions[i], color=colors[i])
+        ax.plot(sessions_index,states_distributions[i], color=colors[i], label=f'state {i}', marker='+')
 
     ax.set_xlabel('Session')
     ax.set_xticks(sessions_index)
     
-    ax.set_ylabel('Ratio of steps in states')
-    ax.set_ylim([0,1])
+    ax.set_ylabel('States ratio')
+
+    ax.legend()
+    # ax.set_ylim([0,1])

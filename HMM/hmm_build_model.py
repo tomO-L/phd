@@ -25,7 +25,7 @@ start_time = time.time()
 # defining data folder path and mice list
 # path_to_data_folder is the path of the folder where you store the folders of your different mice.
 # path_to_data_folder='/LocalData/ForagingMice/4TowersTaskMethodPaper_Data/AurelienData/'
-path_to_data_folder='/LocalData/ForagingMice/4TowersTaskMethodPaper_Data/MaudData/'
+path_to_data_folder='/LocalData/ForagingMice/4TowersTaskMethodPaper_Data/MaudData_temp/'
 
 # Analysing the entire group of mice
 # mice_to_analyse = [
