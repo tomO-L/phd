@@ -13,6 +13,7 @@ import os
 import pickle
 from hmmlearn import hmm, vhmm
 from tqdm import tqdm
+from analysis_functions import *
 
 ########################
 ### Define functions ###
@@ -81,9 +82,9 @@ def plot_actions_sequence(ax, ordered_actions_types_number, ordered_actions_fram
 #     fig = ax.get_figure()
 #     cbar = fig.colorbar(cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax, drawedges=False)
 
-def plot_states_sequence(ax, states, xticks=[], show_cbar = True):
+def plot_states_sequence(ax, states, xticks=[], colors= ['#d62728','#7f7f7f','#bcbd22','#2ca02c','#1f77b4','#ff7f0e'], show_cbar = True):
 
-    cmap = ListedColormap(['#d62728','#7f7f7f','#bcbd22','#2ca02c','#1f77b4','#ff7f0e']) #plt.cm.Set1
+    cmap = ListedColormap(colors) #plt.cm.Set1
     norm = Normalize(vmin=np.nanmin(states), vmax=np.nanmax(states)+1)
 
     # for i in set(states):
@@ -167,9 +168,7 @@ def plot_learning_curve(values_persessions_permouse, mice_to_analyse, ax, wilcox
     ax.set_xticks(values_persessions[0])
 
 
-def plot_states_distri_across_sessions(states_distributions, ax):
-
-    colors = ['#d62728','#7f7f7f','#bcbd22','#2ca02c','#1f77b4','#ff7f0e']
+def plot_states_distri_across_sessions(states_distributions, ax, colors = ['#d62728','#7f7f7f','#bcbd22','#2ca02c','#1f77b4','#ff7f0e']):
 
     sessions_index = np.arange(len(states_distributions[0]))+1
 
@@ -184,3 +183,68 @@ def plot_states_distri_across_sessions(states_distributions, ax):
 
     ax.legend()
     # ax.set_ylim([0,1])
+
+def plot_cumulated_turns_profile(ordered_runs, ax, states_sequence = None, colors = ['#d62728','#7f7f7f','#bcbd22','#2ca02c','#1f77b4','#ff7f0e']):
+
+    rank_of_rewarded_qts, rank_of_unrewarded_qts = compute_cumulated_turns_profile(ordered_runs)
+
+    cumulated_rewarded_qts = np.arange(len(rank_of_rewarded_qts))+1
+    cumulated_unrewarded_qts = np.arange(len(rank_of_unrewarded_qts))+1
+
+    ax.step(rank_of_rewarded_qts, cumulated_rewarded_qts, where='post', label='Rewarded direction', color='black')
+    ax.step(rank_of_unrewarded_qts, cumulated_unrewarded_qts, where='post', label='Unrewarded direction', color='black', linestyle='--')
+
+    for i in range(len(ordered_runs)):
+
+        ax.axvspan(i-0.5,i+0.5, color=colors[states_sequence[i]], zorder=0)
+
+
+    cmap = ListedColormap(colors) #plt.cm.Set1
+    norm = Normalize(vmin=np.nanmin(states_sequence), vmax=np.nanmax(states_sequence)+1)
+
+    ticks = np.arange(np.nanmax(states_sequence)+1)
+
+    fig = ax.get_figure()
+
+    cbar = fig.colorbar(cm.ScalarMappable(norm=norm,cmap=cmap), ax=ax, drawedges=False, orientation='horizontal', label='States', location='top')
+    cbar.set_ticks(ticks=ticks+0.5, labels=np.int8(ticks))
+
+def plot_cumulated_states_profile(states_sequence, states, ax, colors = ['#d62728','#7f7f7f','#bcbd22','#2ca02c','#1f77b4','#ff7f0e']):
+
+    cumulated_states_profile = compute_cumulated_states_profile(states_sequence, states)
+
+    for s in states:
+
+        ax.step(cumulated_states_profile[s], np.arange(len(cumulated_states_profile[s]))+1, color=colors[s])
+
+    ax.set_xlabel('Rank')
+    ax.set_ylabel('Cumulated step in state')
+
+def plot_occurence_frequency(states_sequence, states_type, ax, colors = ['#d62728','#7f7f7f','#bcbd22','#2ca02c','#1f77b4','#ff7f0e'], window_size=50, weight=1):
+
+    length = len(states_sequence)
+
+    for s in states_type:
+
+        sequence = np.where(states_sequence==s,1,0)
+
+        occurence_frequency = compute_occurence_frequency_v1(sequence, window_size)
+
+        ax.plot(np.arange(length), occurence_frequency, color=colors[s])
+
+    cmap = ListedColormap(colors) #plt.cm.Set1
+    norm = Normalize(vmin=np.nanmin(states_sequence), vmax=np.nanmax(states_sequence)+1)
+
+    ticks = np.arange(np.nanmax(states_sequence)+1)
+
+    fig = ax.get_figure()
+
+    cbar = fig.colorbar(cm.ScalarMappable(norm=norm,cmap=cmap), ax=ax, drawedges=False, orientation='horizontal', label='States', location='top')
+    cbar.set_ticks(ticks=ticks+0.5, labels=np.int8(ticks))
+
+    ax.set_xlabel('Rank')
+    ax.set_ylabel(f'Occurence frequency\n in a window of size {window_size}')
+
+
+    
+        

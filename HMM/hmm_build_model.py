@@ -25,7 +25,7 @@ start_time = time.time()
 # defining data folder path and mice list
 # path_to_data_folder is the path of the folder where you store the folders of your different mice.
 # path_to_data_folder='/LocalData/ForagingMice/4TowersTaskMethodPaper_Data/AurelienData/'
-path_to_data_folder='/LocalData/ForagingMice/4TowersTaskMethodPaper_Data/MaudData_temp/'
+path_to_data_folder='/LocalData/ForagingMice/4TowersTaskMethodPaper_Data/MaudData/'
 
 # Analysing the entire group of mice
 # mice_to_analyse = [
@@ -123,7 +123,8 @@ validation_mice = ['MOU3975',
                    'MOU4560',
                    'MOU4986']
 
-session_index = 19
+session_index = 18
+# sessions_index = [16,17,18,19]
 
 ######################
 ### Extract actions ###
@@ -132,11 +133,18 @@ session_index = 19
 training_mice_ordered_actions_types_number = [extract_actions_sequence(path_to_data_folder, mouse, session_index)[0] for mouse in training_mice]
 validation_mice_ordered_actions_types_number = [extract_actions_sequence(path_to_data_folder, mouse, session_index)[0] for mouse in validation_mice]
 
+# training_mice_ordered_actions_types_number = []
+
+# for i in range(training_mice):
+
+#     for j in sessions_index:
+#         extract_actions_sequence(path_to_data_folder, mouse, j)[0]
+
 ###################
 ### Infer model ###
 ###################
 
-# Reformating data
+## Reformating data
 
 training_emissions = np.array([]).astype(int)
 validation_emissions = np.array([]).astype(int)
@@ -152,7 +160,7 @@ training_emissions_lengths = [len(x) for x in training_mice_ordered_actions_type
 validation_emissions = validation_emissions.reshape(-1,1)
 validation_emissions_lengths = [len(y) for y in validation_mice_ordered_actions_types_number]
 
-# Infer best model
+## Infer best model
 
 # best_model, best_score = infer_best_model_score(training_emissions, validation_emissions, 
 #                                           training_emissions_lengths, validation_emissions_lengths, 
@@ -174,13 +182,13 @@ type_number = 2
 ### Save model and sets ###
 ###########################
 
-with open(f'HMM/best_model_aic_{n_to_test[-1]}_type{type_number}.pkl', 'wb') as file:
+with open(f'HMM/best_model_aic_{n_to_test[-1]}_type{type_number}_v1.pkl', 'wb') as file:
     dill.dump(best_model, file)
 
-with open(f'HMM/training_set_aic_{n_to_test[-1]}_type{type_number}.pkl', 'wb') as file:
+with open(f'HMM/training_set_aic_{n_to_test[-1]}_type{type_number}_v1.pkl', 'wb') as file:
     dill.dump([training_mice, training_mice_ordered_actions_types_number], file)
 
-with open(f'HMM/validation_set_aic_{n_to_test[-1]}_type{type_number}.pkl', 'wb') as file:
+with open(f'HMM/validation_set_aic_{n_to_test[-1]}_type{type_number}_v1.pkl', 'wb') as file:
     dill.dump([validation_mice, validation_mice_ordered_actions_types_number], file)
 
 # with open(f'HMM/best_model_variational_{n_to_test[-1]}_type{type_number}.pkl', 'wb') as file:

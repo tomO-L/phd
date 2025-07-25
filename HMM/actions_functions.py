@@ -71,6 +71,50 @@ def order_epochs(all_epochs):
     # Return the ordered lists of runs and their first frames
     return ordered_all_epochs, ordered_all_epochs_frames
 
+def order_runs(all_epochs):
+
+    """
+    Sort epochs in chronological order, omitting immobility epochs.
+
+    Arguments:
+        all_epoch (dict): dictionnary containing all the epochs, sorted by type of epoch. Each key is a different type of epoch.
+
+    Returns:
+        list: ordered_all_runs containing all the epochs omitting immobility epochs, sorted in chronological way.
+        list: ordered_all_runs_frames containing all the epoch's frame intervals, omitting immobility epochs, sorted in chronological way.
+
+    """
+
+    # Initialize empty lists to store ordered runs and their first frames
+    ordered_all_runs = []
+    ordered_all_runs_frames = []
+
+    # Loop through each key in the all_epochs dictionary
+    for k in all_epochs.keys():
+        
+        # Loop through each run in the current key's list
+        for i in range(len(all_epochs[k])):
+            
+            # Treats immobility differently because of a structure difference of the epoch variables
+            if k != 'immobility':
+        
+                # Add the current run to ordered_all_runs
+                ordered_all_runs.append([k] + all_epochs[k][i])
+                # Add the first frame of the current run to ordered_all_runs_frames
+                ordered_all_runs_frames.append(all_epochs[k][i][0])
+
+            else: 
+            
+                continue
+
+    # Sort the frames list based on the first element of each frame
+    ordered_all_runs_frames = sorted(ordered_all_runs_frames, key=lambda x: x[1])
+    # Sort the runs list based on the first element of each run
+    ordered_all_runs = sorted(ordered_all_runs, key=lambda x: x[1])
+
+    # Return the ordered lists of runs and their first frames
+    return ordered_all_runs, ordered_all_runs_frames
+
 # def identify_action(epoch):
 
 #     """
