@@ -167,6 +167,14 @@ def plot_learning_curve(values_persessions_permouse, mice_to_analyse, ax, wilcox
     
     ax.set_xticks(values_persessions[0])
 
+def plot_individual_learning_curve(values_persessions, ax, sessions_range=[0,-1], linestyle='-'):
+
+    values_persessions = np.transpose(values_persessions[sessions_range[0]:sessions_range[-1]])
+    
+    # Plot individual mice
+    ax.plot(values_persessions[0],values_persessions[1], linestyle=linestyle, color='k', alpha=0.3)
+    
+    ax.set_xticks(values_persessions[0])
 
 def plot_states_distri_across_sessions(states_distributions, ax, colors = ['#d62728','#7f7f7f','#bcbd22','#2ca02c','#1f77b4','#ff7f0e']):
 
@@ -183,6 +191,7 @@ def plot_states_distri_across_sessions(states_distributions, ax, colors = ['#d62
 
     ax.legend()
     # ax.set_ylim([0,1])
+
 
 def plot_cumulated_turns_profile(ordered_runs, ax, states_sequence = None, colors = ['#d62728','#7f7f7f','#bcbd22','#2ca02c','#1f77b4','#ff7f0e']):
 
@@ -220,7 +229,7 @@ def plot_cumulated_states_profile(states_sequence, states, ax, colors = ['#d6272
     ax.set_xlabel('Rank')
     ax.set_ylabel('Cumulated step in state')
 
-def plot_occurence_frequency(states_sequence, states_type, ax, colors = ['#d62728','#7f7f7f','#bcbd22','#2ca02c','#1f77b4','#ff7f0e'], window_size=50, weight=1):
+def plot_states_occurence_frequency(states_sequence, states_type, ax, colors = ['#d62728','#7f7f7f','#bcbd22','#2ca02c','#1f77b4','#ff7f0e'], window_size=50, weight=1):
 
     length = len(states_sequence)
 
@@ -228,9 +237,9 @@ def plot_occurence_frequency(states_sequence, states_type, ax, colors = ['#d6272
 
         sequence = np.where(states_sequence==s,1,0)
 
-        occurence_frequency = compute_occurence_frequency_v1(sequence, window_size)
+        occurence_frequency = compute_occurence_frequency_v2(sequence, window_size)
 
-        ax.plot(np.arange(length), occurence_frequency, color=colors[s])
+        ax.step(np.arange(window_size, length), occurence_frequency[window_size:], color=colors[s])
 
     cmap = ListedColormap(colors) #plt.cm.Set1
     norm = Normalize(vmin=np.nanmin(states_sequence), vmax=np.nanmax(states_sequence)+1)
@@ -245,6 +254,31 @@ def plot_occurence_frequency(states_sequence, states_type, ax, colors = ['#d6272
     ax.set_xlabel('Rank')
     ax.set_ylabel(f'Occurence frequency\n in a window of size {window_size}')
 
+def plot_reward_rate(ordered_runs, ax, window_size=50, weight=1):
+
+    length = len(ordered_runs)
+
+    reward_sequence = np.array([])
+
+    for run in ordered_runs:
+
+        if run[0]=='run_around_tower':
+
+            is_rewarded = int(run[4]['Rewarded'])
+
+        else:
+
+            is_rewarded = 0
+
+        reward_sequence = np.append(reward_sequence,is_rewarded)
+
+    reward_rate = compute_occurence_frequency_v2(reward_sequence, window_size)
+    # mistake_rate = compute_occurence_frequency_v1(abs((reward_sequence-1)), window_size)
+
+    ax.step(np.arange(window_size, length), reward_rate[window_size:], color='black')
+
+    ax.set_xlabel('Rank')
+    ax.set_ylabel(f'Reward rate\n in a window of size {window_size}')
 
     
         

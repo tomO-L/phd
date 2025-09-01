@@ -24,8 +24,8 @@ plt.style.use('paper.mplstyle')
 # defining data folder path and mice list
 # path_to_data_folder is the path of the folder where you store the folders of your different mice.
 # path_to_data_folder='/LocalData/ForagingMice/4TowersTaskMethodPaper_Data/AurelienData/'
-# path_to_data_folder='/LocalData/ForagingMice/4TowersTaskMethodPaper_Data/AurelienData'
-path_to_data_folder='/LocalData/ForagingMice/4TowersTaskMethodPaper_Data/MaudData'
+path_to_data_folder='/LocalData/ForagingMice/4TowersTaskMethodPaper_Data/AurelienData'
+# path_to_data_folder='/LocalData/ForagingMice/4TowersTaskMethodPaper_Data/MaudData'
 
 # Analysing the entire group of mice
 mice_sample_group_1 = [
@@ -46,7 +46,7 @@ test_mice_group_2 = ['MOU4993',
              'MOU4988'
             ]
 
-test_mice = test_mice_group_2
+test_mice = test_mice_group_1
 
 ### Test mice ###
 
@@ -105,7 +105,7 @@ print(f'Emission Matrix Recovered:\n{model.emissionprob_.round(3)}\n\n')
 
 # action_types = extract_actions_sequence(path_to_data_folder, mouse_name, session_index)[2]
 
-
+mice_rewarded_tats_persession, mice_unrewarded_tats_persession = compute_rewards_persession(path_to_data_folder,[mouse_name])
 
 states_sequences = []
 
@@ -120,7 +120,6 @@ for session_index in sessions_index:
 states_distributions = compute_states_distribution_persession(path_to_data_folder,mouse_name,sessions_index,model)
 states_time_distributions, states_time_ratio_distributions = compute_time_in_states_persession(path_to_data_folder,mouse_name,sessions_index,model)
 
-
 action_types = extract_actions_sequence(path_to_data_folder, mouse_name, 0)[2]
 
 #############
@@ -134,11 +133,6 @@ colors= ['#d62728','#7f7f7f','#bcbd22','#2ca02c','#1f77b4','#ff7f0e']
 
 ### States Sequences ###
 
-fig=plt.figure(figsize=(7, 4), dpi=300, constrained_layout=False, facecolor='w')
-gs = fig.add_gridspec(1, 1)
-row = gs[0,0].subgridspec(1, 1)
-ax = plt.subplot(row[0,0])
-
 max_length = 0
 
 for states_sequence in states_sequences:
@@ -151,6 +145,11 @@ for states_sequence in states_sequences:
 
     padded_states_sequence = np.pad(np.array(states_sequence, dtype=float), (0,max_length-len(states_sequence)+1), mode='constant', constant_values=(np.nan,np.nan))
     padded_states_sequences.append(padded_states_sequence)
+
+fig=plt.figure(figsize=(7, 4), dpi=300, constrained_layout=False, facecolor='w')
+gs = fig.add_gridspec(1, 1)
+row = gs[0,0].subgridspec(1, 1)
+ax = plt.subplot(row[0,0])
     
 plot_states_sequence(ax, padded_states_sequences, colors=colors)
 
@@ -180,6 +179,7 @@ fig=plt.figure(figsize=(7, 4), dpi=300, constrained_layout=False, facecolor='w')
 gs = fig.add_gridspec(1, 1)
 row = gs[0,0].subgridspec(1, 1)
 ax = plt.subplot(row[0,0])
+ax_bis = ax.twinx()
 
 # plot_states_distri_across_sessions(states_distributions, ax)
 
@@ -187,6 +187,9 @@ ax = plt.subplot(row[0,0])
 
 
 plot_states_distri_across_sessions(states_time_ratio_distributions, ax, colors=colors)
+
+plot_individual_learning_curve(mice_rewarded_tats_persession, ax_bis, sessions_range=[0,20])
+plot_individual_learning_curve(mice_unrewarded_tats_persession, ax_bis, sessions_range=[0,20], linestyle='--')
 
 ax.set_title(mouse_name)
 
@@ -219,12 +222,14 @@ ax6.set_xlabel('Action')
 ax6.set_ylabel('State')
 
 ### Test Plots ###
-example_session_index = 16
+example_session_index = 17
 
 all_epochs = load_pickle_data(folder_path_mouse_to_analyse, example_session_index)["all_epochs"]
 ordered_runs = order_runs(all_epochs)[0]
 
 example_states_sequence = states_sequences[example_session_index]
+
+window_size = 51
 
 ## 
 fig=plt.figure(figsize=(7, 4), dpi=300, constrained_layout=False, facecolor='w')
@@ -248,7 +253,8 @@ gs = fig.add_gridspec(1, 1)
 row = gs[0,0].subgridspec(1, 1)
 ax = plt.subplot(row[0,0])
 
-plot_occurence_frequency(example_states_sequence, np.arange(nb_of_states), ax, colors = colors, window_size=51)
+plot_reward_rate(ordered_runs, ax, window_size=window_size, weight=1)
+plot_states_occurence_frequency(example_states_sequence, np.arange(nb_of_states), ax, colors = colors, window_size=window_size)
 
 plt.show()
 

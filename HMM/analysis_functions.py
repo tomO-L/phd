@@ -187,3 +187,76 @@ def compute_occurence_frequency_v2(sequence,window_size=51):
         occurence_frequency.append(res)
 
     return occurence_frequency
+
+def count_tats(tats):
+
+    total_tats = len(tats)
+    cw_tats = 0
+    rewarded_tats = 0
+
+    for tat in tats:
+
+        if tat[3]['direction']=='CW':
+
+            cw_tats += 1
+
+        if tat[3]['Rewarded']:
+
+            rewarded_tats += 1
+
+    return total_tats, cw_tats, rewarded_tats
+
+def compute_rewards_persession(path_to_data_folder, mice_to_analyse):
+
+    # Initialize dictionaries to store the various metrics for each mouse
+    rewarded_tats_persession = []
+    unrewarded_tats_persession = []
+
+    # Iterate through each mouse to process its data
+    for mouse in mice_to_analyse:
+        folder_path_mouse_to_process = os.path.join(path_to_data_folder, mouse)
+
+        # Get the list of sessions for the current mouse
+        sessions_to_process = sorted([name for name in os.listdir(folder_path_mouse_to_process)
+                                    if os.path.isdir(os.path.join(folder_path_mouse_to_process, name))
+                                    and name.startswith('MOU')])
+
+        # limit the analysis to the subseet of session we want to analyse
+        # sessions_to_process = sessions_to_process[first_and_last_session_indexes[0]:first_and_last_session_indexes[1]]
+
+        # nb_sessions = len(sessions_to_process)
+        # print(f'Mouse {mouse}. There is/are {nb_sessions} sessions:')
+        # print(sessions_to_process, '\n')
+
+
+        # Process each session for the current mouse
+        for session_index, session_to_process in enumerate(sessions_to_process):
+
+            
+            # Define the pickle file path for the session
+            output_pickle_filename = f"{session_to_process}_basic_processing_output.pickle"
+            output_pickle_filepath = os.path.join(folder_path_mouse_to_process, session_to_process, output_pickle_filename)
+
+            # Check if the pickle file exists
+            if not os.path.exists(output_pickle_filepath):
+                print(f'Pickle file does not exist for session {session_to_process}, skipping .....')
+                # Append session Nan data to the respective dictionaries
+                rewarded_tats_persession.append([session_index + 1, np.nan])
+                unrewarded_tats_persession.append([session_index + 1, np.nan])
+                continue  # Skip to the next session if the pickle file does not exist
+
+            # Load the pickle file
+            with open(output_pickle_filepath, 'rb') as file:
+                session_data = pickle.load(file)
+            
+            # Extract run around tower results from the session data
+            
+            epochs = session_data['all_epochs']
+            tats = epochs['run_around_tower']
+            total_tats, cw_tats, rewarded_tats = count_tats(tats)
+
+            # Append session data to the respective dictionaries
+            rewarded_tats_persession.append([session_index + 1, rewarded_tats])
+            unrewarded_tats_persession.append([session_index + 1, total_tats-rewarded_tats])
+
+    return rewarded_tats_persession, unrewarded_tats_persession

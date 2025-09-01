@@ -274,7 +274,7 @@ def update(val):
 
     print(x0,y0)
 
-ax.plot(CHRONOLOGY, REWARD_CHRONOLOGY)
+# ax.plot(CHRONOLOGY, REWARD_CHRONOLOGY)
 
 travel_slider.on_changed(update)
 leave_slider.on_changed(update)
