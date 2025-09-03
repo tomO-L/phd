@@ -25,7 +25,7 @@ plt.style.use('paper.mplstyle')
 # path_to_data_folder is the path of the folder where you store the folders of your different mice.
 # path_to_data_folder='/LocalData/ForagingMice/4TowersTaskMethodPaper_Data/AurelienData/'
 path_to_data_folder='/LocalData/ForagingMice/4TowersTaskMethodPaper_Data/AurelienData'
-# path_to_data_folder='/LocalData/ForagingMice/4TowersTaskMethodPaper_Data/MaudData'
+path_to_data_folder='/LocalData/ForagingMice/4TowersTaskMethodPaper_Data/MaudData'
 
 # Analysing the entire group of mice
 mice_sample_group_1 = [
@@ -46,7 +46,7 @@ test_mice_group_2 = ['MOU4993',
              'MOU4988'
             ]
 
-test_mice = test_mice_group_1
+test_mice = test_mice_group_2
 
 ### Test mice ###
 
@@ -222,14 +222,14 @@ ax6.set_xlabel('Action')
 ax6.set_ylabel('State')
 
 ### Test Plots ###
-example_session_index = 17
+example_session_index = 16
 
 all_epochs = load_pickle_data(folder_path_mouse_to_analyse, example_session_index)["all_epochs"]
 ordered_runs = order_runs(all_epochs)[0]
 
 example_states_sequence = states_sequences[example_session_index]
 
-window_size = 51
+window_size = 50
 
 ## 
 fig=plt.figure(figsize=(7, 4), dpi=300, constrained_layout=False, facecolor='w')
@@ -253,7 +253,7 @@ gs = fig.add_gridspec(1, 1)
 row = gs[0,0].subgridspec(1, 1)
 ax = plt.subplot(row[0,0])
 
-plot_reward_rate(ordered_runs, ax, window_size=window_size, weight=1)
+plot_reward_rate(ordered_runs, ax, window_size=window_size)
 plot_states_occurence_frequency(example_states_sequence, np.arange(nb_of_states), ax, colors = colors, window_size=window_size)
 
 plt.show()

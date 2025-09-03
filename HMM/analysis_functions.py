@@ -170,18 +170,16 @@ def compute_occurence_frequency_v1(sequence,window_size=51):
     
     return occurence_frequency
 
-def compute_occurence_frequency_v2(sequence,window_size=51):
+def compute_occurence_frequency_v2(sequence,window_size=50):
 
     occurence_frequency = []
 
     for i in range(len(sequence)):
 
-        effective_window_size = window_size if 1>=window_size else i
+        effective_window_size = window_size if i>=window_size else i
         # effective_window_size = window_size if 1>=window_size else i
     
-        window = np.ones(effective_window_size)
-
-        res = np.sum(sequence[i-effective_window_size:i] * window)/effective_window_size
+        res = np.sum(sequence[i-effective_window_size:i])/effective_window_size
         # res = np.sum(sequence[i-effective_window_size:i] * window)/effective_window_size
 
         occurence_frequency.append(res)

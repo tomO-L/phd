@@ -229,13 +229,15 @@ def plot_cumulated_states_profile(states_sequence, states, ax, colors = ['#d6272
     ax.set_xlabel('Rank')
     ax.set_ylabel('Cumulated step in state')
 
-def plot_states_occurence_frequency(states_sequence, states_type, ax, colors = ['#d62728','#7f7f7f','#bcbd22','#2ca02c','#1f77b4','#ff7f0e'], window_size=50, weight=1):
+def plot_states_occurence_frequency(states_sequence, states_type, ax, colors = ['#d62728','#7f7f7f','#bcbd22','#2ca02c','#1f77b4','#ff7f0e'], window_size=50):
 
     length = len(states_sequence)
 
     for s in states_type:
 
         sequence = np.where(states_sequence==s,1,0)
+
+        # print(sequence)
 
         occurence_frequency = compute_occurence_frequency_v2(sequence, window_size)
 
@@ -254,7 +256,7 @@ def plot_states_occurence_frequency(states_sequence, states_type, ax, colors = [
     ax.set_xlabel('Rank')
     ax.set_ylabel(f'Occurence frequency\n in a window of size {window_size}')
 
-def plot_reward_rate(ordered_runs, ax, window_size=50, weight=1):
+def plot_reward_rate(ordered_runs, ax, window_size=50):
 
     length = len(ordered_runs)
 

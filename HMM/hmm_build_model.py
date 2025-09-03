@@ -135,10 +135,18 @@ validation_mice_ordered_actions_types_number = [extract_actions_sequence(path_to
 
 # training_mice_ordered_actions_types_number = []
 
-# for i in range(training_mice):
+# for mouse in training_mice:
 
 #     for j in sessions_index:
-#         extract_actions_sequence(path_to_data_folder, mouse, j)[0]
+#         training_mice_ordered_actions_types_number.append(extract_actions_sequence(path_to_data_folder, mouse, j)[0])
+
+# validation_mice_ordered_actions_types_number = []
+
+# for mouse in validation_mice:
+
+#     for j in sessions_index:
+#         validation_mice_ordered_actions_types_number.append(extract_actions_sequence(path_to_data_folder, mouse, j)[0])
+
 
 ###################
 ### Infer model ###
@@ -190,6 +198,16 @@ with open(f'HMM/training_set_aic_{n_to_test[-1]}_type{type_number}_v1.pkl', 'wb'
 
 with open(f'HMM/validation_set_aic_{n_to_test[-1]}_type{type_number}_v1.pkl', 'wb') as file:
     dill.dump([validation_mice, validation_mice_ordered_actions_types_number], file)
+
+# with open(f'HMM/best_model_aic_4s_{n_to_test[-1]}_type{type_number}_v1.pkl', 'wb') as file:
+#     dill.dump(best_model, file)
+
+# with open(f'HMM/training_set_aic_4s_{n_to_test[-1]}_type{type_number}_v1.pkl', 'wb') as file:
+#     dill.dump([training_mice, training_mice_ordered_actions_types_number], file)
+
+# with open(f'HMM/validation_set_aic_4s_{n_to_test[-1]}_type{type_number}_v1.pkl', 'wb') as file:
+#     dill.dump([validation_mice, validation_mice_ordered_actions_types_number], file)
+
 
 # with open(f'HMM/best_model_variational_{n_to_test[-1]}_type{type_number}.pkl', 'wb') as file:
 #     dill.dump(best_model, file)
