@@ -20,42 +20,42 @@ from tqdm import tqdm
 ########################
 
 
-def plot_actions_distribution(ax, ordered_actions_types_number,
-                            action_types = [1,0]):
+# def plot_actions_distribution(ax, ordered_actions_types_number,
+#                             action_types = [1,0]):
 
-    gen_action_types_ditribution = [np.count_nonzero(ordered_actions_types_number==i) for i in range(len(action_types))]
+#     gen_action_types_ditribution = [np.count_nonzero(ordered_actions_types_number==i) for i in range(len(action_types))]
                                 
-    ax.bar(action_types, gen_action_types_ditribution)
+#     ax.bar(action_types, gen_action_types_ditribution)
 
 
 
-def plot_actions_sequence(ax, ordered_actions_types_number, ordered_actions_frames=[], 
-                       action_types = [0,1], show_yticks=True):
+# def plot_actions_sequence(ax, ordered_actions_types_number, ordered_actions_frames=[], 
+#                        action_types = [0,1], show_yticks=True):
 
-    num_actions = len(ordered_actions_types_number)
+#     num_actions = len(ordered_actions_types_number)
 
-    for i in range(len(action_types)):
+#     for i in range(len(action_types)):
 
 
-        if len(ordered_actions_frames)==0:
+#         if len(ordered_actions_frames)==0:
 
-            ordered_actions_type_number = np.where(np.array(ordered_actions_types_number)==i, np.arange(num_actions)-0.25, np.nan)
-            x_barh = np.transpose([ordered_actions_type_number,0.5*np.ones(num_actions)])
+#             ordered_actions_type_number = np.where(np.array(ordered_actions_types_number)==i, np.arange(num_actions)-0.25, np.nan)
+#             x_barh = np.transpose([ordered_actions_type_number,0.5*np.ones(num_actions)])
         
-        else:
+#         else:
 
-            ordered_actions_frames = np.array(ordered_actions_frames)
-            ordered_actions_frame = np.where(np.array(ordered_actions_types_number)==i, ordered_actions_frames[:,0], np.nan)
-            ordered_actions_width = np.where(np.array(ordered_actions_types_number)==i, ordered_actions_frames[:,1] - ordered_actions_frames[:,0], np.nan)
+#             ordered_actions_frames = np.array(ordered_actions_frames)
+#             ordered_actions_frame = np.where(np.array(ordered_actions_types_number)==i, ordered_actions_frames[:,0], np.nan)
+#             ordered_actions_width = np.where(np.array(ordered_actions_types_number)==i, ordered_actions_frames[:,1] - ordered_actions_frames[:,0], np.nan)
 
-            x_barh = np.transpose([ordered_actions_frame,ordered_actions_width])
+#             x_barh = np.transpose([ordered_actions_frame,ordered_actions_width])
 
-        y_barh = [i-0.25,0.5]
+#         y_barh = [i-0.25,0.5]
 
-        ax.broken_barh(x_barh, y_barh)
+#         ax.broken_barh(x_barh, y_barh)
 
-    if show_yticks:
-        ax.set_yticks(np.arange(len(action_types)), action_types)
+#     if show_yticks:
+#         ax.set_yticks(np.arange(len(action_types)), action_types)
 
 # def plot_states_sequence(ax, states):
 
@@ -82,10 +82,10 @@ def plot_actions_sequence(ax, ordered_actions_types_number, ordered_actions_fram
 #     fig = ax.get_figure()
 #     cbar = fig.colorbar(cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax, drawedges=False)
 
-def plot_states_sequence(ax, states, xticks=[], colors= ['blue','red'], show_cbar = True):
+def plot_states_sequences(ax, states, xticks=[], colors= ['blue','red'], show_cbar = True):
 
-    cmap = ListedColormap(colors) #plt.cm.Set1
-    norm = Normalize(vmin=np.nanmin(states), vmax=np.nanmax(states)+1)
+    cmap = plt.cm.viridis # ListedColormap(colors) #plt.cm.Set1
+    norm = Normalize(vmin=np.nanmin(states), vmax=np.nanmax(states))
 
     # for i in set(states):
 
@@ -107,7 +107,7 @@ def plot_states_sequence(ax, states, xticks=[], colors= ['blue','red'], show_cba
 
     if show_cbar:
         cbar = fig.colorbar(cm.ScalarMappable(norm=norm,cmap=cmap), ax=ax, drawedges=False, orientation='horizontal', label='States', location='top')
-        cbar.set_ticks(ticks=ticks+0.5, labels=np.int8(ticks))
+        cbar.set_ticks(ticks=ticks, labels=np.int8(ticks))
 
     
 def plot_states_distribution(states_sequence,ax):
@@ -120,6 +120,12 @@ def plot_states_distribution(states_sequence,ax):
     
     ax.set_xlabel('States')
     ax.set_ylabel('% of step in each state')
+
+
+
+
+
+
 
 def one_sample_wilcoxon_test(sample, med0):
 
@@ -173,85 +179,96 @@ def plot_individual_learning_curve(values_persessions, ax, sessions_range=[0,-1]
     
     ax.set_xticks(values_persessions[0])
 
-def plot_states_distri_across_sessions(states_distributions, ax, colors = ['blue','red']):
+# def plot_states_distri_across_sessions(states_sequences, ax, colors = ['blue','red']):
 
-    sessions_index = np.arange(len(states_distributions[0]))+1
-
-    for i in range(len(states_distributions)):
-
-        ax.plot(sessions_index,states_distributions[i], color=colors[i], label=f'state {i}', marker='+')
-
-    ax.set_xlabel('Session')
-    ax.set_xticks(sessions_index)
+#     # sessions_index = np.arange(len(states_distributions[0]))+1
     
-    ax.set_ylabel('States ratio')
+#     sequences_number = len(states_sequences)
 
-    ax.legend()
-    # ax.set_ylim([0,1])
+#     for j in range(sequences_number):
 
-def plot_cumulated_states_profile(states_sequence, states, ax, colors = ['blue','red']):
+#         states_sequence = states_sequences[j]
+    
+#         for i in range([0,1]):
 
-    cumulated_states_profile = compute_cumulated_states_profile(states_sequence, states)
 
-    for s in states:
+#             states_id = list(set(states_sequence))
 
-        ax.step(cumulated_states_profile[s], np.arange(len(cumulated_states_profile[s]))+1, color=colors[s])
+#             states_distribution = np.array([np.count_nonzero(states_sequence==i) for i in states_id])/len(states_sequence)
 
-    ax.set_xlabel('Rank')
-    ax.set_ylabel('Cumulated step in state')
+#             ax.plot(j,states_distribution, color=colors[i], label=f'state {i}', marker='+')
 
-def plot_states_occurence_frequency(states_sequence, states_type, ax, colors = ['blue','red'], window_size=50):
+#     ax.set_xlabel('S')
+#     ax.set_xticks(sessions_index)
+    
+#     ax.set_ylabel('States ratio')
 
-    length = len(states_sequence)
+#     ax.legend()
+#     # ax.set_ylim([0,1])
 
-    for s in states_type:
+# def plot_cumulated_states_profile(states_sequence, states, ax, colors = ['blue','red']):
 
-        sequence = np.where(states_sequence==s,1,0)
+#     cumulated_states_profile = compute_cumulated_states_profile(states_sequence, states)
 
-        # print(sequence)
+#     for s in states:
 
-        occurence_frequency = compute_occurence_frequency_v2(sequence, window_size)
+#         ax.step(cumulated_states_profile[s], np.arange(len(cumulated_states_profile[s]))+1, color=colors[s])
 
-        ax.step(np.arange(window_size, length), occurence_frequency[window_size:], color=colors[s])
+#     ax.set_xlabel('Rank')
+#     ax.set_ylabel('Cumulated step in state')
 
-    cmap = ListedColormap(colors) #plt.cm.Set1
-    norm = Normalize(vmin=np.nanmin(states_sequence), vmax=np.nanmax(states_sequence)+1)
+# def plot_states_occurence_frequency(states_sequence, states_type, ax, colors = ['blue','red'], window_size=50):
 
-    ticks = np.arange(np.nanmax(states_sequence)+1)
+#     length = len(states_sequence)
 
-    fig = ax.get_figure()
+#     for s in states_type:
 
-    cbar = fig.colorbar(cm.ScalarMappable(norm=norm,cmap=cmap), ax=ax, drawedges=False, orientation='horizontal', label='States', location='top')
-    cbar.set_ticks(ticks=ticks+0.5, labels=np.int8(ticks))
+#         sequence = np.where(states_sequence==s,1,0)
 
-    ax.set_xlabel('Rank')
-    ax.set_ylabel(f'Occurence frequency\n in a window of size {window_size}')
+#         # print(sequence)
 
-def plot_reward_rate(ordered_runs, ax, window_size=50):
+#         occurence_frequency = compute_occurence_frequency_v2(sequence, window_size)
 
-    length = len(ordered_runs)
+#         ax.step(np.arange(window_size, length), occurence_frequency[window_size:], color=colors[s])
 
-    reward_sequence = np.array([])
+#     cmap = ListedColormap(colors) #plt.cm.Set1
+#     norm = Normalize(vmin=np.nanmin(states_sequence), vmax=np.nanmax(states_sequence)+1)
 
-    for run in ordered_runs:
+#     ticks = np.arange(np.nanmax(states_sequence)+1)
 
-        if run[0]=='run_around_tower':
+#     fig = ax.get_figure()
 
-            is_rewarded = int(run[4]['Rewarded'])
+#     cbar = fig.colorbar(cm.ScalarMappable(norm=norm,cmap=cmap), ax=ax, drawedges=False, orientation='horizontal', label='States', location='top')
+#     cbar.set_ticks(ticks=ticks+0.5, labels=np.int8(ticks))
 
-        else:
+#     ax.set_xlabel('Rank')
+#     ax.set_ylabel(f'Occurence frequency\n in a window of size {window_size}')
 
-            is_rewarded = 0
+# def plot_reward_rate(ordered_runs, ax, window_size=50):
 
-        reward_sequence = np.append(reward_sequence,is_rewarded)
+#     length = len(ordered_runs)
 
-    reward_rate = compute_occurence_frequency_v2(reward_sequence, window_size)
-    # mistake_rate = compute_occurence_frequency_v1(abs((reward_sequence-1)), window_size)
+#     reward_sequence = np.array([])
 
-    ax.step(np.arange(window_size, length), reward_rate[window_size:], color='black')
+#     for run in ordered_runs:
 
-    ax.set_xlabel('Rank')
-    ax.set_ylabel(f'Reward rate\n in a window of size {window_size}')
+#         if run[0]=='run_around_tower':
+
+#             is_rewarded = int(run[4]['Rewarded'])
+
+#         else:
+
+#             is_rewarded = 0
+
+#         reward_sequence = np.append(reward_sequence,is_rewarded)
+
+#     reward_rate = compute_occurence_frequency_v2(reward_sequence, window_size)
+#     # mistake_rate = compute_occurence_frequency_v1(abs((reward_sequence-1)), window_size)
+
+#     ax.step(np.arange(window_size, length), reward_rate[window_size:], color='black')
+
+#     ax.set_xlabel('Rank')
+#     ax.set_ylabel(f'Reward rate\n in a window of size {window_size}')
 
     
         

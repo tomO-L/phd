@@ -26,7 +26,8 @@ drift = 0.01
 p_a = 0.5
 p_a_reward = 1
 
-np.random.seed(587)
+# np.random.seed(587) # initial seed
+np.random.seed(58777) # test seed
 
 #################
 ### Functions ###
@@ -64,7 +65,7 @@ def run_sequence(p_a, p_a_reward, steps_number, noise_amplitude, delta, drift):
         noise = np.random.randn() * noise_amplitude
 
         drift = drift*(1 + reward_sequence[i-1]*delta)
-        print(drift)
+        # print(drift)
         p_a = p_a + drift + noise
         
         if p_a<0:
@@ -74,7 +75,7 @@ def run_sequence(p_a, p_a_reward, steps_number, noise_amplitude, delta, drift):
 
         p_b = 1 - p_a
 
-    ddm_result = {'rewards': reward_sequence, 'choices': choice_sequence, 'p_a': p_a_sequence}
+    ddm_result = {'rewards': np.array(reward_sequence), 'choices': np.array(choice_sequence), 'p_a': np.array(p_a_sequence)}
 
     return ddm_result
 
@@ -91,8 +92,14 @@ row = gs[0,0].subgridspec(3, 1)
 steps = np.arange(steps_number)
 synthetic_data = []
 
-for _ in range(30):
+show_plot = False
+
+for _ in range(1000):
     
+    if not show_plot:
+
+        break
+
     ddm_result = run_sequence(p_a, p_a_reward, steps_number, noise_amplitude, delta, drift)
 
     synthetic_data.append(ddm_result)
@@ -156,8 +163,10 @@ for i in range(steps_number):
     p_b = 1 - p_a
 """
 
-#with open(f'DDM/synthetic_data.pkl', 'wb') as file:
-#    dill.dump(synthetic_data, file)
+save = True
+if save:
+    with open(f'DDM/synthetic_data_test.pkl', 'wb') as file:
+        dill.dump(synthetic_data, file)
 
 # Time counter
 end_time = time.time()
