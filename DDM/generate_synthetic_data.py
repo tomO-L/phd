@@ -41,6 +41,7 @@ def run_sequence(p_a, p_a_reward, steps_number, noise_amplitude, delta, drift):
     reward_sequence = []
     choice_sequence = []
     p_a_sequence = []
+    drift_sequence = []
 
     for i in range(steps_number):
 
@@ -60,6 +61,7 @@ def run_sequence(p_a, p_a_reward, steps_number, noise_amplitude, delta, drift):
         reward_sequence.append(reward)
         choice_sequence.append(choice)
         p_a_sequence.append(p_a)
+        drift_sequence.append(drift)
 
         ### Probability update
         noise = np.random.randn() * noise_amplitude
@@ -75,7 +77,7 @@ def run_sequence(p_a, p_a_reward, steps_number, noise_amplitude, delta, drift):
 
         p_b = 1 - p_a
 
-    ddm_result = {'rewards': np.array(reward_sequence), 'choices': np.array(choice_sequence), 'p_a': np.array(p_a_sequence)}
+    ddm_result = {'rewards': np.array(reward_sequence), 'choices': np.array(choice_sequence), 'p_a': np.array(p_a_sequence), 'drift': np.array(drift_sequence)}
 
     return ddm_result
 
@@ -94,15 +96,18 @@ synthetic_data = []
 
 show_plot = False
 
-for _ in range(1000):
+for _ in range(5000):
     
-    if not show_plot:
 
-        break
+    # p_a = np.random.rand()
 
     ddm_result = run_sequence(p_a, p_a_reward, steps_number, noise_amplitude, delta, drift)
 
     synthetic_data.append(ddm_result)
+
+    if not show_plot:
+
+        continue
 
     reward_sequence = ddm_result['rewards']
     choice_sequence = ddm_result['choices']

@@ -21,7 +21,7 @@ plt.style.use('paper.mplstyle')
 with open(f'DDM/synthetic_data_test.pkl', 'rb') as file:
     synthetic_data = dill.load(file)
 
-with open(f'DDM/best_model_aic.pkl', 'rb') as file:
+with open(f'DDM/best_model_score.pkl', 'rb') as file:
     model = dill.load(file)
 
 # test_data = [synthetic_data[i]['choices'] for i in np.arange(200,300)]
@@ -76,7 +76,7 @@ ax = plt.subplot(row[0,0])
 plot_states_sequences(ax, padded_states_sequences)
 
 ax.set_xticks(np.arange(0,max_length,10))
-ax.set_yticks(np.arange(0,sequences_number,10))
+# ax.set_yticks(np.arange(0,sequences_number,100))
 
 ### State distribution ###
 
@@ -118,41 +118,64 @@ ax6.set_ylabel('State')
 
 ### Test Plots ###
 
-example_run_index = 76
+example_run_index = 387 #1264
 # example_run = synthetic_data[200:][example_run_index]
 example_run = synthetic_data[example_run_index]
 
+cmap = plt.cm.viridis # ListedColormap(colors) #plt.cm.Set1
+norm = Normalize(vmin=0, vmax=len(model.transmat_)-1)
+colormap = cm.ScalarMappable(norm=norm,cmap=cmap)
+color_for_states = [colormap.to_rgba([i])[0] for i in states_sequences[example_run_index]]
 
 fig=plt.figure(figsize=(4, 7), dpi=300, constrained_layout=False, facecolor='w')
 gs = fig.add_gridspec(1, 1, hspace=0.5,)
-row = gs[0,0].subgridspec(3, 1)
+row = gs[0,0].subgridspec(4, 1)
 
     
 reward_sequence = example_run['rewards']
 choice_sequence = example_run['choices']
 p_a_sequence = example_run['p_a']
+drift_sequence = example_run['drift']
+
+reconstructed_p_a_sequence = []
+
+emissionprob = model.emissionprob_
+
+for s in states_sequences[example_run_index]:
+
+    reconstructed_p_a_sequence.append(emissionprob[s][1])
 
 steps_number = len(choice_sequence)
 steps = np.arange(steps_number)
 
 ax1 = plt.subplot(row[0,0])
-ax1.scatter(steps, reward_sequence, label='Reward Sequence', alpha=0.3, marker='+')
+ax1.scatter(steps, reward_sequence, label='Reward Sequence', marker='+', c=color_for_states)
 ax1.set_ylabel('Reward')
-ax1.set_xticks(steps)
+ax1.set_xticks([])
 ax1.set_yticks([0,1])
 ax1.set_title(f'Run {example_run_index}')
 
 ax2 = plt.subplot(row[1,0])
-ax2.scatter(steps, choice_sequence, label='Choice Sequence', alpha=0.3, marker='+')
+ax2.scatter(steps, choice_sequence, label='Choice Sequence', marker='+', c=color_for_states)
 ax2.set_ylabel('Choice')
-ax2.set_xticks(steps)
+ax2.set_xticks([])
 ax2.set_yticks([0,1])
 
 ax3 = plt.subplot(row[2,0])
-ax3.plot(steps, p_a_sequence, label='Probability Sequence of A', alpha=0.3)
-ax3.set_ylabel('Probability\nto chose A')
-ax3.set_xticks(steps)
+ax3.plot(steps, p_a_sequence, label='Probability Sequence of 1', color='k', alpha=0.5, zorder=0)
+ax3.scatter(steps, p_a_sequence, marker='+', c=color_for_states)
+ax3.plot(steps, reconstructed_p_a_sequence, color='red', alpha=0.5, zorder=0)
+
+ax3.set_ylabel('Probability\nto chose 1')
+ax3.set_xticks([])
 ax3.set_ylim([-0.05,1.05])
+
+ax4 = plt.subplot(row[3,0])
+ax4.plot(steps, drift_sequence, label='Drift Coefficient', color='k', alpha=0.5, zorder=0)
+ax4.scatter(steps, drift_sequence, marker='+', c=color_for_states)
+ax4.set_ylabel('Drift Coefficient')
+ax4.set_xticks(steps)
+ax4.set_ylim([-0.05,None])
 
 ### Time to reach solution ###
 
@@ -161,7 +184,7 @@ gs = fig.add_gridspec(1, 1)
 row = gs[0].subgridspec(1,1)
 ax = plt.subplot(row[:])
 
-def find_success_step(states_sequence,success_state):
+def find_final_state_start(states_sequence,success_state):
 
     success_step = 0
 
@@ -175,13 +198,35 @@ def find_success_step(states_sequence,success_state):
 
     return success_step
 
-success_step_list = []
+def find_threshold_cross(p_a_sequence,threshold):
 
-for s_seq in states_sequences:
+    success_step = 0
 
-    success_step_list.append(find_success_step(s_seq,2))
+    for i in range(len(p_a_sequence)):
 
-ax.hist(success_step_list)
+        if p_a_sequence[i]>=threshold:
+
+            break
+
+        success_step += 1
+
+    return success_step
+
+
+final_state_start_list = []
+threshold_cross_list = []
+
+for i,s_seq in enumerate(states_sequences):
+
+    final_state_start_list.append(find_final_state_start(s_seq,4))
+    threshold_cross_list.append(find_threshold_cross(synthetic_data[i]['p_a'], 0.93))
+
+ax.hist(final_state_start_list, bins=[0,5,10,15,20,25,30,35,40], align='mid', alpha=0.5)
+ax.hist(threshold_cross_list, bins=[0,5,10,15,20,25,30,35,40], align='mid', alpha=0.5)
+
+# ax.hist(final_state_start_list, bins=10, align='mid', alpha=0.5)
+# ax.hist(threshold_cross_list, bins=10, align='mid', alpha=0.5)
+
 
 # all_epochs = load_pickle_data(folder_path_mouse_to_analyse, example_session_index)["all_epochs"]
 # ordered_runs = order_runs(all_epochs)[0]
