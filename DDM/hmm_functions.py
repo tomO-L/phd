@@ -24,7 +24,7 @@ def infer_best_model_score(x_train, x_validate, training_lengths, validation_len
         print(f"Building {n} components model")
         for idx in tqdm(range(n_fits)):
             # model = hmm.CategoricalHMM(
-            model = vhmm.VariationalCategoricalHMM(
+            model = hmm.CategoricalHMM(
                 n_components=n, random_state=idx,
                 init_params='ste', algorithm='viterbi', n_features=n_features)  # don't init transition, set it below
             # we need to initialize with random transition matrix probabilities

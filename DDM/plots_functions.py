@@ -85,7 +85,7 @@ from tqdm import tqdm
 def plot_states_sequences(ax, states, xticks=[], colors= ['blue','red'], show_cbar = True):
 
     cmap = plt.cm.viridis # ListedColormap(colors) #plt.cm.Set1
-    norm = Normalize(vmin=np.nanmin(states), vmax=np.nanmax(states))
+    norm = Normalize(vmin=0, vmax=np.nanmax(states))
 
     # for i in set(states):
 
@@ -95,8 +95,8 @@ def plot_states_sequences(ax, states, xticks=[], colors= ['blue','red'], show_cb
     
     ax.imshow(states, cmap=cmap, aspect='auto', interpolation='none')
 
-    ax.set_xlabel('Rank')
-    ax.set_ylabel('Iterations')
+    ax.set_xlabel('Step')
+    ax.set_ylabel('Simulation')
 
     ax.set_xticks(xticks)
     ax.set_yticks([])

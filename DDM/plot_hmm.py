@@ -18,11 +18,18 @@ plt.style.use('paper.mplstyle')
 ### Import Data ###
 ###################
 
-with open(f'DDM/synthetic_data_test.pkl', 'rb') as file:
+# with open(f'DDM/synthetic_data_test.pkl', 'rb') as file:
+#     synthetic_data = dill.load(file)
+
+# with open(f'DDM/best_model_score_2-10.pkl', 'rb') as file:
+#     model = dill.load(file)
+
+with open(f'DDM/simple_synthetic_data_test.pkl', 'rb') as file:
     synthetic_data = dill.load(file)
 
-with open(f'DDM/best_model_score.pkl', 'rb') as file:
+with open(f'DDM/simple_best_model_score_2-20.pkl', 'rb') as file:
     model = dill.load(file)
+
 
 # test_data = [synthetic_data[i]['choices'] for i in np.arange(200,300)]
 test_data = [synth_data['choices'] for synth_data in synthetic_data]
@@ -78,17 +85,6 @@ plot_states_sequences(ax, padded_states_sequences)
 ax.set_xticks(np.arange(0,max_length,10))
 # ax.set_yticks(np.arange(0,sequences_number,100))
 
-### State distribution ###
-
-## Across sessions
-# fig=plt.figure(figsize=(7, 4), dpi=300, constrained_layout=False, facecolor='w')
-# gs = fig.add_gridspec(1, 1)
-# row = gs[0,0].subgridspec(1, 1)
-# ax = plt.subplot(row[0,0])
-# ax_bis = ax.twinx()
-
-# plot_states_distri_across_sessions(states_time_ratio_distributions, ax, colors=colors)
-
 ### Action and transition matrixes ###
 
 fig=plt.figure(figsize=(3.5, 3), dpi=300, constrained_layout=False, facecolor='w')
@@ -118,7 +114,7 @@ ax6.set_ylabel('State')
 
 ### Test Plots ###
 
-example_run_index = 387 #1264
+example_run_index = 2432
 # example_run = synthetic_data[200:][example_run_index]
 example_run = synthetic_data[example_run_index]
 
@@ -153,7 +149,7 @@ ax1.scatter(steps, reward_sequence, label='Reward Sequence', marker='+', c=color
 ax1.set_ylabel('Reward')
 ax1.set_xticks([])
 ax1.set_yticks([0,1])
-ax1.set_title(f'Run {example_run_index}')
+ax1.set_title(f'Simulation {example_run_index}')
 
 ax2 = plt.subplot(row[1,0])
 ax2.scatter(steps, choice_sequence, label='Choice Sequence', marker='+', c=color_for_states)
@@ -176,6 +172,55 @@ ax4.scatter(steps, drift_sequence, marker='+', c=color_for_states)
 ax4.set_ylabel('Drift Coefficient')
 ax4.set_xticks(steps)
 ax4.set_ylim([-0.05,None])
+
+
+### Residuals Histogram ###
+
+fig=plt.figure(figsize=(4, 4), dpi=300, constrained_layout=False, facecolor='w')
+gs = fig.add_gridspec(1, 1, hspace=0.5,)
+row = gs[0,0].subgridspec(1, 1)
+
+ax = plt.subplot(row[0,0])
+
+def plot_residuals_hist(p_a_sequences, reconstructed_p_a_sequences, ax, bins=None):
+
+    residuals_list = []
+    
+    for i in range(len(p_a_sequences)):
+
+        residuals = np.sum((p_a_sequences[i] - reconstructed_p_a_sequences[i])**2)/len(reconstructed_p_a_sequences[i])
+        residuals_list.append(residuals)
+
+    ax.hist(residuals_list, bins=bins)
+
+    ax.set_xlabel('Residuals of true and infered P(1)')
+    ax.set_ylabel('Number of simulations')
+
+    return residuals_list
+
+emissionprob = model.emissionprob_
+
+reconstructed_p_a_sequences = []
+
+for states_seq in states_sequences:
+
+    reconstructed_p_a_seq = []
+
+    for s in states_seq:
+
+        reconstructed_p_a_seq.append(emissionprob[s][1])
+
+    reconstructed_p_a_sequences.append(reconstructed_p_a_seq)
+
+p_a_sequences = [synth_data['p_a'] for synth_data in synthetic_data]
+
+residuals_list = plot_residuals_hist(p_a_sequences, reconstructed_p_a_sequences, ax, bins=40)
+
+# with open(f'DDM/residuals_aic_2-10.pkl', 'wb') as file:
+#     dill.dump(residuals_list, file)
+
+#residuals = np.sum((p_a_sequence - reconstructed_p_a_sequence)**2)/len(reconstructed_p_a_sequence)
+#print(f"### Residuals: r = {residuals} ###")
 
 ### Time to reach solution ###
 
@@ -218,16 +263,16 @@ threshold_cross_list = []
 
 for i,s_seq in enumerate(states_sequences):
 
-    final_state_start_list.append(find_final_state_start(s_seq,4))
-    threshold_cross_list.append(find_threshold_cross(synthetic_data[i]['p_a'], 0.93))
+    final_state_start_list.append(find_final_state_start(s_seq,0))
+    threshold_cross_list.append(find_threshold_cross(synthetic_data[i]['p_a'], 1.))
 
-ax.hist(final_state_start_list, bins=[0,5,10,15,20,25,30,35,40], align='mid', alpha=0.5)
-ax.hist(threshold_cross_list, bins=[0,5,10,15,20,25,30,35,40], align='mid', alpha=0.5)
+ax.hist(final_state_start_list, bins=np.arange(20), align='left', alpha=0.5, label='First step in final state')
+ax.hist(threshold_cross_list, bins=np.arange(20), align='left', alpha=0.5, label='First step at P(1)=1')
 
-# ax.hist(final_state_start_list, bins=10, align='mid', alpha=0.5)
-# ax.hist(threshold_cross_list, bins=10, align='mid', alpha=0.5)
-
-
+ax.set_xlabel("Step")
+ax.set_ylabel("Number of Simulations")
+ax.set_xticks(np.arange(len(states_sequences[0])))
+ax.legend()
 # all_epochs = load_pickle_data(folder_path_mouse_to_analyse, example_session_index)["all_epochs"]
 # ordered_runs = order_runs(all_epochs)[0]
 

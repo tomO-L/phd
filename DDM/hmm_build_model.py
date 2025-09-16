@@ -16,7 +16,7 @@ plt.style.use('paper.mplstyle')
 
 start_time = time.time()
 
-with open(f'DDM/synthetic_data.pkl', 'rb') as file:
+with open(f'DDM/simple_synthetic_data.pkl', 'rb') as file:
     synthetic_data = dill.load(file)
 
 training_data = [synthetic_data[i]['choices'] for i in np.arange(0,100)]
@@ -48,19 +48,12 @@ validation_emissions_lengths = [len(y) for y in validation_data]
 
 ## Infer best model
 
-# best_model, best_score = infer_best_model_score(training_emissions, validation_emissions, 
-#                                           training_emissions_lengths, validation_emissions_lengths, 
-#                                           [2,3,4,5,6,7,8,9], n_features=4, seed=13)
 
-n_to_test = [2,3,4,5,6,7,8,9,10]
+n_to_test = np.arange(2,21)
 
 best_model, best_score = infer_best_model_score(training_emissions, validation_emissions, 
                                           training_emissions_lengths, validation_emissions_lengths, 
                                           n_to_test, seed=13)
-
-# best_model, best_score = infer_best_model_variational(training_emissions, validation_emissions, 
-#                                           training_emissions_lengths, validation_emissions_lengths, 
-#                                           n_to_test, seed=13)
 
 ###########################
 ### Save model and sets ###
@@ -69,7 +62,7 @@ best_model, best_score = infer_best_model_score(training_emissions, validation_e
 # with open(f'DDM/best_model_aic.pkl', 'wb') as file:
 #     dill.dump(best_model, file)
 
-with open(f'DDM/best_model_score.pkl', 'wb') as file:
+with open(f'DDM/simple_best_model_score_{n_to_test[0]}-{n_to_test[-1]}.pkl', 'wb') as file:
     dill.dump(best_model, file)
 
 print(f'Best score:      {best_score}')

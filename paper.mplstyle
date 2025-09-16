@@ -363,7 +363,7 @@ lines.linewidth: 1              # line width in points
 ## https://matplotlib.org/stable/api/axes_api.html#module-matplotlib.axes
 #axes.facecolor:     white   # axes background color
 #axes.edgecolor:     black   # axes edge color
-axes.linewidth:     1     # edge line width
+axes.linewidth:     0.4     # edge line width
 #axes.grid:          False   # display grid or not
 #axes.grid.axis:     both    # which axis the grid should apply to
 #axes.grid.which:    major   # grid lines at {major, minor, both} ticks
@@ -475,8 +475,8 @@ axes.unicode_minus: False  # use Unicode for the minus symbol rather than hyphen
 #xtick.labelbottom:   True    # draw label on the bottom
 #xtick.major.size:    3     # major tick size in points
 #xtick.minor.size:    2       # minor tick size in points
-xtick.major.width:   1     # major tick width in points
-#xtick.minor.width:   0.6     # minor tick width in points
+xtick.major.width:   0.4     # major tick width in points
+#xtick.minor.width:   0.2     # minor tick width in points
 xtick.major.pad:     2     # distance to major tick label in points
 #xtick.minor.pad:     3.4     # distance to the minor tick label in points
 #xtick.color:         black   # color of the ticks
@@ -496,8 +496,8 @@ xtick.labelsize:     5  # font size of the tick labels
 #ytick.labelright:    False   # draw tick labels on the right side
 #ytick.major.size:    3.5     # major tick size in points
 #ytick.minor.size:    2       # minor tick size in points
-ytick.major.width:   1     # major tick width in points
-#ytick.minor.width:   0.6     # minor tick width in points
+ytick.major.width:   0.4     # major tick width in points
+#ytick.minor.width:   0.2     # minor tick width in points
 ytick.major.pad:     2     # distance to major tick label in points
 #ytick.minor.pad:     3.4     # distance to the minor tick label in points
 #ytick.color:         black   # color of the ticks

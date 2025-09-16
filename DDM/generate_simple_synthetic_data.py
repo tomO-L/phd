@@ -115,7 +115,7 @@ def run_sequence(p_a, p_a_reward, steps_number, noise_amplitude, delta, drift):
         ### Probability update
         noise = np.random.randn() * noise_amplitude
 
-        drift += reward*delta
+        drift = reward*delta
 
         p_a = p_a + drift + noise
         
@@ -162,19 +162,19 @@ for _ in tqdm(range(5000)):
     p_a_sequence = ddm_result['p_a']
 
     ax1 = plt.subplot(row[0,0])
-    ax1.step(steps, reward_sequence, label='Reward Sequence', alpha=0.3)
+    ax1.step(steps, reward_sequence, label='Reward Sequence', alpha=0.05)
     ax1.set_ylabel('Reward')
     ax1.set_xticks(steps)
     ax1.set_yticks([0,1])
 
     ax2 = plt.subplot(row[1,0])
-    ax2.step(steps, choice_sequence, label='Choice Sequence', alpha=0.3)
+    ax2.step(steps, choice_sequence, label='Choice Sequence', alpha=0.05)
     ax2.set_ylabel('Choice')
     ax2.set_xticks(steps)
     ax1.set_yticks([0,1])
 
     ax3 = plt.subplot(row[2,0])
-    ax3.plot(steps, p_a_sequence, label='Probability Sequence of A', alpha=0.3)
+    ax3.plot(steps, p_a_sequence, label='Probability Sequence of A', alpha=0.05)
     ax3.set_ylabel('Probability\nto chose A')
     ax3.set_xticks(steps)
     ax3.set_ylim([-0.05,1.05])
@@ -220,9 +220,9 @@ for i in range(steps_number):
     p_b = 1 - p_a
 """
 
-save = False
+save = True
 if save:
-    with open(f'DDM/synthetic_data_test.pkl', 'wb') as file:
+    with open(f'DDM/simple_synthetic_data_test.pkl', 'wb') as file:
         dill.dump(synthetic_data, file)
 
 
