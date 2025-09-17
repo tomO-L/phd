@@ -114,7 +114,7 @@ ax6.set_ylabel('State')
 
 ### Test Plots ###
 
-example_run_index = 2432
+example_run_index = 1500
 # example_run = synthetic_data[200:][example_run_index]
 example_run = synthetic_data[example_run_index]
 
@@ -264,7 +264,7 @@ threshold_cross_list = []
 for i,s_seq in enumerate(states_sequences):
 
     final_state_start_list.append(find_final_state_start(s_seq,0))
-    threshold_cross_list.append(find_threshold_cross(synthetic_data[i]['p_a'], 1.))
+    threshold_cross_list.append(find_threshold_cross(synthetic_data[i]['p_a'], 1))
 
 ax.hist(final_state_start_list, bins=np.arange(20), align='left', alpha=0.5, label='First step in final state')
 ax.hist(threshold_cross_list, bins=np.arange(20), align='left', alpha=0.5, label='First step at P(1)=1')
@@ -273,6 +273,50 @@ ax.set_xlabel("Step")
 ax.set_ylabel("Number of Simulations")
 ax.set_xticks(np.arange(len(states_sequences[0])))
 ax.legend()
+
+### Mean Trajectory ###
+
+fig=plt.figure(figsize=(3.5, 3), dpi=300, constrained_layout=False, facecolor='w')
+gs = fig.add_gridspec(1, 1)
+row = gs[0].subgridspec(1,1)
+ax = plt.subplot(row[:])
+
+mean_trajectory = np.mean(p_a_sequences,axis=0)
+mean_trajectory_std = np.std(p_a_sequences,axis=0)
+
+reconstructed_mean_trajectory = np.mean(reconstructed_p_a_sequences,axis=0)
+reconstructed_mean_trajectory_std = np.std(reconstructed_p_a_sequences,axis=0)
+
+# median_trajectory = np.median(p_a_sequences,axis=0)
+# trajectory_upper_quartile = np.percentile(p_a_sequences,75,axis=0)
+# trajectory_lower_quartile = np.percentile(p_a_sequences,25,axis=0)
+# bars = [median_trajectory-trajectory_lower_quartile,trajectory_upper_quartile-median_trajectory]
+
+reconstructed_mean_trajectory = np.mean(reconstructed_p_a_sequences,axis=0)
+reconstructed_mean_trajectory_std = np.std(reconstructed_p_a_sequences,axis=0)
+
+# median_reconstructed_trajectory = np.median(reconstructed_p_a_sequences,axis=0)
+# reconstructed_trajectory_upper_quartile = np.percentile(reconstructed_p_a_sequences,75,axis=0)
+# reconstructed_trajectory_lower_quartile = np.percentile(reconstructed_p_a_sequences,25,axis=0)
+# reconstructed_bars = [median_reconstructed_trajectory-reconstructed_trajectory_lower_quartile,reconstructed_trajectory_upper_quartile-median_reconstructed_trajectory]
+
+print(mean_trajectory_std)
+print(reconstructed_mean_trajectory_std)
+# print(median_reconstructed_trajectory)
+
+ax.errorbar(steps, mean_trajectory, yerr=mean_trajectory_std, alpha=0.5)
+ax.errorbar(steps, reconstructed_mean_trajectory, yerr=reconstructed_mean_trajectory_std, alpha=0.5)
+
+# ax.errorbar(steps, median_trajectory, yerr=bars, alpha=0.5)
+# ax.errorbar(steps, median_reconstructed_trajectory, yerr=reconstructed_bars, alpha=0.5)
+
+ax.set_ylim([0,1])
+ax.set_xlabel("Step")
+ax.set_ylabel("Probability to chose 1")
+ax.set_xticks(np.arange(len(states_sequences[0])))
+ax.legend()
+
+
 # all_epochs = load_pickle_data(folder_path_mouse_to_analyse, example_session_index)["all_epochs"]
 # ordered_runs = order_runs(all_epochs)[0]
 
