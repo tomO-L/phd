@@ -22,13 +22,13 @@ start_time = time.time()
 
 steps_number = 20
 noise_amplitude = 0.1
-delta = 0.02
+delta = 0.05
 drift = 0.0
 p_a = 0.5
 p_a_reward = 1
 
-# np.random.seed(58777) # initial seed
-np.random.seed(587) # test seed
+np.random.seed(58777) # initial seed
+# np.random.seed(587) # test seed
 
 #################
 ### Functions ###
@@ -144,7 +144,7 @@ synthetic_data = []
 
 show_plot = True
 
-for _ in tqdm(range(5000)):
+for _ in tqdm(range(300)):
     
 
     # p_a = np.random.rand()
@@ -222,7 +222,7 @@ for i in range(steps_number):
 
 save = True
 if save:
-    with open(f'DDM/simple_synthetic_data_test.pkl', 'wb') as file:
+    with open(f'DDM/simple_synthetic_data.pkl', 'wb') as file:
         dill.dump(synthetic_data, file)
 
 

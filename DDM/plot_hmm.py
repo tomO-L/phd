@@ -24,10 +24,13 @@ plt.style.use('paper.mplstyle')
 # with open(f'DDM/best_model_score_2-10.pkl', 'rb') as file:
 #     model = dill.load(file)
 
+# with open(f'DDM/simple_synthetic_data_test.pkl', 'rb') as file:
+#     synthetic_data = dill.load(file)
+
 with open(f'DDM/simple_synthetic_data_test.pkl', 'rb') as file:
     synthetic_data = dill.load(file)
 
-with open(f'DDM/simple_best_model_score_2-20.pkl', 'rb') as file:
+with open(f'DDM/simple_best_model_score_2-40.pkl', 'rb') as file:
     model = dill.load(file)
 
 
@@ -108,24 +111,24 @@ ax6.imshow(model.emissionprob_)
 ax6.set_xticks([0,1], labels=[0,1], rotation=30, ha="right", rotation_mode="anchor")
 ax6.set_yticks(np.arange(states_number))
 ax6.set_title('Emission matrix')
-ax6.set_xlabel('Action')
+ax6.set_xlabel('Choice')
 ax6.set_ylabel('State')
 
 
 ### Test Plots ###
 
-example_run_index = 1500
+example_run_index = 4850
 # example_run = synthetic_data[200:][example_run_index]
 example_run = synthetic_data[example_run_index]
 
 cmap = plt.cm.viridis # ListedColormap(colors) #plt.cm.Set1
 norm = Normalize(vmin=0, vmax=len(model.transmat_)-1)
 colormap = cm.ScalarMappable(norm=norm,cmap=cmap)
-color_for_states = [colormap.to_rgba([i])[0] for i in states_sequences[example_run_index]]
+color_for_states = ['k']*len(states_sequences[example_run_index]) #[colormap.to_rgba([i])[0] for i in states_sequences[example_run_index]]
 
 fig=plt.figure(figsize=(4, 7), dpi=300, constrained_layout=False, facecolor='w')
 gs = fig.add_gridspec(1, 1, hspace=0.5,)
-row = gs[0,0].subgridspec(4, 1)
+row = gs[0,0].subgridspec(3, 1)
 
     
 reward_sequence = example_run['rewards']
@@ -160,18 +163,18 @@ ax2.set_yticks([0,1])
 ax3 = plt.subplot(row[2,0])
 ax3.plot(steps, p_a_sequence, label='Probability Sequence of 1', color='k', alpha=0.5, zorder=0)
 ax3.scatter(steps, p_a_sequence, marker='+', c=color_for_states)
-ax3.plot(steps, reconstructed_p_a_sequence, color='red', alpha=0.5, zorder=0)
+# ax3.plot(steps, reconstructed_p_a_sequence, color='red', alpha=0.5, zorder=0)
 
 ax3.set_ylabel('Probability\nto chose 1')
-ax3.set_xticks([])
+ax3.set_xticks(steps)
 ax3.set_ylim([-0.05,1.05])
 
-ax4 = plt.subplot(row[3,0])
-ax4.plot(steps, drift_sequence, label='Drift Coefficient', color='k', alpha=0.5, zorder=0)
-ax4.scatter(steps, drift_sequence, marker='+', c=color_for_states)
-ax4.set_ylabel('Drift Coefficient')
-ax4.set_xticks(steps)
-ax4.set_ylim([-0.05,None])
+# ax4 = plt.subplot(row[3,0])
+# ax4.plot(steps, drift_sequence, label='Drift Coefficient', color='k', alpha=0.5, zorder=0)
+# ax4.scatter(steps, drift_sequence, marker='+', c=color_for_states)
+# ax4.set_ylabel('Drift Coefficient')
+# ax4.set_xticks(steps)
+# ax4.set_ylim([-0.05,None])
 
 
 ### Residuals Histogram ###
@@ -263,11 +266,11 @@ threshold_cross_list = []
 
 for i,s_seq in enumerate(states_sequences):
 
-    final_state_start_list.append(find_final_state_start(s_seq,0))
-    threshold_cross_list.append(find_threshold_cross(synthetic_data[i]['p_a'], 1))
+    threshold_cross_list.append(find_threshold_cross(synthetic_data[i]['p_a'], 0.8))
+    final_state_start_list.append(find_final_state_start(s_seq,1))
 
-ax.hist(final_state_start_list, bins=np.arange(20), align='left', alpha=0.5, label='First step in final state')
 ax.hist(threshold_cross_list, bins=np.arange(20), align='left', alpha=0.5, label='First step at P(1)=1')
+ax.hist(final_state_start_list, bins=np.arange(20), align='left', alpha=0.5, label='First step in final state')
 
 ax.set_xlabel("Step")
 ax.set_ylabel("Number of Simulations")
@@ -304,8 +307,11 @@ print(mean_trajectory_std)
 print(reconstructed_mean_trajectory_std)
 # print(median_reconstructed_trajectory)
 
-ax.errorbar(steps, mean_trajectory, yerr=mean_trajectory_std, alpha=0.5)
-ax.errorbar(steps, reconstructed_mean_trajectory, yerr=reconstructed_mean_trajectory_std, alpha=0.5)
+# ax.errorbar(steps, mean_trajectory, yerr=mean_trajectory_std, alpha=0.5)
+# ax.errorbar(steps, reconstructed_mean_trajectory, yerr=reconstructed_mean_trajectory_std, alpha=0.5)
+
+ax.plot(steps, mean_trajectory, alpha=0.5, marker='+')
+ax.plot(steps, reconstructed_mean_trajectory, alpha=0.5, marker='+')
 
 # ax.errorbar(steps, median_trajectory, yerr=bars, alpha=0.5)
 # ax.errorbar(steps, median_reconstructed_trajectory, yerr=reconstructed_bars, alpha=0.5)
@@ -316,6 +322,43 @@ ax.set_ylabel("Probability to chose 1")
 ax.set_xticks(np.arange(len(states_sequences[0])))
 ax.legend()
 
+### Probability Distribution per step ###
+
+fig=plt.figure(figsize=(9, 1), dpi=300, constrained_layout=False, facecolor='w')
+gs = fig.add_gridspec(1, 1)
+row = gs[0].subgridspec(2,steps_number)
+
+for i in range(steps_number):
+
+    ax = plt.subplot(row[0,i])
+
+    values = np.array(p_a_sequences)[:,i]
+    reconstructed_values = np.array(reconstructed_p_a_sequences)[:,i]
+    
+    # print(reconstructed_values)
+
+    ax.hist(values, bins=np.arange(11)*0.1, alpha=0.5)
+    ax.hist(reconstructed_values, bins=np.arange(11)*0.1, alpha=0.5)
+
+    ax.set_ylim([0,5000])
+
+    if i!=0:
+
+        ax.set_xticks([])
+        ax.set_yticks([])
+
+# ax = plt.subplot(row[1,:])
+
+# for reconstructed_p_a_seq in reconstructed_p_a_sequences:
+
+#     ax.plot(steps,reconstructed_p_a_seq, alpha=0.05, color='grey')
+#     ax.set_xticks(steps)
+
+#ax.set_ylim([0,1])
+#ax.set_xlabel("Step")
+#ax.set_ylabel("Probability to chose 1")
+#ax.set_xticks(np.arange(len(states_sequences[0])))
+ax.legend()
 
 # all_epochs = load_pickle_data(folder_path_mouse_to_analyse, example_session_index)["all_epochs"]
 # ordered_runs = order_runs(all_epochs)[0]

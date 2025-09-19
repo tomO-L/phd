@@ -49,7 +49,7 @@ validation_emissions_lengths = [len(y) for y in validation_data]
 ## Infer best model
 
 
-n_to_test = np.arange(2,41)
+n_to_test = np.arange(2,21)
 
 best_model, best_score = infer_best_model_score(training_emissions, validation_emissions, 
                                           training_emissions_lengths, validation_emissions_lengths, 
