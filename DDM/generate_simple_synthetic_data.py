@@ -27,8 +27,9 @@ drift = 0.0
 p_a = 0.5
 p_a_reward = 1
 
-np.random.seed(58777) # initial seed
+# np.random.seed(58777) # initial seed
 # np.random.seed(587) # test seed
+np.random.seed(50) # test seed
 
 #################
 ### Functions ###
@@ -142,9 +143,9 @@ row = gs[0,0].subgridspec(3, 1)
 steps = np.arange(steps_number)
 synthetic_data = []
 
-show_plot = True
+show_plot = False
 
-for _ in tqdm(range(300)):
+for _ in tqdm(range(5000)):
     
 
     # p_a = np.random.rand()
@@ -222,7 +223,7 @@ for i in range(steps_number):
 
 save = True
 if save:
-    with open(f'DDM/simple_synthetic_data.pkl', 'wb') as file:
+    with open(f'DDM/simple_synthetic_data_test2.pkl', 'wb') as file:
         dill.dump(synthetic_data, file)
 
 

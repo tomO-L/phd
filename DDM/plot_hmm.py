@@ -24,10 +24,13 @@ plt.style.use('paper.mplstyle')
 # with open(f'DDM/best_model_score_2-10.pkl', 'rb') as file:
 #     model = dill.load(file)
 
+# with open(f'DDM/simple_synthetic_data.pkl', 'rb') as file:
+#     synthetic_data = dill.load(file)[200:]
+
 # with open(f'DDM/simple_synthetic_data_test.pkl', 'rb') as file:
 #     synthetic_data = dill.load(file)
 
-with open(f'DDM/simple_synthetic_data_test.pkl', 'rb') as file:
+with open(f'DDM/simple_synthetic_data_test2.pkl', 'rb') as file:
     synthetic_data = dill.load(file)
 
 with open(f'DDM/simple_best_model_score_2-40.pkl', 'rb') as file:
@@ -117,7 +120,7 @@ ax6.set_ylabel('State')
 
 ### Test Plots ###
 
-example_run_index = 4850
+example_run_index = 50
 # example_run = synthetic_data[200:][example_run_index]
 example_run = synthetic_data[example_run_index]
 
@@ -337,8 +340,8 @@ for i in range(steps_number):
     
     # print(reconstructed_values)
 
-    ax.hist(values, bins=np.arange(11)*0.1, alpha=0.5)
-    ax.hist(reconstructed_values, bins=np.arange(11)*0.1, alpha=0.5)
+    ax.hist(values, bins=np.linspace(0,1,51), alpha=0.5)
+    ax.hist(reconstructed_values, bins=np.linspace(0,1,51), alpha=0.5)
 
     ax.set_ylim([0,5000])
 
@@ -346,6 +349,24 @@ for i in range(steps_number):
 
         ax.set_xticks([])
         ax.set_yticks([])
+
+### Probability Distribution per step ###
+
+fig=plt.figure(figsize=(9, 9), dpi=300, constrained_layout=False, facecolor='w')
+gs = fig.add_gridspec(1, 1)
+row = gs[0].subgridspec(1,1)
+
+ax = plt.subplot(row[0,0])
+
+values = np.array(p_a_sequences)[:,1]
+reconstructed_values = np.array(reconstructed_p_a_sequences)[:,1]
+    
+ax.hist(values, bins=np.linspace(0,1,101), alpha=0.5)
+ax.hist(reconstructed_values, bins=np.linspace(0,1,101), alpha=0.5)
+
+print("mean at 1: ", np.mean(values))
+
+ax.set_ylim([0,5000])
 
 # ax = plt.subplot(row[1,:])
 
