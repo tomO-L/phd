@@ -1,0 +1,141 @@
+#######################
+### Import packages ###
+#######################
+
+import matplotlib.pyplot as plt
+import sys
+import time
+from IPython.core import ultratb
+import dill
+import numpy as np
+from tqdm import tqdm
+sys.excepthook = ultratb.FormattedTB(call_pdb=False)
+
+plt.style.use('paper.mplstyle')
+
+# Time counter
+start_time = time.time()
+
+##################
+### Parameters ###
+##################
+
+steps_number = 20
+noise_amplitude = 0.1
+# delta = 0.05
+drift = 0.0
+p_a = 0.5
+p_a_reward = 1
+
+# np.random.seed(58777) # initial seed
+# np.random.seed(587) # test seed
+np.random.seed(50) # test seed
+
+#################
+### Functions ###
+#################
+
+def run_sequence(p_a, p_a_reward, steps_number, noise_amplitude, delta, drift):
+
+    p_b = 1 - p_a
+    p_b_reward = 1 - p_a_reward
+
+    reward_sequence = []
+    choice_sequence = []
+    p_a_sequence = []
+    drift_sequence = []
+
+    for _ in range(steps_number):
+
+        ### Choice
+        choice = np.random.choice([1,0], p=[p_a, p_b])
+
+        ### Reward
+        if choice == 1:
+
+            reward = np.random.choice([1,0], p=[p_a_reward, 1-p_a_reward])
+
+        else:
+
+            reward = np.random.choice([1,0], p=[p_b_reward, 1-p_b_reward])
+
+        ### Storage
+        reward_sequence.append(reward)
+        choice_sequence.append(choice)
+        p_a_sequence.append(p_a)
+        drift_sequence.append(drift)
+
+        ### Probability update
+        noise = np.random.randn() * noise_amplitude
+
+        drift = reward*delta
+
+        p_a = p_a + drift + noise
+        
+        if p_a<0:
+            p_a = 0
+        elif p_a>1:
+            p_a = 1
+
+        p_b = 1 - p_a
+
+    ddm_result = {'rewards': np.array(reward_sequence), 'choices': np.array(choice_sequence), 'p_a': np.array(p_a_sequence), 'drift': np.array(drift_sequence)}
+
+    return ddm_result
+
+def compute_simulations_average(p_a, p_a_reward, steps_number, noise_amplitude, delta, drift, n_simulations=300):
+
+    synthetic_proba_list = []
+
+    for _ in tqdm(range(n_simulations), leave=False):
+    
+        ddm_result = run_sequence(p_a, p_a_reward, steps_number, noise_amplitude, delta, drift)
+
+        synthetic_proba_list.append(ddm_result['p_a'])
+
+    mean_trajectory = np.mean(synthetic_proba_list,axis=0)
+
+    return mean_trajectory
+
+
+####################
+### Run and Plot ###
+####################
+
+
+fig=plt.figure(figsize=(4, 7), dpi=300, constrained_layout=False, facecolor='w')
+gs = fig.add_gridspec(1, 1, hspace=0.5,)
+row = gs[0,0].subgridspec(3, 1)
+
+ax = plt.subplot(row[:])
+
+steps = np.arange(steps_number)
+
+delta_range = np.linspace(0.01,0.1,100)
+
+
+for delta in tqdm(delta_range):
+
+    mean_trajectory = compute_simulations_average(p_a, p_a_reward, steps_number, noise_amplitude, delta, drift, n_simulations=5000)
+
+    ax.plot(steps, mean_trajectory, alpha=0.7)
+    ax.text(steps[-1],mean_trajectory[-1], f'delta = {delta}', fontsize=3)
+
+
+ax.set_xlabel('Steps')
+ax.set_ylabel('Average probability to chose 1')
+
+ax.set_xticks(steps)
+
+ax.set_ylim([0,1])
+# Time counter
+end_time = time.time()
+print(f"Ca a pris {(end_time-start_time)//60} min {(end_time-start_time)%60} s")
+
+plt.show()
+
+
+
+
+
+
