@@ -95,6 +95,8 @@ def run_sequence(p_a, p_a_reward, steps_number, noise_amplitude, delta, drift):
 
     for _ in range(steps_number):
 
+        print([p_a, p_b])
+
         ### Choice
         choice = np.random.choice([1,0], p=[p_a, p_b])
 
@@ -145,7 +147,7 @@ synthetic_data = []
 
 show_plot = False
 
-for _ in tqdm(range(5000)):
+for _ in tqdm(range(1)):
     
 
     # p_a = np.random.rand()
@@ -221,7 +223,7 @@ for i in range(steps_number):
     p_b = 1 - p_a
 """
 
-save = True
+save = False
 if save:
     with open(f'DDM/simple_synthetic_data_test2.pkl', 'wb') as file:
         dill.dump(synthetic_data, file)

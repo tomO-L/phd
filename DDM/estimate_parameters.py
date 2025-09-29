@@ -48,6 +48,7 @@ def run_sequence(p_a, p_a_reward, steps_number, noise_amplitude, delta, drift):
 
     for _ in range(steps_number):
 
+
         ### Choice
         choice = np.random.choice([1,0], p=[p_a, p_b])
 
@@ -60,6 +61,7 @@ def run_sequence(p_a, p_a_reward, steps_number, noise_amplitude, delta, drift):
 
             reward = np.random.choice([1,0], p=[p_b_reward, 1-p_b_reward])
 
+        
         ### Storage
         reward_sequence.append(reward)
         choice_sequence.append(choice)
@@ -106,9 +108,9 @@ def j_to_minimize(delta, args):
     noise_amplitude = args[3]
     drift = args[4]
     reconstructed_average_trajectory = args[5]
-    n_simulations = 300
+    n_simulations = 1000
 
-    average_trajectory = compute_simulations_average(p_a, p_a_reward, steps_number, noise_amplitude, delta, drift, n_simulations=300)
+    average_trajectory = compute_simulations_average(p_a, p_a_reward, steps_number, noise_amplitude, delta, drift, n_simulations=n_simulations)
 
     residuals = (np.sum(average_trajectory - reconstructed_average_trajectory)**2)/steps_number
 
@@ -129,6 +131,7 @@ test_data = [synth_data['choices'] for synth_data in synthetic_data]
 with open(f'DDM/simple_best_model_score_2-40.pkl', 'rb') as file:
     model = dill.load(file)
 
+
 ###############
 ### Use HMM ###
 ###############
@@ -139,20 +142,27 @@ sequences_number = len(test_data)
 for i in range(sequences_number):
     
     choices_sequence = test_data[i]
-    choices_number = len(test_data[i])
     
     states_sequence = model.predict(np.int16(choices_sequence.reshape(-1,1)))
     states_sequences.append(states_sequence)
 
 emissionprob = model.emissionprob_
 
-reconstructed_p_a_sequence = []
 
-for s in states_sequences[example_run_index]:
+reconstructed_p_a_sequences = []
 
-    reconstructed_p_a_sequence.append(emissionprob[s][1])
+for i in range(len(states_sequences)):
+
+    reconstructed_p_a_sequence = []
+
+    for s in states_sequences[i]:
+
+        reconstructed_p_a_sequence.append(emissionprob[s][1])
+
+    reconstructed_p_a_sequences.append(reconstructed_p_a_sequence)
 
 reconstructed_average_p_a = np.mean(reconstructed_p_a_sequences,axis=0)
+
 
 ###########
 ### Fit ###
@@ -160,10 +170,28 @@ reconstructed_average_p_a = np.mean(reconstructed_p_a_sequences,axis=0)
 
 args = [p_a, p_a_reward, steps_number, noise_amplitude, drift, reconstructed_average_p_a]
 
-opt_res = opt.minimize(compute_simulations_average_tofit, 0.05, args=args)
+# opt_res = opt.minimize(j_to_minimize, 0.01, args=args, bounds=[0,0.1])
 
-print(opt_res)
+delta_range = np.linspace(0.01,0.2,500)
 
+j_list = []
+
+for delta in delta_range:
+
+    j_list.append(j_to_minimize(delta, args))
+
+
+fig=plt.figure(figsize=(4, 7), dpi=300, constrained_layout=False, facecolor='w')
+gs = fig.add_gridspec(1, 1, hspace=0.5,)
+row = gs[0,0].subgridspec(3, 1)
+
+ax = plt.subplot(row[:])
+
+ax.plot(delta_range,j_list)
+ax.set_xlabel('Delta')
+ax.set_ylabel('J')
+
+plt.show()
 ####################
 ### Run and Plot ###
 ####################
