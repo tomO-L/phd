@@ -145,9 +145,9 @@ row = gs[0,0].subgridspec(3, 1)
 steps = np.arange(steps_number)
 synthetic_data = []
 
-show_plot = False
+show_plot = True
 
-for _ in tqdm(range(1)):
+for _ in tqdm(range(10)):
     
 
     # p_a = np.random.rand()
@@ -165,22 +165,25 @@ for _ in tqdm(range(1)):
     p_a_sequence = ddm_result['p_a']
 
     ax1 = plt.subplot(row[0,0])
-    ax1.step(steps, reward_sequence, label='Reward Sequence', alpha=0.05)
+    ax1.plot(steps, reward_sequence, label='Reward Sequence', color='k')
     ax1.set_ylabel('Reward')
-    ax1.set_xticks(steps)
+    ax1.set_xticks([])
     ax1.set_yticks([0,1])
 
     ax2 = plt.subplot(row[1,0])
-    ax2.step(steps, choice_sequence, label='Choice Sequence', alpha=0.05)
+    ax2.plot(steps, choice_sequence, label='Choice Sequence', color='k')
     ax2.set_ylabel('Choice')
-    ax2.set_xticks(steps)
-    ax1.set_yticks([0,1])
+    ax2.set_xticks([])
+    ax2.set_yticks([0,1])
 
     ax3 = plt.subplot(row[2,0])
-    ax3.plot(steps, p_a_sequence, label='Probability Sequence of A', alpha=0.05)
-    ax3.set_ylabel('Probability\nto chose A')
+    ax3.plot(steps, p_a_sequence, label='Probability Sequence of 1', color='k', alpha=0.5, zorder=0)
+    # ax3.plot(steps, reconstructed_p_a_sequence, color='red', alpha=0.5, zorder=0)
+
+    ax3.set_ylabel('Probability\nto chose 1')
     ax3.set_xticks(steps)
     ax3.set_ylim([-0.05,1.05])
+
 
 # Time counter
 end_time = time.time()

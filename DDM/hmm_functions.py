@@ -20,8 +20,13 @@ def infer_best_model_score(x_train, x_validate, training_lengths, validation_len
     n_fits = 200
     np.random.seed(seed)
 
+    local_best_score_list = [] ### VERBOSE
+
     for n in n_to_test:
         print(f"Building {n} components model")
+        
+        local_best_score = None ### VERBOSE
+        
         for idx in tqdm(range(n_fits)):
             # model = hmm.CategoricalHMM(
             model = hmm.CategoricalHMM(
@@ -51,6 +56,14 @@ def infer_best_model_score(x_train, x_validate, training_lengths, validation_len
             if best_score is None or score > best_score:
                 best_model = model
                 best_score = score
+
+            if local_best_score is None or score > local_best_score: ### VERBOSE
+
+                local_best_score = score ### VERBOSE
+
+        local_best_score_list.append(local_best_score) ### VERBOSE
+
+    print("All Scores : ", local_best_score_list) ### VERBOSE
 
     return best_model, best_score
 

@@ -62,8 +62,8 @@ best_model, best_score = infer_best_model_score(training_emissions, validation_e
 # with open(f'DDM/best_model_aic.pkl', 'wb') as file:
 #     dill.dump(best_model, file)
 
-with open(f'DDM/simple_best_model_score_{n_to_test[0]}-{n_to_test[-1]}.pkl', 'wb') as file:
-    dill.dump(best_model, file)
+# with open(f'DDM/simple_best_model_score_{n_to_test[0]}-{n_to_test[-1]}.pkl', 'wb') as file:
+#     dill.dump(best_model, file)
 
 print(f'Best score:      {best_score}')
 
