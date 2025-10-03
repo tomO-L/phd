@@ -170,9 +170,15 @@ reconstructed_average_p_a = np.mean(reconstructed_p_a_sequences,axis=0)
 
 args = [p_a, p_a_reward, steps_number, noise_amplitude, drift, 5000, reconstructed_average_p_a]
 
-# opt_res = opt.minimize(compute_mean_square_error, 0.01, args=args, options={'maxiter': 1000})
-# print(opt_res)
+opt_res_list = []
 
+for _ in range(20):
+    
+    opt_res = opt.minimize(compute_mean_square_error, 0.01, args=args, method= 'Powell')
+    opt_res_list.append(opt_res)
+    print(opt_res.x)
+
+print(opt_res_list)
 
 # delta_range = np.linspace(0.01,0.1,250)
 

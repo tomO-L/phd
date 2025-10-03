@@ -413,22 +413,46 @@ def order_epochs(all_epochs):
 
 def order_runs(all_epochs):
 
+    """
+    Sort epochs in chronological order, omitting immobility epochs.
+
+    Arguments:
+        all_epoch (dict): dictionnary containing all the epochs, sorted by type of epoch. Each key is a different type of epoch.
+
+    Returns:
+        list: ordered_all_runs containing all the epochs omitting immobility epochs, sorted in chronological way.
+        list: ordered_all_runs_frames containing all the epoch's frame intervals, omitting immobility epochs, sorted in chronological way.
+
+    """
+
+    # Initialize empty lists to store ordered runs and their first frames
     ordered_all_runs = []
     ordered_all_runs_frames = []
 
+    # Loop through each key in the all_epochs dictionary
     for k in all_epochs.keys():
-
-        if k != 'immobility':
-
-            for i in range(len(all_epochs[k])):
-
-                ordered_all_runs.append(all_epochs[k][i])
+        
+        # Loop through each run in the current key's list
+        for i in range(len(all_epochs[k])):
+            
+            # Treats immobility differently because of a structure difference of the epoch variables
+            if k != 'immobility':
+        
+                # Add the current run to ordered_all_runs
+                ordered_all_runs.append([k] + all_epochs[k][i])
+                # Add the first frame of the current run to ordered_all_runs_frames
                 ordered_all_runs_frames.append(all_epochs[k][i][0])
 
-    ordered_all_runs_frames = sorted(ordered_all_runs_frames, key=lambda x: x[0])
-    
-    ordered_all_runs = sorted(ordered_all_runs,key=lambda x: x[0])
+            else: 
+            
+                continue
 
+    # Sort the frames list based on the first element of each frame
+    ordered_all_runs_frames = sorted(ordered_all_runs_frames, key=lambda x: x[1])
+    # Sort the runs list based on the first element of each run
+    ordered_all_runs = sorted(ordered_all_runs, key=lambda x: x[1])
+
+    # Return the ordered lists of runs and their first frames
     return ordered_all_runs, ordered_all_runs_frames
 
 def find_visits(all_epochs):
@@ -695,3 +719,124 @@ def plot_learning_curve(values_persessions_permouse, mice_to_analyse, ax, wilcox
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+def identify_action(epoch):
+
+    """
+    Identify action type
+    """
+
+    action_types = ['run_around_tower_CW', 'run_around_tower_CCW', 'run_between_towers', 'run_toward_tower', 'exploratory_run']
+
+    if epoch[0]!='run_around_tower':
+
+        action_name = epoch[0]
+
+    else:
+
+        direction = epoch[4]['direction']
+        action_name = f'{epoch[0]}_{direction}'
+
+    return action_name, action_types
+
+def compute_occurence_frequency_v2(sequence,window_size=50):
+
+    occurence_frequency = []
+
+    for i in range(len(sequence)):
+
+        effective_window_size = window_size if i>=window_size else i
+        # effective_window_size = window_size if 1>=window_size else i
+    
+        res = np.sum(sequence[i-effective_window_size:i])/effective_window_size
+        # res = np.sum(sequence[i-effective_window_size:i] * window)/effective_window_size
+
+        occurence_frequency.append(res)
+
+    return occurence_frequency
+
+
+def plot_states_occurence_frequency(run_sequence, ax, window_size=50):
+
+    run_types = ['run_around_tower_CW',
+                   'run_around_tower_CCW',
+                   'run_between_towers',
+                   'run_toward_tower',
+                   'exploratory_run']
+    
+    colors_dict = {'run_around_tower_CW': '#1f77b4',
+                   'run_around_tower_CCW': '#d62728',
+                   'run_between_towers': '#2ca02c',
+                   'run_toward_tower':'#bcbd22',
+                   'exploratory_run': '#ff7f0e'}
+
+    labels = ['CW QTs',
+              'CCW QTs',
+              'RBTs',
+              'Run Toward Tower',
+              'Exploratory Run']
+    
+
+    length = len(run_sequence)
+
+    for k, run_type in enumerate(run_types):
+
+        # sequence = np.where(run_sequence==run_type,1,0)
+        sequence = np.zeros(length)
+
+        for i in range(length):
+
+            if run_sequence[i]==run_type:
+
+                sequence[i] = 1
+
+        occurence_frequency = compute_occurence_frequency_v2(sequence, window_size)
+
+        ax.step(np.arange(window_size, length), occurence_frequency[window_size:], color=colors_dict[run_type], label = labels[k])
+
+    ax.set_xlabel('Run Index')
+    ax.set_ylabel(f'Occurence frequency\n in a window of size {window_size}')
+
+
+def plot_reward_rate(ordered_runs, ax, window_size=50):
+
+    length = len(ordered_runs)
+
+    reward_sequence = np.array([])
+
+    for run in ordered_runs:
+
+        if run[0]=='run_around_tower':
+
+            is_rewarded = int(run[4]['Rewarded'])
+
+        else:
+
+            is_rewarded = 0
+
+        reward_sequence = np.append(reward_sequence,is_rewarded)
+
+    reward_rate = compute_occurence_frequency_v2(reward_sequence, window_size)
+    # mistake_rate = compute_occurence_frequency_v1(abs((reward_sequence-1)), window_size)
+
+    ax.step(np.arange(window_size, length), reward_rate[window_size:], color='black', label = 'Rewards')
+
+    ax.set_xlabel('Run Index')
