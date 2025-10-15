@@ -50,9 +50,8 @@ def run_simulation(p_a, p_a_reward, steps_number, noise_amplitude, delta, drift)
 
     return ddm_result
 
-def run_simulations_batch(p_a, p_a_reward, steps_number, noise_amplitude, delta, drift, n_simulations, seed=1):
+def run_simulations_batch(p_a, p_a_reward, steps_number, noise_amplitude, delta, drift, n_simulations):
 
-    np.random.seed(seed)
     simulations_batch = []
 
     for _ in tqdm(range(n_simulations)):

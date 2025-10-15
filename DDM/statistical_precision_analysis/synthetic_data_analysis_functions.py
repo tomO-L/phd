@@ -136,3 +136,20 @@ def compute_reconstructed_average_proba_sequences(n_simulations_list):
 
     return reconstructed_average_proba_sequences
 
+def compute_reconstructed_average_proba_sequences_fulltraining(n_simulations_list):
+
+    reconstructed_average_proba_sequences = []
+
+    for n_simulations in n_simulations_list:
+        
+        with open(f'DDM/statistical_precision_analysis/simulations_batches/simulations_batch_{n_simulations}.pkl', 'rb') as file:
+            synthetic_data = dill.load(file)
+
+        test_data = [synth_data['choices'] for synth_data in synthetic_data]
+
+        with open(f'DDM/statistical_precision_analysis/simulations_batches/best_model_score_{n_simulations}_fulltraining.pkl', 'rb') as file:
+            model = dill.load(file)
+
+        reconstructed_average_proba_sequences.append(compute_reconstructed_average_proba_sequence(test_data, model))
+
+    return reconstructed_average_proba_sequences
