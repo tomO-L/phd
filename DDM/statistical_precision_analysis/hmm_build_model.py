@@ -16,7 +16,7 @@ plt.style.use('paper.mplstyle')
 
 start_time = time.time()
 
-n_simulations = 1000
+n_simulations = 5000
 
 with open(f'DDM/statistical_precision_analysis/simulations_batches/simulations_batch_{n_simulations}.pkl', 'rb') as file:
     synthetic_data = dill.load(file)

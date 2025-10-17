@@ -36,15 +36,36 @@ p_a_reward = 1
 # np.random.seed(50) # test seed
 
 # n_simulations_list = [20,60,100,200,600,1000,2000]
-n_simulations_list = [600]
+n_simulations_list = [100,100,100,100,100,100,100,100]
 
+
+#####
+
+def compute_reconstructed_average_proba_sequences_fulltraining(n_simulations_list):
+
+    reconstructed_average_proba_sequences = []
+
+    for n_simulations in n_simulations_list:
+        
+        with open(f'DDM/statistical_precision_analysis/simulations_batches/simulations_batch_{n_simulations}_test.pkl', 'rb') as file:
+            synthetic_data = dill.load(file)
+
+        test_data = [synth_data['choices'] for synth_data in synthetic_data]
+
+        with open(f'DDM/statistical_precision_analysis/simulations_batches/best_model_score_{n_simulations}_fulltraining.pkl', 'rb') as file:
+            model = dill.load(file)
+
+        reconstructed_average_proba_sequences.append(compute_reconstructed_average_proba_sequence(test_data, model))
+
+    return reconstructed_average_proba_sequences
+#####
 
 
 ####################
 ### Computations ###
 ####################
 
-delta_range = np.linspace(0.01,0.1,250)
+delta_range = np.linspace(0.01,0.1,50)
 
 # reconstructed_average_proba_sequences = compute_reconstructed_average_proba_sequences(n_simulations_list)
 reconstructed_average_proba_sequences = compute_reconstructed_average_proba_sequences_fulltraining(n_simulations_list)
@@ -53,12 +74,12 @@ def callback(xk):
     print("Current solution: ", xk)
 
 recompute_mse = True
-
+counter = 0
 for i in range(len(n_simulations_list)):
 
     if not(recompute_mse):
 
-        with open(f'DDM/statistical_precision_analysis/simulations_batches/mse_{n_simulations_list[i]}_fulltraining.pkl', 'rb') as file:
+        with open(f'DDM/statistical_precision_analysis/simulations_batches/mse_{n_simulations_list[i]}_fulltraining_test.pkl', 'rb') as file:
             delta_range,mse_list = dill.load([delta_range,mse_list], file)
 
         continue
@@ -83,8 +104,14 @@ for i in range(len(n_simulations_list)):
 
     print(recovered_delta)
 
-    with open(f'DDM/statistical_precision_analysis/simulations_batches/mse_{n_simulations_list[i]}_fulltraining.pkl', 'wb') as file:
+    # with open(f'DDM/statistical_precision_analysis/simulations_batches/mse_{n_simulations_list[i]}_fulltraining_test.pkl', 'wb') as file:
+    #     dill.dump([delta_range,mse_list], file)
+
+    with open(f'DDM/statistical_precision_analysis/simulations_batches/mse_{n_simulations_list[i]}_fulltraining_{counter}.pkl', 'wb') as file:
         dill.dump([delta_range,mse_list], file)
+
+
+    counter += 1
 
 # quit() #################################################################################
 ############

@@ -21,7 +21,7 @@ row = gs[0,0].subgridspec(3, 1)
 ax = plt.subplot(row[:])
 
 # n_simulations_list = [20,60,100,200,600,1000,2000]
-n_simulations_list = [20,60,100,200,600]
+n_simulations_list = [20,60,100,200,600,1000,2000,5000]
 
 for n_simulations in n_simulations_list:
 

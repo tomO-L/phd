@@ -13,7 +13,7 @@ import scipy.optimize as opt
 from synthetic_data_generation_functions import *
 sys.excepthook = ultratb.FormattedTB(call_pdb=False)
 
-plt.style.use('paper.mplstyle')
+# plt.style.use('paper.mplstyle')
 
 # Time counter
 start_time = time.time()
@@ -22,12 +22,7 @@ start_time = time.time()
 ### Parameters ###
 ##################
 
-steps_number = 20
-noise_amplitude = 0.1
-# delta = 0.05
-drift = 0.0
-p_a = 0.5
-p_a_reward = 1
+
 
 # np.random.seed(58777) # initial seed
 # np.random.seed(587) # test seed

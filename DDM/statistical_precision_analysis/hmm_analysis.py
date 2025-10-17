@@ -27,13 +27,16 @@ start_time = time.time()
 ##################
 
 n_simulations_list = [20, 60, 100, 200, 600]
-n_simulations = 600
+n_simulations = 100
 
 ################
 ### Analysis ###
 ################
 
 with open(f'DDM/statistical_precision_analysis/simulations_batches/best_model_score_{n_simulations}_fulltraining.pkl', 'rb') as file:
+    model = dill.load(file)
+
+with open(f'DDM/statistical_precision_analysis/simulations_batches/best_model_score_{5000}_fulltraining.pkl', 'rb') as file:
     model = dill.load(file)
 
 # fig, ax = plt.subplots()
@@ -169,18 +172,47 @@ ax = plt.subplot(row[:])
 print('res=',np.matmul(new_mat,new_emissionmat[:,1]))
 
 new_mat_i = new_transmat
+res_list = []
 
-for i in range(100):
+x = np.arange(500)
+
+for i in x:
 
     new_mat_i = np.matmul(new_mat_i,new_transmat)
     res = np.matmul(new_mat_i,new_emissionmat[:,1])
     res2 = np.matmul(new_mat_i,np.ones(len(transmat))/len(transmat))
     
     # print(res)
-    ax.scatter(i,np.mean(res), c='blue', marker='+')
-    x = np.arange(100)
-# ax.scatter(x,0.27 + (0.9-0.27)*(1-np.exp(-0.05*x)), c='red', marker='+', alpha=0.5)
+    
+    res_list.append(res)
+    # ax.scatter(i,res[2], c='blue', marker='+')
+
+res_array = np.array(res_list)
+
+for j in range(len(new_emissionmat)):
+
+    ax.plot(x, res_array[:,j])
+
+# ax.scatter(x,0.88 - (0.22)/np.sqrt(x), c='red', marker='+', alpha=0.5)
     # ax.scatter(i,res2[0], c='red')
+
+steps_number = 500
+noise_amplitude = 0.1
+# delta = 0.05
+drift = 0.0
+p_a = 0.5
+p_a_reward = 1
+
+steps = np.arange(steps_number)
+
+delta_range = [0.03,0.04,0.05,0.06,0.07] #np.linspace(0.01,0.1,10)
+
+for delta in tqdm(delta_range):
+
+   mean_trajectory = compute_simulations_average(p_a, p_a_reward, steps_number, noise_amplitude, delta, drift, n_simulations=5000)
+
+   ax.plot(steps, mean_trajectory, alpha=0.5, linestyle='--')
+   ax.text(steps[-1],mean_trajectory[-1], f'drift = {np.round(delta,3)}', fontsize=5)
 
 # ax.imshow(np.matmul(new_mat,new_emissionmat[:,1]))
 # ax.set_xticks([0,1], labels=[0,1], rotation=30, ha="right", rotation_mode="anchor")
