@@ -13,6 +13,7 @@ import scipy.optimize as opt
 import noisyopt 
 from synthetic_data_generation_functions import *
 from synthetic_data_analysis_functions import *
+from hmm_functions import *
 from matplotlib import animation
 import time
 sys.excepthook = ultratb.FormattedTB(call_pdb=False)
@@ -27,7 +28,7 @@ start_time = time.time()
 ##################
 
 n_simulations_list = [20, 60, 100, 200, 600]
-n_simulations = 100
+n_simulations = 60
 
 ################
 ### Analysis ###
@@ -36,8 +37,26 @@ n_simulations = 100
 with open(f'DDM/statistical_precision_analysis/simulations_batches/best_model_score_{n_simulations}_fulltraining.pkl', 'rb') as file:
     model = dill.load(file)
 
-with open(f'DDM/statistical_precision_analysis/simulations_batches/best_model_score_{5000}_fulltraining.pkl', 'rb') as file:
-    model = dill.load(file)
+with open(f'DDM/statistical_precision_analysis/simulations_batches/simulations_batch_{n_simulations}_test.pkl', 'rb') as file:
+    synthetic_data = dill.load(file)
+
+test_data = [synth_data['choices'] for synth_data in synthetic_data]
+
+initial_state_list = []
+sequences_number = len(test_data)
+
+for i in range(sequences_number):
+    
+    choices_sequence = test_data[i]
+    
+    states_sequence = model.predict(np.int16(choices_sequence.reshape(-1,1)))
+    initial_state_list.append(states_sequence[0])
+
+initial_state_list_distri = []
+
+for s in range(len(model.transmat_)):
+
+    initial_state_list_distri.append(initial_state_list.count(s))
 
 # fig, ax = plt.subplots()
 
@@ -48,43 +67,9 @@ mat = transmat
 sorted_indexes = np.argsort(emission_vect)
 vector = np.ones([len(transmat),1])/len(transmat)
 
-# for i in range(5):
-
-#     mat = np.matmul(transmat,mat)
-
-#     # vector = np.matmul(transmat,vector)
-
-#     # ax.clear()
-#     # ax.imshow(vector, vmin=0, vmax=1)
-#     ax.imshow(mat, vmin=0, vmax=1)
-#     plt.show()
-
-#     # time.sleep(1)
-
-###################
-
-# for i in range(500):
-
-#     mat = np.matmul(transmat,mat)
-    # print(mat)
-
-# new_mat = np.array([mat[:,sorted_indexes[i]] for i in len(sorted_indexes)])
-
 ##
 
-temp_transmat = []
-
-for i in sorted_indexes:
-    temp_transmat.append(transmat[i,:])
-
-temp_transmat = np.array(temp_transmat)
-
-new_transmat = []
-
-for i in sorted_indexes:
-    new_transmat.append(temp_transmat[:,i])
-
-new_transmat = np.transpose(new_transmat)
+new_transmat = order_matrix(mat, sorted_indexes)
 
 ##
 
@@ -94,15 +79,17 @@ for i in range(500):
 
     new_mat = np.matmul(new_mat,new_transmat)
 
-
 ##
 
 new_emissionmat = []
+new_initial_state_list_distri = []
 
 for i in sorted_indexes:
     new_emissionmat.append(model.emissionprob_[i,:])
+    new_initial_state_list_distri.append(initial_state_list_distri[i])
 
 new_emissionmat = np.array(new_emissionmat)
+new_initial_state_list_distri = np.array(new_initial_state_list_distri)/np.sum(new_initial_state_list_distri)
 
 ##
 
@@ -142,7 +129,7 @@ ax = plt.subplot(row[:])
 # proba_dist = new_mat[0]*new_emissionmat[:,1]
 proba_dist = new_emissionmat[:,1]
 
-print(np.std(proba_dist))
+# print(np.std(proba_dist))
 
 ax.plot(proba_dist)
 ax.set_xlabel('State')
@@ -164,55 +151,69 @@ ax.set_ylabel('State')
 
 #
 
-fig=plt.figure(figsize=(3.5, 3), dpi=300, constrained_layout=False, facecolor='w')
+
+fig=plt.figure(figsize=(3.5, 6), dpi=300, constrained_layout=False, facecolor='w')
 gs = fig.add_gridspec(1, 1)
-row = gs[0].subgridspec(1,1)
-ax = plt.subplot(row[:])
+row = gs[0].subgridspec(2,1)
+ax = plt.subplot(row[0,0])
+axbis = plt.subplot(row[1,0])
 
 print('res=',np.matmul(new_mat,new_emissionmat[:,1]))
 
 new_mat_i = new_transmat
 res_list = []
 
-x = np.arange(500)
+x = np.arange(100)
 
 for i in x:
 
     new_mat_i = np.matmul(new_mat_i,new_transmat)
     res = np.matmul(new_mat_i,new_emissionmat[:,1])
-    res2 = np.matmul(new_mat_i,np.ones(len(transmat))/len(transmat))
-    
+    res2 = np.matmul(new_emissionmat[:,1],new_mat_i)
+    res3 = np.matmul(np.ones(len(transmat))/len(transmat),new_mat_i)
+    res4 = new_emissionmat[:,1]*np.matmul(new_initial_state_list_distri,new_mat_i)
+        
+    res = res4
+
     # print(res)
     
     res_list.append(res)
-    # ax.scatter(i,res[2], c='blue', marker='+')
-
+    ax.scatter(i,np.sum(res), c='k', marker='+', alpha=0.5)
+    axbis.scatter(i,np.sum(res) - np.sum(res_list[i-1]) if i>1 else np.nan, c='k', marker='+', alpha=0.5)
 res_array = np.array(res_list)
+
+print(np.sum(res))
 
 for j in range(len(new_emissionmat)):
 
     ax.plot(x, res_array[:,j])
+    axbis.plot(x[1:], np.diff(res_array[:,j]))
+
 
 # ax.scatter(x,0.88 - (0.22)/np.sqrt(x), c='red', marker='+', alpha=0.5)
     # ax.scatter(i,res2[0], c='red')
 
-steps_number = 500
+steps_number = len(x)
 noise_amplitude = 0.1
 # delta = 0.05
 drift = 0.0
 p_a = 0.5
 p_a_reward = 1
 
-steps = np.arange(steps_number)
-
 delta_range = [0.03,0.04,0.05,0.06,0.07] #np.linspace(0.01,0.1,10)
 
 for delta in tqdm(delta_range):
 
-   mean_trajectory = compute_simulations_average(p_a, p_a_reward, steps_number, noise_amplitude, delta, drift, n_simulations=5000)
+    mean_trajectory = compute_simulations_average(p_a, p_a_reward, steps_number, noise_amplitude, delta, drift, n_simulations=10000)
 
-   ax.plot(steps, mean_trajectory, alpha=0.5, linestyle='--')
-   ax.text(steps[-1],mean_trajectory[-1], f'drift = {np.round(delta,3)}', fontsize=5)
+    ax.plot(x, mean_trajectory, alpha=0.5, linestyle='--')
+    ax.text(x[-1],mean_trajectory[-1], f'drift = {np.round(delta,3)}', fontsize=5)
+
+    axbis.plot(x[1:],np.diff(mean_trajectory), alpha=0.5, linestyle='--')
+
+ax.set_ylabel('Probability to chose 1')
+axbis.set_xlabel('Steps')
+axbis.set_ylabel('Slope of Probability to chose 1')
 
 # ax.imshow(np.matmul(new_mat,new_emissionmat[:,1]))
 # ax.set_xticks([0,1], labels=[0,1], rotation=30, ha="right", rotation_mode="anchor")
@@ -220,6 +221,8 @@ for delta in tqdm(delta_range):
 # ax.set_title(f'Final matrix * Emission vector, {n_simulations} simulations', fontsize=7)
 # ax.set_xlabel('Choice')
 # ax.set_ylabel('State')
+
+
 
 plt.show()
 

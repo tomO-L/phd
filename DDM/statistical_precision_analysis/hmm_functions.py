@@ -111,3 +111,33 @@ def infer_best_model_variational(x_train, x_validate, training_lengths, validati
                 best_score = score
 
     return best_model, best_score
+
+# def order_matrix(matrix, indexes):
+
+#     temp_matrix = []
+
+#     for i in indexes:
+#         temp_matrix.append(matrix[:,i])
+
+#     temp_matrix = np.array(temp_matrix)
+
+#     new_matrix = []
+
+#     for i in indexes:
+#         new_matrix.append(temp_matrix[i,:])
+
+#     new_matrix = np.transpose(new_matrix)
+
+#     return new_matrix
+
+def order_matrix(matrix, indexes):
+
+    new_matrix = np.copy(matrix)
+
+    length = len(matrix)
+
+    new_matrix[np.arange(length)] = new_matrix[indexes]
+
+    new_matrix[:,np.arange(length)] = new_matrix[:,indexes]
+
+    return new_matrix

@@ -232,12 +232,16 @@ example_states_sequence = states_sequences[example_session_index]
 window_size = 50
 
 ## 
-fig=plt.figure(figsize=(7, 4), dpi=300, constrained_layout=False, facecolor='w')
+fig=plt.figure(figsize=(9, 3), dpi=300, constrained_layout=False, facecolor='w')
 gs = fig.add_gridspec(1, 1)
 row = gs[0,0].subgridspec(1, 1)
 ax = plt.subplot(row[0,0])
 
 plot_cumulated_turns_profile(ordered_runs, ax, states_sequence = example_states_sequence, colors = colors)
+
+ax.set_xlabel('Run rank')
+ax.set_yticks([])
+ax.set_yticklabels([])
 
 ## 
 fig=plt.figure(figsize=(7, 4), dpi=300, constrained_layout=False, facecolor='w')

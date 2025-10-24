@@ -18,7 +18,7 @@ start_time = time.time()
 
 n_simulations = 5000
 
-with open(f'DDM/statistical_precision_analysis/simulations_batches/simulations_batch_{n_simulations}.pkl', 'rb') as file:
+with open(f'DDM/statistical_precision_analysis/simulations_batches/simulations_batch_{n_simulations}_test2.pkl', 'rb') as file:
     synthetic_data = dill.load(file)
 
 # slice_size = int(n_simulations/4)
@@ -66,7 +66,7 @@ best_model, best_score = infer_best_model_score(training_emissions, validation_e
 # with open(f'DDM/statistical_precision_analysis/simulations_batches/best_model_score_{n_simulations}.pkl', 'wb') as file:
 #     dill.dump(best_model, file)
 
-with open(f'DDM/statistical_precision_analysis/simulations_batches/best_model_score_{n_simulations}_fulltraining.pkl', 'wb') as file:
+with open(f'DDM/statistical_precision_analysis/simulations_batches/best_model_score_{n_simulations}_fulltraining_2.pkl', 'wb') as file:
     dill.dump(best_model, file)
 
 end_time = time.time()
