@@ -28,7 +28,7 @@ start_time = time.time()
 ##################
 
 n_simulations_list = [20, 60, 100, 200, 600]
-n_simulations = 60
+n_simulations = 5000
 
 ################
 ### Analysis ###
@@ -171,8 +171,9 @@ for i in x:
     res = np.matmul(new_mat_i,new_emissionmat[:,1])
     res2 = np.matmul(new_emissionmat[:,1],new_mat_i)
     res3 = np.matmul(np.ones(len(transmat))/len(transmat),new_mat_i)
-    res4 = new_emissionmat[:,1]*np.matmul(new_initial_state_list_distri,new_mat_i)
-        
+    res4 = np.matmul(new_initial_state_list_distri,new_mat_i)*new_emissionmat[:,1]
+    res5 = (res4 - new_initial_state_list_distri*new_emissionmat[:,1])**2
+
     res = res4
 
     # print(res)
@@ -180,6 +181,10 @@ for i in x:
     res_list.append(res)
     ax.scatter(i,np.sum(res), c='k', marker='+', alpha=0.5)
     axbis.scatter(i,np.sum(res) - np.sum(res_list[i-1]) if i>1 else np.nan, c='k', marker='+', alpha=0.5)
+
+    # ax.scatter(i,(np.sum(res4) - np.sum(new_initial_state_list_distri*new_emissionmat[:,1]))**2, c='k', marker='+', alpha=0.5)
+    # axbis.scatter(i,np.sum(res) - np.sum(res_list[i-1]) if i>1 else np.nan, c='k', marker='+', alpha=0.5)
+
 res_array = np.array(res_list)
 
 print(np.sum(res))
@@ -204,12 +209,23 @@ delta_range = [0.03,0.04,0.05,0.06,0.07] #np.linspace(0.01,0.1,10)
 
 for delta in tqdm(delta_range):
 
-    mean_trajectory = compute_simulations_average(p_a, p_a_reward, steps_number, noise_amplitude, delta, drift, n_simulations=10000)
-
+    mean_trajectory = compute_simulations_average(p_a, p_a_reward, steps_number, noise_amplitude, delta, drift, n_simulations=5000)
+    
     ax.plot(x, mean_trajectory, alpha=0.5, linestyle='--')
     ax.text(x[-1],mean_trajectory[-1], f'drift = {np.round(delta,3)}', fontsize=5)
 
     axbis.plot(x[1:],np.diff(mean_trajectory), alpha=0.5, linestyle='--')
+
+# for delta in tqdm(delta_range):
+
+#     # mean_trajectory = compute_simulations_average(p_a, p_a_reward, steps_number, noise_amplitude, delta, drift, n_simulations=10000)
+#     mean_square_displacement_sequence = compute_simulations_mean_square_displacement(p_a, p_a_reward, steps_number, noise_amplitude, delta, drift, n_simulations=1000)
+    
+#     ax.plot(x, mean_square_displacement_sequence, alpha=0.5, linestyle='--')
+#     ax.text(x[-1],mean_square_displacement_sequence[-1], f'drift = {np.round(delta,3)}', fontsize=5)
+
+#     axbis.plot(x[1:],np.diff(mean_square_displacement_sequence), alpha=0.5, linestyle='--')
+
 
 ax.set_ylabel('Probability to chose 1')
 axbis.set_xlabel('Steps')
