@@ -81,7 +81,7 @@ for delta in tqdm(delta_range):
     ax1.plot(x, mean_probability, alpha=0.5, linestyle='--')
     ax1.text(x[-1],mean_probability[-1], f'drift = {np.round(delta,3)}', fontsize=5)
 
-ax1.plot(x,reconstructed_average_p_a, color='k', label='Infered average probability')
+ax1.plot(x,reconstructed_average_p_a, color='k', label='Reconstructed average probability')
 
 ax1.set_xticks(x)
 ax1.set_xlabel('Steps')

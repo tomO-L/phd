@@ -34,7 +34,7 @@ n_simulations = 5000
 ### Analysis ###
 ################
 
-with open(f'DDM/statistical_precision_analysis/simulations_batches/best_model_score_{n_simulations}_fulltraining.pkl', 'rb') as file:
+with open(f'DDM/statistical_precision_analysis/simulations_batches/best_model_score_{n_simulations}_fulltraining_2.pkl', 'rb') as file:
     model = dill.load(file)
 
 with open(f'DDM/statistical_precision_analysis/simulations_batches/simulations_batch_{n_simulations}_test.pkl', 'rb') as file:
@@ -65,6 +65,7 @@ transmat = model.transmat_
 emission_vect = model.emissionprob_[:,1]
 mat = transmat
 sorted_indexes = np.argsort(emission_vect)
+print(sorted_indexes)
 vector = np.ones([len(transmat),1])/len(transmat)
 
 ##
@@ -143,10 +144,11 @@ row = gs[0].subgridspec(1,1)
 ax = plt.subplot(row[:])
 
 ax.imshow(new_emissionmat)
-ax.set_xticks([0,1], labels=[0,1], rotation=30, ha="right", rotation_mode="anchor")
+ax.set_xticks([0,1], labels=['B','A'], rotation=30, ha="right", rotation_mode="anchor")
+
 ax.set_yticks(np.arange(states_number))
-ax.set_title(f'Emission matrix, {n_simulations} simulations', fontsize=7)
-ax.set_xlabel('Choice')
+ax.set_title(f'Action matrix, {n_simulations} simulations', fontsize=7)
+ax.set_xlabel('Action')
 ax.set_ylabel('State')
 
 #
@@ -209,7 +211,7 @@ delta_range = [0.03,0.04,0.05,0.06,0.07] #np.linspace(0.01,0.1,10)
 
 for delta in tqdm(delta_range):
 
-    mean_trajectory = compute_simulations_average(p_a, p_a_reward, steps_number, noise_amplitude, delta, drift, n_simulations=5000)
+    mean_trajectory = compute_simulations_average(p_a, p_a_reward, steps_number, noise_amplitude, delta, drift, n_simulations=20)
     
     ax.plot(x, mean_trajectory, alpha=0.5, linestyle='--')
     ax.text(x[-1],mean_trajectory[-1], f'drift = {np.round(delta,3)}', fontsize=5)
@@ -227,9 +229,9 @@ for delta in tqdm(delta_range):
 #     axbis.plot(x[1:],np.diff(mean_square_displacement_sequence), alpha=0.5, linestyle='--')
 
 
-ax.set_ylabel('Probability to chose 1')
+ax.set_ylabel('Probability to chose A')
 axbis.set_xlabel('Steps')
-axbis.set_ylabel('Slope of Probability to chose 1')
+axbis.set_ylabel('Slope of Probability to chose A')
 
 # ax.imshow(np.matmul(new_mat,new_emissionmat[:,1]))
 # ax.set_xticks([0,1], labels=[0,1], rotation=30, ha="right", rotation_mode="anchor")

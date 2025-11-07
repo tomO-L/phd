@@ -100,6 +100,7 @@ def compute_mean_square_error_opt(delta, args):
 def compute_reconstructed_proba_sequence(choices_sequence, model):
 
     states_sequence = model.predict(np.int16(choices_sequence.reshape(-1,1)))
+    print(states_sequence)
 
     emissionprob = model.emissionprob_
 

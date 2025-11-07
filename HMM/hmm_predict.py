@@ -260,5 +260,68 @@ ax = plt.subplot(row[0,0])
 plot_reward_rate(ordered_runs, ax, window_size=window_size)
 plot_states_occurence_frequency(example_states_sequence, np.arange(nb_of_states), ax, colors = colors, window_size=window_size)
 
+## 
+
+############################################################################
+def plot_actions_sequence(ax, ordered_actions_types_number, ordered_actions_frames=[], 
+                       action_types = ['run_around_tower', 'run_between_towers', 'run_toward_tower', 'exploratory_run'], show_yticks=True):
+
+    num_actions = len(ordered_actions_types_number)
+
+    for i in range(len(action_types)):
+
+
+        if len(ordered_actions_frames)==0:
+
+            ordered_actions_type_number = np.where(np.array(ordered_actions_types_number)==i, np.arange(num_actions)-0.25, np.nan)
+            x_barh = np.transpose([ordered_actions_type_number,0.5*np.ones(num_actions)])
+        
+        else:
+
+            ordered_actions_frames = np.array(ordered_actions_frames)
+            ordered_actions_frame = np.where(np.array(ordered_actions_types_number)==i, ordered_actions_frames[:,0], np.nan)
+            ordered_actions_width = np.where(np.array(ordered_actions_types_number)==i, ordered_actions_frames[:,1] - ordered_actions_frames[:,0], np.nan)
+
+            x_barh = np.transpose([ordered_actions_frame,ordered_actions_width])
+
+        y_barh = [i-0.25,0.5]
+
+        ax.broken_barh(x_barh, y_barh, facecolor='black')
+
+    if show_yticks:
+        ax.set_yticks(np.arange(len(action_types)), ['CW Quarter Turn', 'CCW Quarter Turn', 'Between Towers', 'Toward Tower', 'Exploratory'])
+
+def plot_states_sequence_v2(ax, states_sequence, colors = ['#d62728','#7f7f7f','#bcbd22','#2ca02c','#1f77b4','#ff7f0e']):
+
+    for i in range(len(ordered_runs)):
+
+        ax.axvspan(i-0.5,i+0.5, color=colors[states_sequence[i]], ymin=0., ymax=1, alpha=0.75, linewidth=0, zorder=0)
+
+    cmap = ListedColormap(colors) #plt.cm.Set1
+    norm = Normalize(vmin=np.nanmin(states_sequence), vmax=np.nanmax(states_sequence)+1)
+
+    ticks = np.arange(np.nanmax(states_sequence)+1)
+
+    fig = ax.get_figure()
+
+    cbar = fig.colorbar(cm.ScalarMappable(norm=norm,cmap=cmap), ax=ax, drawedges=False, orientation='horizontal', label='States', location='top', alpha=0.75)
+    cbar.set_ticks(ticks=ticks+0.5, labels=np.int8(ticks))
+
+############################################################################
+
+fig=plt.figure(figsize=(7, 4), dpi=300, constrained_layout=False, facecolor='w')
+gs = fig.add_gridspec(1, 1)
+row = gs[0,0].subgridspec(1, 1)
+ax = plt.subplot(row[0,0])
+
+actions_sequence = extract_actions_sequence(path_to_data_folder, mouse_name, example_session_index)[0]
+
+plot_states_sequence_v2(ax, example_states_sequence)
+
+plot_actions_sequence(ax, actions_sequence, action_types=action_types)
+
+ax.set_xlim([-0.5,300.5])
+ax.set_ylim([None,5])
+
 plt.show()
 
