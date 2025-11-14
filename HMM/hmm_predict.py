@@ -215,7 +215,8 @@ ax5.set_ylabel('From state')
 
 
 ax6.imshow(model.emissionprob_)
-ax6.set_xticks(range(len(action_types)), labels=action_types, rotation=30, ha="right", rotation_mode="anchor")
+# ax6.set_xticks(range(len(action_types)), labels=action_types, rotation=30, ha="right", rotation_mode="anchor")
+ax6.set_xticks(range(len(action_types)), labels=['CW Quarter Turn', 'CCW Quarter Turn', 'Between Towers', 'Toward Tower', 'Exploratory'], rotation=30, ha="right", rotation_mode="anchor")
 ax6.set_yticks(np.arange(nb_of_states))
 ax6.set_title('Emission matrix')
 ax6.set_xlabel('Action')
@@ -306,6 +307,8 @@ def plot_states_sequence_v2(ax, states_sequence, colors = ['#d62728','#7f7f7f','
 
     cbar = fig.colorbar(cm.ScalarMappable(norm=norm,cmap=cmap), ax=ax, drawedges=False, orientation='horizontal', label='States', location='top', alpha=0.75)
     cbar.set_ticks(ticks=ticks+0.5, labels=np.int8(ticks))
+
+    ax.set_xlabel('Run rank')
 
 ############################################################################
 

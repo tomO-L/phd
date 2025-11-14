@@ -27,17 +27,17 @@ start_time = time.time()
 ### Parameters ###
 ##################
 
-n_simulations_list = [20, 60, 100, 200, 600]
-n_simulations = 600
+n_simulations = 60
+index = 9
 
 ################
 ### Analysis ###
 ################
 
-with open(f'DDM/statistical_precision_analysis/simulations_batches/best_model_score_{n_simulations}_fulltraining_2.pkl', 'rb') as file:
+with open(f'DDM_v2/statistical_precision_analysis/simulations_batches/best_model_score_{n_simulations}_test_{index}.pkl', 'rb') as file:
     model = dill.load(file)
 
-with open(f'DDM/statistical_precision_analysis/simulations_batches/simulations_batch_{n_simulations}_test.pkl', 'rb') as file:
+with open(f'DDM_v2/statistical_precision_analysis/simulations_batches/simulations_batch_{n_simulations}_test_{index}.pkl', 'rb') as file:
     synthetic_data = dill.load(file)
 
 test_data = [synth_data['choices'] for synth_data in synthetic_data]
@@ -165,7 +165,7 @@ print('res=',np.matmul(new_mat,new_emissionmat[:,1]))
 new_mat_i = new_transmat
 res_list = []
 
-x = np.arange(20)
+x = np.arange(100)
 
 for i in x:
 
@@ -181,8 +181,8 @@ for i in x:
     # print(res)
     
     res_list.append(res)
-    # ax.scatter(i,np.sum(res), c='k', marker='+', alpha=0.5)
-    # axbis.scatter(i,np.sum(res) - np.sum(res_list[i-1]) if i>1 else np.nan, c='k', marker='+', alpha=0.5)
+    ax.scatter(i,np.sum(res), c='k', marker='+', alpha=0.5)
+    axbis.scatter(i,np.sum(res) - np.sum(res_list[i-1]) if i>1 else np.nan, c='k', marker='+', alpha=0.5)
 
     # ax.scatter(i,(np.sum(res4) - np.sum(new_initial_state_list_distri*new_emissionmat[:,1]))**2, c='k', marker='+', alpha=0.5)
     # axbis.scatter(i,np.sum(res) - np.sum(res_list[i-1]) if i>1 else np.nan, c='k', marker='+', alpha=0.5)
@@ -191,35 +191,24 @@ res_array = np.array(res_list)
 
 print(np.sum(res))
 
-# for j in range(len(new_emissionmat)):
+for j in range(len(new_emissionmat)):
 
-    # ax.plot(x, res_array[:,j])
-    # axbis.plot(x[1:], np.diff(res_array[:,j]))
+    ax.plot(x, res_array[:,j])
+    axbis.plot(x[1:], np.diff(res_array[:,j]))
 
-
-# ax.scatter(x,0.88 - (0.22)/np.sqrt(x), c='red', marker='+', alpha=0.5)
-    # ax.scatter(i,res2[0], c='red')
-
-steps_number = len(x)
-noise_amplitude = 0.1
-# delta = 0.05
-drift = 0.0
-p_a = 0.5
-p_a_reward = 1
+p_a, p_a_reward, p_b_reward, steps_number, noise_amplitude, delta, drift = synthetic_data[0]['parameters']
+print(p_a)
 
 delta_range = [0.03,0.04,0.05,0.06,0.07] #np.linspace(0.01,0.1,10)
 
 for delta in tqdm(delta_range):
 
-    mean_trajectory = compute_simulations_average(p_a, p_a_reward, steps_number, noise_amplitude, delta, drift, n_simulations=50)
+    mean_trajectory = compute_simulations_average(p_a, p_a_reward, p_b_reward, steps_number, noise_amplitude, delta, drift, n_simulations=5000)
     
     ax.plot(x, mean_trajectory, alpha=0.5, linestyle='--')
     ax.text(x[-1],mean_trajectory[-1], f'drift = {np.round(delta,3)}', fontsize=5)
 
     axbis.plot(x[1:],np.diff(mean_trajectory), alpha=0.5, linestyle='--')
-
-ax.plot(x, np.mean(test_data,axis=0), alpha=1, color='k', label='Recovered average probability')
-
 
 # for delta in tqdm(delta_range):
 
@@ -231,11 +220,11 @@ ax.plot(x, np.mean(test_data,axis=0), alpha=1, color='k', label='Recovered avera
 
 #     axbis.plot(x[1:],np.diff(mean_square_displacement_sequence), alpha=0.5, linestyle='--')
 
-ax.set_xlabel('Step')
-ax.set_ylabel('Probability to do CW')
-ax.legend()
+
+ax.set_ylabel('Probability to chose A')
 axbis.set_xlabel('Steps')
-axbis.set_ylabel('Slope of Probability to chose CW')
+axbis.set_ylabel('Slope of Probability to chose A')
+
 # ax.imshow(np.matmul(new_mat,new_emissionmat[:,1]))
 # ax.set_xticks([0,1], labels=[0,1], rotation=30, ha="right", rotation_mode="anchor")
 # ax.set_yticks(np.arange(states_number))
@@ -243,12 +232,6 @@ axbis.set_ylabel('Slope of Probability to chose CW')
 # ax.set_xlabel('Choice')
 # ax.set_ylabel('State')
 
-fig=plt.figure(figsize=(3.5, 3), dpi=300, constrained_layout=False, facecolor='w')
-gs = fig.add_gridspec(1, 1)
-row = gs[0].subgridspec(1,1)
-ax = plt.subplot(row[:])
-
-ax.hist(emission_vect, bins=4)
 
 
 plt.show()
@@ -276,52 +259,5 @@ plt.show()
 
 #     image.clear()
 #     image = ax.imshow(vector[frame])
-
-# for i in range(10):
-
-
-
-quit()
-
-############
-### Plot ###
-############
-
-### Action and transition matrixes ###
-for n_simulations in n_simulations_list:
-
-    with open(f'DDM/statistical_precision_analysis/simulations_batches/best_model_score_{n_simulations}.pkl', 'rb') as file:
-        model = dill.load(file)
-
-    fig=plt.figure(figsize=(3.5, 3), dpi=300, constrained_layout=False, facecolor='w')
-    gs = fig.add_gridspec(1, 1)
-    row = gs[0].subgridspec(1,2)
-    ax1 = plt.subplot(row[0,0])
-    ax2 = plt.subplot(row[0,1])
-
-    states_number = len(model.transmat_)
-
-    ax1.imshow(model.transmat_)
-    ax1.set_xticks(np.arange(states_number))
-    ax1.set_yticks(np.arange(states_number))
-
-    ax1.set_title(f'Transition matrix, {n_simulations} simulations', fontsize=7)
-    ax1.set_xlabel('To state')
-    ax1.set_ylabel('From state')
-
-
-    ax2.imshow(model.emissionprob_)
-    ax2.set_xticks([0,1], labels=[0,1], rotation=30, ha="right", rotation_mode="anchor")
-    ax2.set_yticks(np.arange(states_number))
-    ax2.set_title(f'Emission matrix, {n_simulations} simulations', fontsize=7)
-    ax2.set_xlabel('Choice')
-    ax2.set_ylabel('State')
-
-
-plt.show()
-
-
-
-
 
 

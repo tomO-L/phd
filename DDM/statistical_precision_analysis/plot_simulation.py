@@ -67,20 +67,20 @@ p_a_sequence = ddm_result['p_a']
 
 ax1 = plt.subplot(row[0,0])
 ax1.scatter(steps, choice_sequence, label='Action Sequence', color='k', marker='+')
-ax1.set_ylabel('Action')
+ax1.set_ylabel('Run')
 ax1.set_xticks([])
 ax1.set_yticks([0,1])
-ax1.set_yticklabels(['B','A'])
+ax1.set_yticklabels(['CCW','CW'])
 
 ax2 = plt.subplot(row[1,0])
 ax2.scatter(steps, p_a_sequence, label='Probability Sequence', color='blue', alpha=0.5, marker='+')
 # ax2.scatter(steps, reconstructed_proba_sequence, label='Reconstructed Probability Sequence', color='green', marker='+', alpha=0.5)
 
 ax2.set_xlabel('Step')
-ax2.set_ylabel('Probability\nto do A')
+ax2.set_ylabel('Probability\nto do CW')
 ax2.set_xticks(steps)
 ax2.set_ylim([-0.05,1.05])
-ax2.legend()
+ax2.legend(loc='center')
 
 plt.show()
 

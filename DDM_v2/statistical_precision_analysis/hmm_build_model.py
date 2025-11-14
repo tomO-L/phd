@@ -17,8 +17,9 @@ plt.style.use('paper.mplstyle')
 start_time = time.time()
 
 n_simulations = 60
+index = 9
 
-with open(f'DDM/statistical_precision_analysis/simulations_batches/simulations_batch_{n_simulations}_test2.pkl', 'rb') as file:
+with open(f'DDM_v2/statistical_precision_analysis/simulations_batches/simulations_batch_{n_simulations}_test_{index}.pkl', 'rb') as file:
     synthetic_data = dill.load(file)
 
 # slice_size = int(n_simulations/4)
@@ -52,7 +53,7 @@ validation_emissions_lengths = [len(y) for y in validation_data]
 ## Infer best model
 
 # n_to_test = np.arange(2,10)
-n_to_test = np.arange(2,50)
+n_to_test = np.arange(2,15)
 
 
 best_model, best_score = infer_best_model_score(training_emissions, validation_emissions, 
@@ -63,10 +64,9 @@ best_model, best_score = infer_best_model_score(training_emissions, validation_e
 ### Save model and sets ###
 ###########################
 
-# with open(f'DDM/statistical_precision_analysis/simulations_batches/best_model_score_{n_simulations}.pkl', 'wb') as file:
-#     dill.dump(best_model, file)
 
-with open(f'DDM/statistical_precision_analysis/simulations_batches/best_model_score_{n_simulations}_fulltraining_2_50.pkl', 'wb') as file:
+
+with open(f'DDM_v2/statistical_precision_analysis/simulations_batches/best_model_score_{n_simulations}_test_{index}.pkl', 'wb') as file:
     dill.dump(best_model, file)
 
 end_time = time.time()
