@@ -1,5 +1,5 @@
 import numpy as np
-from tqdm import tqdm
+from tqdm.notebook import tqdm
 
 
 def run_simulation(p_a, p_a_reward, p_b_reward, steps_number, noise_amplitude, delta, drift):
@@ -47,7 +47,7 @@ def run_simulation(p_a, p_a_reward, p_b_reward, steps_number, noise_amplitude, d
 
         p_b = 1 - p_a
 
-    ddm_result = {'parameters': [p_a_0, p_a_reward, p_b_reward, steps_number, noise_amplitude, delta, drift],'rewards': np.array(reward_sequence), 'choices': np.array(choice_sequence), 'p_a': np.array(p_a_sequence), 'drift': np.array(drift_sequence)}
+    ddm_result = {'parameters': [p_a_0, p_a_reward, p_b_reward, steps_number, noise_amplitude, delta, 0],'rewards': np.array(reward_sequence), 'choices': np.array(choice_sequence), 'p_a': np.array(p_a_sequence), 'drift': np.array(drift_sequence)}
 
     return ddm_result
 

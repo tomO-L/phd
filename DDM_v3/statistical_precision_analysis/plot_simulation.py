@@ -23,9 +23,9 @@ start_time = time.time()
 ##################
 ### Parameters ###
 ##################
-
-simulations_folder_path = '/home/david/Documents/code/DDM_v2_synthetic_data'
+simulations_folder_path = '/home/david/Documents/code/DDM_v3_synthetic_data_identical_drifts'
 n_simulations = 20
+batch_index = 1
 simulations_indexes = np.arange(20)
 
 with open(f'{simulations_folder_path}/n_{n_simulations}/simulations_batch_{n_simulations}_test_{1}.pkl', 'rb') as file:

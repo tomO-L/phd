@@ -33,13 +33,13 @@ start_time = time.time()
 #################
 
 
-def compute_simulations_average(p_a, p_a_reward, p_b_reward, steps_number, noise_amplitude, delta, drift, n_simulations=300):
+def compute_simulations_average(p_a, p_a_reward, p_b_reward, steps_number, noise_amplitude, reward_drift, failure_drift, drift_init, n_simulations=300):
 
     synthetic_proba_list = []
 
     for _ in tqdm(range(n_simulations), leave=False):
     
-        ddm_result = run_simulation(p_a, p_a_reward, p_b_reward, steps_number, noise_amplitude, delta, drift)
+        ddm_result = run_simulation(p_a, p_a_reward, p_b_reward, steps_number, noise_amplitude, reward_drift, failure_drift, drift_init,)
 
         synthetic_proba_list.append(ddm_result['p_a'])
 
@@ -47,13 +47,13 @@ def compute_simulations_average(p_a, p_a_reward, p_b_reward, steps_number, noise
 
     return average_trajectory
 
-def compute_simulations_mean_square_displacement(p_a, p_a_reward, p_b_reward, steps_number, noise_amplitude, delta, drift, n_simulations=300):
+def compute_simulations_mean_square_displacement(p_a, p_a_reward, p_b_reward, steps_number, noise_amplitude, reward_drift, failure_drift, drift_init, n_simulations=300):
 
     msd_list = []
 
     for _ in tqdm(range(n_simulations), leave=False):
     
-        ddm_result = run_simulation(p_a, p_a_reward, p_b_reward, steps_number, noise_amplitude, delta, drift)
+        ddm_result = run_simulation(p_a, p_a_reward, p_b_reward, steps_number, noise_amplitude, reward_drift, failure_drift, drift_init,)
 
         starting_proba = ddm_result['p_a'][0]
 
@@ -65,25 +65,28 @@ def compute_simulations_mean_square_displacement(p_a, p_a_reward, p_b_reward, st
 
     return mean_square_displacement_sequence
 
-def compute_mean_square_error(delta, args):
+def compute_mean_square_error(reward_drift, failure_drift, args):
     
-    p_a, p_a_reward, p_b_reward, steps_number, noise_amplitude, drift, n_simulations, reconstructed_average_trajectory = args
+    p_a, p_a_reward, p_b_reward, steps_number, noise_amplitude, reward_drift, failure_drift, drift_init, n_simulations, reconstructed_average_trajectory = args
 
-    average_trajectory = compute_simulations_average(p_a, p_a_reward, p_b_reward, steps_number, noise_amplitude, delta, drift, n_simulations=n_simulations)
+    average_trajectory = compute_simulations_average(p_a, p_a_reward, p_b_reward, steps_number, noise_amplitude, reward_drift, failure_drift, drift_init, n_simulations=n_simulations)
 
     mse = (np.sum((average_trajectory - reconstructed_average_trajectory))**2)/steps_number
 
     return mse
 
-def generate_test_average_probability_sequences(delta_range, args):
+def generate_test_average_probability_sequences_identical_drifts(drift_range, args):
 
-    p_a, p_a_reward, p_b_reward, steps_number, noise_amplitude, delta, drift, n_simulations = args
+    p_a, p_a_reward, p_b_reward, steps_number, noise_amplitude, reward_drift, failure_drift, drift_init, n_simulations = args
 
     average_trajectory_list = []
 
-    for delta in tqdm(delta_range):
+
+    for drift in tqdm(drift_range):
     
-        average_trajectory = compute_simulations_average(p_a, p_a_reward, p_b_reward, steps_number, noise_amplitude, delta, drift, n_simulations=n_simulations)
+        reward_drift = failure_drift = drift
+
+        average_trajectory = compute_simulations_average(p_a, p_a_reward, p_b_reward, steps_number, noise_amplitude, reward_drift, failure_drift, drift_init, n_simulations=n_simulations)
         average_trajectory_list.append(average_trajectory)
 
     return average_trajectory_list
@@ -91,16 +94,6 @@ def generate_test_average_probability_sequences(delta_range, args):
 def compute_mean_square_error_v2(average_trajectory, reconstructed_average_trajectory):
     
     mse = (np.sum((average_trajectory - reconstructed_average_trajectory))**2)/len(average_trajectory)
-
-    return mse
-
-def compute_mean_square_error_opt(delta, args):
-    
-    p_a, p_a_reward, p_b_reward, steps_number, noise_amplitude, drift, n_simulations, reconstructed_average_trajectory = args
-
-    average_trajectory = compute_simulations_average(p_a, p_a_reward, p_b_reward, steps_number, noise_amplitude, delta[0], drift, n_simulations=n_simulations)
-
-    mse = (np.sum((average_trajectory - reconstructed_average_trajectory))**2)/steps_number
 
     return mse
 
