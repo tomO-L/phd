@@ -24,11 +24,11 @@ start_time = time.time()
 ### Parameters ###
 ##################
 simulations_folder_path = '/home/david/Documents/code/DDM_v3_synthetic_data_identical_drifts'
-n_simulations = 20
+n_simulations = 40
 batch_index = 1
-simulations_indexes = np.arange(20)
+simulations_indexes = np.arange(40)[:]
 
-with open(f'{simulations_folder_path}/n_{n_simulations}/simulations_batch_{n_simulations}_test_{1}.pkl', 'rb') as file:
+with open(f'{simulations_folder_path}/n_{n_simulations}/simulations_batch_{n_simulations}_test_{batch_index+1}.pkl', 'rb') as file:
     synthetic_data = dill.load(file)
 
 test_data = [synth_data['choices'] for synth_data in synthetic_data]
@@ -65,8 +65,10 @@ for i, simulation_index in enumerate(simulations_indexes):
     ddm_result = synthetic_data[simulation_index]
 
     choice_sequence = ddm_result['choices']
-    p_a_sequence = ddm_result['p_a']
+    p_cw_sequence = ddm_result['p_cw']
     reward_sequence = ddm_result['rewards']
+
+    print(ddm_result['parameters']['p_cw_reward'])
 
     steps = np.arange(len(choice_sequence))
 
@@ -79,16 +81,16 @@ for i, simulation_index in enumerate(simulations_indexes):
     ax1.set_ylabel('Action')
     ax1.set_xticks([])
     ax1.set_yticks([0,1])
-    ax1.set_yticklabels(['B','A'])
+    ax1.set_yticklabels(['CCW','CW'])
 
     ax2 = plt.subplot(row[1,0])
-    # ax2.scatter(steps, p_a_sequence, label='Probability Sequence', color='blue', alpha=0.5, marker='+')
-    ax2.plot(steps, p_a_sequence, label='Probability Sequence', alpha=0.2)
-    # ax2.scatter(steps, p_a_sequence, label='Probability Sequence', alpha=0.2, marker='+')
+    # ax2.scatter(steps, p_cw_sequence, label='Probability Sequence', color='blue', alpha=0.5, marker='+')
+    ax2.plot(steps, p_cw_sequence, label='Probability Sequence', alpha=0.2)
+    # ax2.scatter(steps, p_cw_sequence, label='Probability Sequence', alpha=0.2, marker='+')
     # ax2.scatter(steps, reconstructed_proba_sequence, label='Reconstructed Probability Sequence', color='green', marker='+', alpha=0.5)
 
     ax2.set_xlabel('Step')
-    ax2.set_ylabel('Probability\nto do A')
+    ax2.set_ylabel('Probability\nto do CW')
     ax2.set_xticks(steps)
     ax2.set_ylim([-0.05,1.05])
     # ax2.legend()

@@ -26,19 +26,26 @@ start_time = time.time()
 ##################
 ### Parameters ###
 ##################
-
-n_simulations = 2
-index = 9
+simulations_folder_path = '/home/david/Documents/code/DDM_v3_synthetic_data_identical_drifts'
+n_simulations = 40
+index = 15
+start_index = 0
 
 ################
 ### Analysis ###
 ################
 
-with open(f'DDM_v2/statistical_precision_analysis/simulations_batches/n_{n_simulations}/best_model_score_{n_simulations}_test_{index}.pkl', 'rb') as file:
+with open(f'{simulations_folder_path}/n_{n_simulations}/simulations_batch_{n_simulations}_test_{start_index + index+1}.pkl', 'rb') as file:
+    synthetic_data = dill.load(file)
+
+with open(f'{simulations_folder_path}/n_{n_simulations}/best_model_score_{n_simulations}_test_{start_index + index+1}.pkl', 'rb') as file:
     model = dill.load(file)
 
-with open(f'DDM_v2/statistical_precision_analysis/simulations_batches/n_{n_simulations}/simulations_batch_{n_simulations}_test_{index}.pkl', 'rb') as file:
-    synthetic_data = dill.load(file)
+# with open(f'DDM_v2/statistical_precision_analysis/simulations_batches/n_{n_simulations}/best_model_score_{n_simulations}_test.pkl', 'rb') as file:
+#     model = dill.load(file)
+
+# with open(f'DDM_v2/statistical_precision_analysis/simulations_batches/n_{n_simulations}/simulations_batch_{n_simulations}_test.pkl', 'rb') as file:
+#     synthetic_data = dill.load(file)
 
 test_data = [synth_data['choices'] for synth_data in synthetic_data]
 
@@ -134,7 +141,7 @@ proba_dist = new_emissionmat[:,1]
 
 ax.plot(proba_dist)
 ax.set_xlabel('State')
-ax.set_ylabel('Proba to chose 1')
+ax.set_ylabel('Proba to chose CW')
 
 #
 
@@ -144,7 +151,7 @@ row = gs[0].subgridspec(1,1)
 ax = plt.subplot(row[:])
 
 ax.imshow(new_emissionmat)
-ax.set_xticks([0,1], labels=['B','A'], rotation=30, ha="right", rotation_mode="anchor")
+ax.set_xticks([0,1], labels=['CCW','CW'], rotation=30, ha="right", rotation_mode="anchor")
 
 ax.set_yticks(np.arange(states_number))
 ax.set_title(f'Action matrix, {n_simulations} simulations', fontsize=7)
@@ -175,8 +182,9 @@ for i in x:
     res3 = np.matmul(np.ones(len(transmat))/len(transmat),new_mat_i)
     res4 = np.matmul(new_initial_state_list_distri,new_mat_i)*new_emissionmat[:,1]
     res5 = (res4 - new_initial_state_list_distri*new_emissionmat[:,1])**2
+    res6 = np.matmul(new_initial_state_list_distri,new_mat_i) * (np.matmul(new_initial_state_list_distri,new_mat_i)*new_emissionmat[:,1] - new_initial_state_list_distri*new_emissionmat[:,1])**2
 
-    res = res4
+    res = res6
 
     # print(res)
     
@@ -189,26 +197,26 @@ for i in x:
 
 res_array = np.array(res_list)
 
-print(np.sum(res))
+print(np.matmul(new_initial_state_list_distri,new_mat))
 
 for j in range(len(new_emissionmat)):
 
     ax.plot(x, res_array[:,j])
     axbis.plot(x[1:], np.diff(res_array[:,j]))
 
-p_a, p_a_reward, p_b_reward, steps_number, noise_amplitude, delta, drift = synthetic_data[0]['parameters']
-print(p_a)
+# p_a, p_a_reward, p_b_reward, steps_number, noise_amplitude, delta, drift = synthetic_data[0]['parameters']
+# print(p_a)
 
-delta_range = [0.03,0.04,0.05,0.06,0.07] #np.linspace(0.01,0.1,10)
+# delta_range = [0.03,0.04,0.05,0.06,0.07] #np.linspace(0.01,0.1,10)
 
-for delta in tqdm(delta_range):
+# for delta in tqdm(delta_range):
 
-    mean_trajectory = compute_simulations_average(p_a, p_a_reward, p_b_reward, steps_number, noise_amplitude, delta, drift, n_simulations=5000)
+#     mean_trajectory = compute_simulations_average(p_a, p_a_reward, p_b_reward, steps_number, noise_amplitude, delta, drift, n_simulations=5000)
     
-    ax.plot(x, mean_trajectory, alpha=0.5, linestyle='--')
-    ax.text(x[-1],mean_trajectory[-1], f'drift = {np.round(delta,3)}', fontsize=5)
+#     ax.plot(x, mean_trajectory, alpha=0.5, linestyle='--')
+#     ax.text(x[-1],mean_trajectory[-1], f'drift = {np.round(delta,3)}', fontsize=5)
 
-    axbis.plot(x[1:],np.diff(mean_trajectory), alpha=0.5, linestyle='--')
+#     axbis.plot(x[1:],np.diff(mean_trajectory), alpha=0.5, linestyle='--')
 
 # for delta in tqdm(delta_range):
 
@@ -221,9 +229,9 @@ for delta in tqdm(delta_range):
 #     axbis.plot(x[1:],np.diff(mean_square_displacement_sequence), alpha=0.5, linestyle='--')
 
 
-ax.set_ylabel('Probability to chose A')
+ax.set_ylabel('Mean Square Displacement')
 axbis.set_xlabel('Steps')
-axbis.set_ylabel('Slope of Probability to chose A')
+axbis.set_ylabel('Slope of Mean Square Displacement')
 
 # ax.imshow(np.matmul(new_mat,new_emissionmat[:,1]))
 # ax.set_xticks([0,1], labels=[0,1], rotation=30, ha="right", rotation_mode="anchor")
