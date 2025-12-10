@@ -75,6 +75,26 @@ def compute_simulations_mean_square_displacement_switch(args_dict, n_simulations
 
     return mean_square_displacement_sequence
 
+def compute_simulations_mean_square_displacement(args_dict, n_simulations=300):
+
+    msd_list = []
+
+    for i in tqdm(range(n_simulations), leave=False):
+    
+        temp_args_dict = copy.deepcopy(args_dict)
+
+        ddm_result = run_simulation(temp_args_dict)
+
+        starting_proba = ddm_result['parameters']['p_cw_init']
+
+        mean_square_displacement = (ddm_result['p_cw'] - starting_proba)**2
+
+        msd_list.append(mean_square_displacement)
+
+    mean_square_displacement_sequence = np.mean(msd_list, axis=0)
+
+    return mean_square_displacement_sequence
+
 def compute_mean_square_error(args):
     
     args_dict, n_simulations, reconstructed_average_trajectory = args
@@ -106,7 +126,25 @@ def generate_test_average_probability_sequences_identical_drifts(drift_range, ar
 
     return average_trajectory_list
 
-def generate_test_msd_sequences_identical_drifts_switch(drift_range, args):
+# def generate_test_msd_sequences_identical_drifts_switch(drift_range, args):
+
+#     args_dict, n_simulations = args
+
+#     msd_sequence_list = []
+
+#     for drift in tqdm(drift_range):
+    
+#         drift_matrix = np.array([[drift, -drift],
+#                                  [0    , 0     ]])
+
+#         args_dict['drift_matrix'] = drift_matrix
+
+#         msd_sequence = compute_simulations_mean_square_displacement_switch(args_dict, n_simulations=n_simulations)
+#         msd_sequence_list.append(msd_sequence)
+
+#     return msd_sequence_list
+
+def generate_test_msd_sequences_identical_drifts(drift_range, args):
 
     args_dict, n_simulations = args
 
@@ -119,7 +157,7 @@ def generate_test_msd_sequences_identical_drifts_switch(drift_range, args):
 
         args_dict['drift_matrix'] = drift_matrix
 
-        msd_sequence = compute_simulations_mean_square_displacement_switch(args_dict, n_simulations=n_simulations)
+        msd_sequence = compute_simulations_mean_square_displacement(args_dict, n_simulations=n_simulations)
         msd_sequence_list.append(msd_sequence)
 
     return msd_sequence_list

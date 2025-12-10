@@ -10,7 +10,6 @@ import dill
 import numpy as np
 from tqdm import tqdm
 import scipy.optimize as opt
-import noisyopt 
 from synthetic_data_generation_functions import *
 from synthetic_data_analysis_functions import *
 from hmm_functions import *
@@ -26,9 +25,12 @@ start_time = time.time()
 ##################
 ### Parameters ###
 ##################
-simulations_folder_path = '/home/david/Documents/code/DDM_v3_synthetic_data_identical_drifts'
-n_simulations = 100
-index = 0
+# fit_type = 'aic'
+fit_type = 'score'
+
+simulations_folder_path = f'/home/david/Documents/code/DDM_v5_synthetic_data_identical_drifts_{fit_type}'
+n_simulations = 20
+index = 3
 start_index = 0
 
 ################
@@ -38,7 +40,7 @@ start_index = 0
 with open(f'{simulations_folder_path}/n_{n_simulations}/simulations_batch_{n_simulations}_test_{start_index + index+1}.pkl', 'rb') as file:
     synthetic_data = dill.load(file)
 
-with open(f'{simulations_folder_path}/n_{n_simulations}/best_model_score_{n_simulations}_test_{start_index + index+1}.pkl', 'rb') as file:
+with open(f'{simulations_folder_path}/n_{n_simulations}/best_model_{fit_type}_{n_simulations}_test_{start_index + index+1}.pkl', 'rb') as file:
     model = dill.load(file)
 
 # with open(f'DDM_v2/statistical_precision_analysis/simulations_batches/n_{n_simulations}/best_model_score_{n_simulations}_test.pkl', 'rb') as file:
@@ -69,7 +71,9 @@ for s in range(len(model.transmat_)):
 
 
 transmat = model.transmat_
-emission_vect = model.emissionprob_[:,1]
+# emission_vect = model.emissionprob_[:,2] + model.emissionprob_[:,3] ######
+emission_vect = model.emissionprob_[:,2] ######
+
 mat = transmat
 sorted_indexes = np.argsort(emission_vect)
 print(sorted_indexes)
@@ -83,7 +87,7 @@ new_transmat = order_matrix(mat, sorted_indexes)
 
 new_mat = new_transmat
 
-for i in range(500):
+for i in range(1000):
 
     new_mat = np.matmul(new_mat,new_transmat)
 
@@ -135,13 +139,14 @@ ax = plt.subplot(row[:])
 # proba_dist = new_mat[0] #np.sort(new_mat[0])
 # proba_dist = np.sort(new_mat[0])
 # proba_dist = new_mat[0]*new_emissionmat[:,1]
-proba_dist = new_emissionmat[:,1]
+proba_dist = new_emissionmat[:,2]
 
 # print(np.std(proba_dist))
 
-ax.plot(proba_dist)
+ax.plot(proba_dist, marker='s', markersize=2)
 ax.set_xlabel('State')
 ax.set_ylabel('Proba to chose CW')
+ax.set_title(f'Average slope : {np.mean(np.diff(new_emissionmat[:,2]))}')
 
 #
 
@@ -150,8 +155,8 @@ gs = fig.add_gridspec(1, 1)
 row = gs[0].subgridspec(1,1)
 ax = plt.subplot(row[:])
 
-ax.imshow(new_emissionmat)
-ax.set_xticks([0,1], labels=['CCW','CW'], rotation=30, ha="right", rotation_mode="anchor")
+ax.imshow(new_emissionmat, vmin=0, vmax=1)
+ax.set_xticks([0,1,2], labels=['CCW, U', 'CW, U','CW, R'], rotation=30, ha="right", rotation_mode="anchor")
 
 ax.set_yticks(np.arange(states_number))
 ax.set_title(f'Action matrix, {n_simulations} simulations', fontsize=7)
@@ -160,8 +165,28 @@ ax.set_ylabel('State')
 
 #
 
+fig=plt.figure(figsize=(3.5, 3), dpi=300, constrained_layout=False, facecolor='w')
+gs = fig.add_gridspec(1, 1)
+row = gs[0].subgridspec(1,1)
+ax = plt.subplot(row[:])
 
-fig=plt.figure(figsize=(3.5, 6), dpi=300, constrained_layout=False, facecolor='w')
+turns_proba_mat = np.array([new_emissionmat[:,0],
+                            new_emissionmat[:,1] + new_emissionmat[:,2]])
+
+turns_proba_mat = np.transpose(turns_proba_mat)
+
+ax.imshow(turns_proba_mat, vmin=0, vmax=1)
+ax.set_xticks([0,1], labels=['CCW', 'CW'], rotation=30, ha="right", rotation_mode="anchor")
+
+ax.set_yticks(np.arange(states_number))
+ax.set_title(f'Turns matrix, {n_simulations} simulations', fontsize=7)
+ax.set_xlabel('Turn direction')
+ax.set_ylabel('State')
+
+#
+
+
+"""fig=plt.figure(figsize=(3.5, 6), dpi=300, constrained_layout=False, facecolor='w')
 gs = fig.add_gridspec(1, 1)
 row = gs[0].subgridspec(2,1)
 ax = plt.subplot(row[0,0])
@@ -232,7 +257,7 @@ for j in range(len(new_emissionmat)):
 ax.set_ylabel('Mean Square Displacement')
 axbis.set_xlabel('Steps')
 axbis.set_ylabel('Slope of Mean Square Displacement')
-
+"""
 # ax.imshow(np.matmul(new_mat,new_emissionmat[:,1]))
 # ax.set_xticks([0,1], labels=[0,1], rotation=30, ha="right", rotation_mode="anchor")
 # ax.set_yticks(np.arange(states_number))

@@ -11,6 +11,8 @@ import numpy as np
 from tqdm import tqdm
 import scipy.optimize as opt
 import noisyopt 
+from matplotlib.colors import Normalize
+
 from synthetic_data_generation_functions import *
 from synthetic_data_analysis_functions import *
 from hmm_functions import *
@@ -27,17 +29,17 @@ start_time = time.time()
 ### Parameters ###
 ##################
 
-n_simulations = 2
-index = 9
+n_simulations = 20
+index = 5
 
 ################
 ### Analysis ###
 ################
 
-with open(f'DDM_v2/statistical_precision_analysis/simulations_batches/n_{n_simulations}/best_model_score_{n_simulations}_test_{index}.pkl', 'rb') as file:
+with open(f'/home/david/Documents/code/DDM_v2_synthetic_data/n_{n_simulations}/best_model_score_{n_simulations}_test_{index}.pkl', 'rb') as file:
     model = dill.load(file)
 
-with open(f'DDM_v2/statistical_precision_analysis/simulations_batches/n_{n_simulations}/simulations_batch_{n_simulations}_test_{index}.pkl', 'rb') as file:
+with open(f'/home/david/Documents/code/DDM_v2_synthetic_data/n_{n_simulations}/simulations_batch_{n_simulations}_test_{index}.pkl', 'rb') as file:
     synthetic_data = dill.load(file)
 
 test_data = [synth_data['choices'] for synth_data in synthetic_data]
@@ -98,7 +100,7 @@ fig=plt.figure(figsize=(3.5, 3), dpi=300, constrained_layout=False, facecolor='w
 gs = fig.add_gridspec(1, 1)
 row = gs[0].subgridspec(1,2)
 ax1 = plt.subplot(row[0,0])
-ax2 = plt.subplot(row[0,1])
+# ax2 = plt.subplot(row[0,1])
 
 states_number = len(model.transmat_)
 
@@ -110,13 +112,21 @@ ax1.set_title(f'Transition matrix, {n_simulations} simulations', fontsize=7)
 ax1.set_xlabel('To state')
 ax1.set_ylabel('From state')
 
-ax2.imshow(new_mat, vmin=0, vmax=1)
-ax2.set_xticks(np.arange(states_number))
-ax2.set_yticks(np.arange(states_number))
+norm = Normalize(vmin=0, vmax=1)
+cmap = 'viridis'
+cbax = ax1.inset_axes([1.1, 0, 0.07, 1])  # Define the position for the color bar
+cbar = fig.colorbar(plt.cm.ScalarMappable(cmap=cmap, norm=norm), cax=cbax, orientation='vertical')
+cbar.set_label('Probability', fontsize=5)
+cbar.set_ticks([0, 1])  # Set color bar ticks
+cbar.set_ticklabels([0,1], fontsize=5)  # Label the ticks as First and Last
 
-ax2.set_title(f'Final matrix, {n_simulations} simulations', fontsize=7)
-ax2.set_xlabel('To state')
-ax2.set_ylabel('From state')
+# ax2.imshow(new_mat, vmin=0, vmax=1)
+# ax2.set_xticks(np.arange(states_number))
+# ax2.set_yticks(np.arange(states_number))
+
+# ax2.set_title(f'Final matrix, {n_simulations} simulations', fontsize=7)
+# ax2.set_xlabel('To state')
+# ax2.set_ylabel('From state')
 
 #
 
@@ -132,6 +142,7 @@ proba_dist = new_emissionmat[:,1]
 
 # print(np.std(proba_dist))
 
+
 ax.plot(proba_dist)
 ax.set_xlabel('State')
 ax.set_ylabel('Proba to chose 1')
@@ -144,12 +155,20 @@ row = gs[0].subgridspec(1,1)
 ax = plt.subplot(row[:])
 
 ax.imshow(new_emissionmat)
-ax.set_xticks([0,1], labels=['B','A'], rotation=30, ha="right", rotation_mode="anchor")
+ax.set_xticks([0,1], labels=['CCW','CW'], rotation=30, ha="right", rotation_mode="anchor")
 
 ax.set_yticks(np.arange(states_number))
 ax.set_title(f'Action matrix, {n_simulations} simulations', fontsize=7)
-ax.set_xlabel('Action')
+ax.set_xlabel('Run')
 ax.set_ylabel('State')
+
+norm = Normalize(vmin=0, vmax=1)
+cmap = 'viridis'
+cbax = ax.inset_axes([1.2, 0.25, 0.2, 0.5])  # Define the position for the color bar
+cbar = fig.colorbar(plt.cm.ScalarMappable(cmap=cmap, norm=norm), cax=cbax, orientation='vertical')
+cbar.set_label('Probability', fontsize=5)
+cbar.set_ticks([0, 1])  # Set color bar ticks
+cbar.set_ticklabels([0,1], fontsize=5)  # Label the ticks as First and Last
 
 #
 
@@ -201,14 +220,14 @@ print(p_a)
 
 delta_range = [0.03,0.04,0.05,0.06,0.07] #np.linspace(0.01,0.1,10)
 
-for delta in tqdm(delta_range):
+# for delta in tqdm(delta_range):
 
-    mean_trajectory = compute_simulations_average(p_a, p_a_reward, p_b_reward, steps_number, noise_amplitude, delta, drift, n_simulations=5000)
+#     mean_trajectory = compute_simulations_average(p_a, p_a_reward, p_b_reward, steps_number, noise_amplitude, delta, drift, n_simulations=5000)
     
-    ax.plot(x, mean_trajectory, alpha=0.5, linestyle='--')
-    ax.text(x[-1],mean_trajectory[-1], f'drift = {np.round(delta,3)}', fontsize=5)
+#     ax.plot(x, mean_trajectory, alpha=0.5, linestyle='--')
+#     ax.text(x[-1],mean_trajectory[-1], f'drift = {np.round(delta,3)}', fontsize=5)
 
-    axbis.plot(x[1:],np.diff(mean_trajectory), alpha=0.5, linestyle='--')
+#     axbis.plot(x[1:],np.diff(mean_trajectory), alpha=0.5, linestyle='--')
 
 # for delta in tqdm(delta_range):
 

@@ -28,7 +28,8 @@ path_to_data_folder='/LocalData/ForagingMice/4TowersTaskMethodPaper_Data/Group2D
 mice_to_analyse = ['MOU3974','MOU3975', 'MOU3987', 'MOU3988', 'MOU3991', 'MOU3992', 'MOU4551', 'MOU4552', 'MOU4560', 'MOU4561', 'MOU4562',
                    'MOU4563', 'MOU4623', 'MOU4964', 'MOU4965', 'MOU4986', 'MOU4987', 'MOU4988', 'MOU4993', 'MOU5007', 'MOU5008']
 
-mouse = mice_to_analyse[10]
+# mouse = mice_to_analyse[10]
+mouse = 'MOU3992'
 
 folder_path_mouse_to_analyse = os.path.join(path_to_data_folder, mouse)
 
@@ -36,7 +37,7 @@ folder_path_mouse_to_analyse = os.path.join(path_to_data_folder, mouse)
 ### Parameters ###
 ##################
 
-session_index = 14
+session_index = 16
 
 ####################
 ### Computations ###
@@ -66,9 +67,12 @@ row1 = gs[0].subgridspec(1, 1)
 ax = plt.subplot(row1[0])
 
 plot_states_occurence_frequency(run_sequence, ax, window_size=50)
-plot_reward_rate(ordered_runs,ax, window_size=50)
+# plot_reward_rate(ordered_runs,ax, window_size=50)
 
-ax.set_title(f'{mouse}, session {session_index}')
+ax.set_xlim([49.5,300])
+ax.set_ylim([-0.01,1])
+
+ax.set_title(f'{mouse}, session {session_index+1}')
 ax.legend()
 
 fig.tight_layout()

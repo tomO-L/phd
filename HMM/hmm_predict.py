@@ -64,7 +64,7 @@ mice_to_analyse = test_mice
 sessions_index = np.arange(0,20)
 nb_of_sessions = len(sessions_index)
 
-mouse_index = 2
+mouse_index = 2 # MOU3992
 mouse_name = mice_to_analyse[mouse_index]
 
 folder_path_mouse_to_analyse = os.path.join(path_to_data_folder,mouse_name)
@@ -312,7 +312,7 @@ def plot_states_sequence_v2(ax, states_sequence, colors = ['#d62728','#7f7f7f','
 
 ############################################################################
 
-fig=plt.figure(figsize=(7, 4), dpi=300, constrained_layout=False, facecolor='w')
+fig=plt.figure(figsize=(7, 2), dpi=300, constrained_layout=False, facecolor='w')
 gs = fig.add_gridspec(1, 1)
 row = gs[0,0].subgridspec(1, 1)
 ax = plt.subplot(row[0,0])
@@ -325,6 +325,41 @@ plot_actions_sequence(ax, actions_sequence, action_types=action_types)
 
 ax.set_xlim([-0.5,300.5])
 ax.set_ylim([None,5])
+
+############################################################################
+
+fig=plt.figure(figsize=(5, 2), dpi=300, constrained_layout=False, facecolor='w')
+gs = fig.add_gridspec(1, 1)
+row = gs[0,0].subgridspec(len(action_types), 1)
+
+actions_labels = ['CW Quarter Turn', 'CCW Quarter Turn', 'Between Towers', 'Toward Tower', 'Exploratory']
+
+next_action_distribution_list = compute_simple_markovian_model(actions_sequence,action_types)
+
+for i in range(len(action_types)):
+
+    ax = plt.subplot(row[i,0])
+
+    ax.bar(np.arange(len(action_types)), next_action_distribution_list[i])
+
+    ax.set_ylim([0,1])
+    ax.set_xticks([])
+    ax.set_ylabel(actions_labels[i], fontsize=5)
+
+ax.set_xticks(np.arange(len(action_types)), actions_labels)
+
+############################################################################
+
+fig=plt.figure(figsize=(5, 2), dpi=300, constrained_layout=False, facecolor='w')
+gs = fig.add_gridspec(1, 1)
+row = gs[0,0].subgridspec(1, 1)
+
+ax = plt.subplot(row[0,0])
+
+simple_markovian_actions_sequence = run_simple_markovian_model(next_action_distribution_list, len(actions_sequence), first_action=0)
+
+plot_actions_sequence(ax, simple_markovian_actions_sequence, action_types=action_types)
+
 
 plt.show()
 

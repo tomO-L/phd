@@ -258,3 +258,35 @@ def compute_rewards_persession(path_to_data_folder, mice_to_analyse):
             unrewarded_tats_persession.append([session_index + 1, total_tats-rewarded_tats])
 
     return rewarded_tats_persession, unrewarded_tats_persession
+
+def compute_simple_markovian_model(actions_sequence, action_types):
+
+    next_action_distribution_list = []
+
+    for a_type in range(len(action_types)):
+
+        next_action_distribution = np.zeros(len(action_types))
+
+        for n, a in enumerate(actions_sequence[:-1]):
+
+            if a == a_type:
+
+                next_a = actions_sequence[n+1]
+
+                next_action_distribution[next_a] += 1
+
+        next_action_distribution_list.append(next_action_distribution/np.sum(next_action_distribution))
+
+    return(next_action_distribution_list)
+
+def run_simple_markovian_model(next_action_distribution_list, n_steps, first_action=0):
+
+    actions_sequence = [first_action]
+    action_types = np.arange(len(next_action_distribution_list))
+
+    for n in np.arange(1,n_steps):
+
+        action = np.random.choice(action_types,p=next_action_distribution_list[actions_sequence[n-1]])
+        actions_sequence.append(action)
+
+    return actions_sequence

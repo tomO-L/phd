@@ -25,9 +25,12 @@ start_time = time.time()
 ##################
 ### Parameters ###
 ##################
-simulations_folder_path = '/home/tom/Code/synthetic_data_v4/'
+# fit_type = 'aic'
+fit_type = 'score'
+
+simulations_folder_path = f'/home/david/Documents/code/DDM_v4_synthetic_data_identical_drifts_{fit_type}'
 n_simulations = 100
-index = 1
+index = 0
 start_index = 0
 
 ################
@@ -37,7 +40,7 @@ start_index = 0
 with open(f'{simulations_folder_path}/n_{n_simulations}/simulations_batch_{n_simulations}_test_{start_index + index+1}.pkl', 'rb') as file:
     synthetic_data = dill.load(file)
 
-with open(f'{simulations_folder_path}/n_{n_simulations}/best_model_score_{n_simulations}_test_{start_index + index+1}.pkl', 'rb') as file:
+with open(f'{simulations_folder_path}/n_{n_simulations}/best_model_{fit_type}_{n_simulations}_test_{start_index + index+1}.pkl', 'rb') as file:
     model = dill.load(file)
 
 # with open(f'DDM_v2/statistical_precision_analysis/simulations_batches/n_{n_simulations}/best_model_score_{n_simulations}_test.pkl', 'rb') as file:
@@ -136,7 +139,7 @@ ax = plt.subplot(row[:])
 # proba_dist = new_mat[0] #np.sort(new_mat[0])
 # proba_dist = np.sort(new_mat[0])
 # proba_dist = new_mat[0]*new_emissionmat[:,1]
-proba_dist = new_emissionmat[:,1]
+proba_dist = new_emissionmat[:,3]
 
 # print(np.std(proba_dist))
 
@@ -151,7 +154,7 @@ gs = fig.add_gridspec(1, 1)
 row = gs[0].subgridspec(1,1)
 ax = plt.subplot(row[:])
 
-ax.imshow(new_emissionmat)
+ax.imshow(new_emissionmat, vmin=0, vmax=1)
 ax.set_xticks([0,1,2,3], labels=['CCW, U', 'CCW, R','CW, U', 'CW, R'], rotation=30, ha="right", rotation_mode="anchor")
 
 ax.set_yticks(np.arange(states_number))
@@ -171,7 +174,7 @@ turns_proba_mat = np.array([new_emissionmat[:,0] + new_emissionmat[:,1],
 
 turns_proba_mat = np.transpose(turns_proba_mat)
 
-ax.imshow(turns_proba_mat)
+ax.imshow(turns_proba_mat, vmin=0, vmax=1)
 ax.set_xticks([0,1], labels=['CCW', 'CW'], rotation=30, ha="right", rotation_mode="anchor")
 
 ax.set_yticks(np.arange(states_number))

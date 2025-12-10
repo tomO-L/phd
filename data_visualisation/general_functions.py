@@ -790,9 +790,9 @@ def plot_states_occurence_frequency(run_sequence, ax, window_size=50):
 
     labels = ['CW QTs',
               'CCW QTs',
-              'RBTs',
-              'Run Toward Tower',
-              'Exploratory Run']
+              'Between Towers',
+              'Toward Tower',
+              'Exploratory']
     
 
     length = len(run_sequence)
