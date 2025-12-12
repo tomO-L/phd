@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import os
 import pickle
 import time
+import joblib as jl
 from hmmlearn import hmm, vhmm
 # from tqdm import tqdm
 from tqdm.notebook import tqdm
@@ -57,6 +58,59 @@ def infer_best_model_score(x_train, x_validate, training_lengths, validation_len
     # print("Total time : ", end_time - start_time) ### VERBOSE
 
     return best_model, best_score
+
+def fit_hmm_fixed_state_number(x_train, x_validate, training_lengths, validation_lengths, n_states, n_fits=200, n_features=None):
+                
+    # for idx in tqdm(range(n_fits), leave=leave_loading_bar, desc=f'Building {n} components model'):
+    for idx in range(n_fits):
+        
+        model = hmm.CategoricalHMM(
+            n_components=n_states, random_state=idx,
+            init_params='ste', algorithm='viterbi', n_features=n_features)  # don't init transition, set it below
+            
+        model.fit(x_train, training_lengths)
+        score = model.score(x_validate, validation_lengths)
+
+    return (model,score)
+
+def infer_best_model_score_parallel(x_train, x_validate, training_lengths, validation_lengths, n_to_test, n_features = None, n_fits=200, n_jobs=-2):
+    # check optimal score
+
+    n_fits = n_fits
+
+    models_and_scores_list = jl.Parallel(n_jobs=n_jobs)(jl.delayed(infer_best_model_score_parallel)(x_train, x_validate, training_lengths, validation_lengths, n_states, n_fits=200, n_features=n_features) for n_states in n_to_test)
+
+    return models_and_scores_list
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 def infer_best_model_aic(x_train, x_validate, training_lengths, validation_lengths, n_to_test, n_features = None, n_fits=200):
