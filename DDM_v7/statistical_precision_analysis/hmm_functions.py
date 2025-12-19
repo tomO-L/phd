@@ -30,7 +30,7 @@ def fit_hmm_fixed_state_number(x_train, x_validate, training_lengths, validation
 
     return (model,score)
 
-def infer_best_model_score(x_train, x_validate, training_lengths, validation_lengths, n_to_test, n_features = None, n_fits=200, leave_loading_bar=True, verbose=True):
+def infer_best_model_score(x_train, x_validate, training_lengths, validation_lengths, n_to_test, n_features = None, n_fits=200, save_path=None):
     # check optimal score
 
     best_score = best_model = None
@@ -63,6 +63,13 @@ def infer_best_model_score(x_train, x_validate, training_lengths, validation_len
         if best_score is None or score > best_score:
             best_model = model
             best_score = score
+
+    if save_path:
+
+        with open(save_path, 'wb') as file:
+            pickle.dump((best_model, best_score, models_list, scores_list), file)
+
+
 
     return best_model, best_score, models_list, scores_list
 

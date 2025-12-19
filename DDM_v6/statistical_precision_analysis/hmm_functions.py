@@ -16,21 +16,31 @@ from tqdm.notebook import tqdm
 ### Define functions ###
 ########################
 
-def fit_hmm_fixed_state_number(x_train, x_validate, training_lengths, validation_lengths, n_states, n_fits=200, n_features=None):
+def fit_hmm_fixed_state_number(x_train, x_validate, training_lengths, validation_lengths, n_states, n_fits=200, n_features=None, fix_probability=False):
                 
     # for idx in tqdm(range(n_fits), leave=leave_loading_bar, desc=f'Building {n} components model'):
     for idx in range(n_fits):
         
-        model = hmm.CategoricalHMM(
-            n_components=n_states, random_state=idx,
-            init_params='ste', algorithm='viterbi', n_features=n_features)  # don't init transition, set it below
+        if not(fix_probability):
             
+            model = hmm.CategoricalHMM(
+                n_components=n_states, random_state=idx,
+                init_params='ste', algorithm='viterbi', n_features=n_features)  # don't init transition, set it below
+
+        else:
+
+            model = hmm.CategoricalHMM(
+                n_components=n_states, random_state=idx,
+                init_params='st', params='st', algorithm='viterbi', n_features=n_features)  # don't init transition, set it below
+
+            model.emissionprob_ = np.transpose(np.array([1-np.linspace(0,1,n_states),np.linspace(0,1,n_states)]))
+
         model.fit(x_train, training_lengths)
         score = model.score(x_validate, validation_lengths)
 
     return (model,score)
 
-def infer_best_model_score(x_train, x_validate, training_lengths, validation_lengths, n_to_test, n_features = None, n_fits=200, leave_loading_bar=True, verbose=True):
+def infer_best_model_score(x_train, x_validate, training_lengths, validation_lengths, n_to_test, n_features = None, n_fits=200, fix_probability=False, save_path=None):
     # check optimal score
 
     best_score = best_model = None
@@ -55,7 +65,7 @@ def infer_best_model_score(x_train, x_validate, training_lengths, validation_len
         #         best_model = model
         #         best_score = score
 
-        model,score = fit_hmm_fixed_state_number(x_train, x_validate, training_lengths, validation_lengths, n, n_fits=n_fits, n_features=n_features)
+        model,score = fit_hmm_fixed_state_number(x_train, x_validate, training_lengths, validation_lengths, n, n_fits=n_fits, n_features=n_features, fix_probability=fix_probability)
 
         models_list.append(model)
         scores_list.append(score)
@@ -63,6 +73,13 @@ def infer_best_model_score(x_train, x_validate, training_lengths, validation_len
         if best_score is None or score > best_score:
             best_model = model
             best_score = score
+
+    if save_path:
+
+        with open(save_path, 'wb') as file:
+            pickle.dump((best_model, best_score, models_list, scores_list), file)
+
+
 
     return best_model, best_score, models_list, scores_list
 
