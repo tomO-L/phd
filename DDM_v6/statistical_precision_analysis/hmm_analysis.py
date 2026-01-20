@@ -28,10 +28,11 @@ start_time = time.time()
 # fit_type = 'aic'
 fit_type = 'score'
 
-simulations_folder_path = f'/home/david/Documents/code/DDM_v5_synthetic_data_identical_drifts_{fit_type}'
-n_simulations = 20
+simulations_folder_path = f'/home/david/Documents/code/DDM_v6_synthetic_data_identical_drifts_{fit_type}_parallel'
+n_simulations = 200
 index = 3
 start_index = 0
+n_states_index = 17
 
 ################
 ### Analysis ###
@@ -40,8 +41,10 @@ start_index = 0
 with open(f'{simulations_folder_path}/n_{n_simulations}/simulations_batch_{n_simulations}_test_{start_index + index+1}.pkl', 'rb') as file:
     synthetic_data = dill.load(file)
 
-with open(f'{simulations_folder_path}/n_{n_simulations}/best_model_{fit_type}_{n_simulations}_test_{start_index + index+1}.pkl', 'rb') as file:
-    model = dill.load(file)
+with open(f'{simulations_folder_path}/n_{n_simulations}/model_{fit_type}_fit_output_{n_simulations}_test_{start_index + index+1}.pkl', 'rb') as file:
+    fit_output = dill.load(file)
+
+model = fit_output['models'][n_states_index]
 
 # with open(f'DDM_v2/statistical_precision_analysis/simulations_batches/n_{n_simulations}/best_model_score_{n_simulations}_test.pkl', 'rb') as file:
 #     model = dill.load(file)
@@ -72,7 +75,7 @@ for s in range(len(model.transmat_)):
 
 transmat = model.transmat_
 # emission_vect = model.emissionprob_[:,2] + model.emissionprob_[:,3] ######
-emission_vect = model.emissionprob_[:,2] ######
+emission_vect = model.emissionprob_[:,1] ######
 
 mat = transmat
 sorted_indexes = np.argsort(emission_vect)
@@ -139,14 +142,14 @@ ax = plt.subplot(row[:])
 # proba_dist = new_mat[0] #np.sort(new_mat[0])
 # proba_dist = np.sort(new_mat[0])
 # proba_dist = new_mat[0]*new_emissionmat[:,1]
-proba_dist = new_emissionmat[:,2]
+proba_dist = new_emissionmat[:,1]
 
 # print(np.std(proba_dist))
 
 ax.plot(proba_dist, marker='s', markersize=2)
 ax.set_xlabel('State')
 ax.set_ylabel('Proba to chose CW')
-ax.set_title(f'Average slope : {np.mean(np.diff(new_emissionmat[:,2]))}')
+ax.set_title(f'Average slope : {np.mean(np.diff(new_emissionmat[:,1]))}')
 
 #
 
@@ -156,7 +159,7 @@ row = gs[0].subgridspec(1,1)
 ax = plt.subplot(row[:])
 
 ax.imshow(new_emissionmat, vmin=0, vmax=1)
-ax.set_xticks([0,1,2], labels=['CCW, U', 'CW, U','CW, R'], rotation=30, ha="right", rotation_mode="anchor")
+ax.set_xticks([0,1], labels=['CCW', 'CW'], rotation=30, ha="right", rotation_mode="anchor")
 
 ax.set_yticks(np.arange(states_number))
 ax.set_title(f'Action matrix, {n_simulations} simulations', fontsize=7)
@@ -165,28 +168,28 @@ ax.set_ylabel('State')
 
 #
 
-fig=plt.figure(figsize=(3.5, 3), dpi=300, constrained_layout=False, facecolor='w')
-gs = fig.add_gridspec(1, 1)
-row = gs[0].subgridspec(1,1)
-ax = plt.subplot(row[:])
+# fig=plt.figure(figsize=(3.5, 3), dpi=300, constrained_layout=False, facecolor='w')
+# gs = fig.add_gridspec(1, 1)
+# row = gs[0].subgridspec(1,1)
+# ax = plt.subplot(row[:])
 
-turns_proba_mat = np.array([new_emissionmat[:,0],
-                            new_emissionmat[:,1] + new_emissionmat[:,2]])
+# turns_proba_mat = np.array([new_emissionmat[:,0],
+#                             new_emissionmat[:,1] + new_emissionmat[:,2]])
 
-turns_proba_mat = np.transpose(turns_proba_mat)
+# turns_proba_mat = np.transpose(turns_proba_mat)
 
-ax.imshow(turns_proba_mat, vmin=0, vmax=1)
-ax.set_xticks([0,1], labels=['CCW', 'CW'], rotation=30, ha="right", rotation_mode="anchor")
+# ax.imshow(turns_proba_mat, vmin=0, vmax=1)
+# ax.set_xticks([0,1], labels=['CCW', 'CW'], rotation=30, ha="right", rotation_mode="anchor")
 
-ax.set_yticks(np.arange(states_number))
-ax.set_title(f'Turns matrix, {n_simulations} simulations', fontsize=7)
-ax.set_xlabel('Turn direction')
-ax.set_ylabel('State')
+# ax.set_yticks(np.arange(states_number))
+# ax.set_title(f'Turns matrix, {n_simulations} simulations', fontsize=7)
+# ax.set_xlabel('Turn direction')
+# ax.set_ylabel('State')
 
 #
 
 
-"""fig=plt.figure(figsize=(3.5, 6), dpi=300, constrained_layout=False, facecolor='w')
+fig=plt.figure(figsize=(3.5, 6), dpi=300, constrained_layout=False, facecolor='w')
 gs = fig.add_gridspec(1, 1)
 row = gs[0].subgridspec(2,1)
 ax = plt.subplot(row[0,0])
@@ -209,7 +212,7 @@ for i in x:
     res5 = (res4 - new_initial_state_list_distri*new_emissionmat[:,1])**2
     res6 = np.matmul(new_initial_state_list_distri,new_mat_i) * (np.matmul(new_initial_state_list_distri,new_mat_i)*new_emissionmat[:,1] - new_initial_state_list_distri*new_emissionmat[:,1])**2
 
-    res = res6
+    res = res4
 
     # print(res)
     
@@ -228,6 +231,18 @@ for j in range(len(new_emissionmat)):
 
     ax.plot(x, res_array[:,j])
     axbis.plot(x[1:], np.diff(res_array[:,j]))
+
+with open(f'{simulations_folder_path}/test_average_probability_sequences.pkl', 'rb') as file:
+    test_average_probability_sequences = dill.load(file)
+
+test_drift_index = 40
+
+test_drift = test_average_probability_sequences[0][test_drift_index]
+mean_trajectory = test_average_probability_sequences[1][test_drift_index]
+
+ax.plot(x, mean_trajectory, alpha=0.5, linestyle='--')
+ax.text(x[-1], mean_trajectory[-1], f'drift = {np.round(test_drift,3)}', fontsize=5)
+
 
 # p_a, p_a_reward, p_b_reward, steps_number, noise_amplitude, delta, drift = synthetic_data[0]['parameters']
 # print(p_a)
@@ -254,10 +269,10 @@ for j in range(len(new_emissionmat)):
 #     axbis.plot(x[1:],np.diff(mean_square_displacement_sequence), alpha=0.5, linestyle='--')
 
 
-ax.set_ylabel('Mean Square Displacement')
-axbis.set_xlabel('Steps')
-axbis.set_ylabel('Slope of Mean Square Displacement')
-"""
+# ax.set_ylabel('Mean Square Displacement')
+# axbis.set_xlabel('Steps')
+# axbis.set_ylabel('Slope of Mean Square Displacement')
+
 # ax.imshow(np.matmul(new_mat,new_emissionmat[:,1]))
 # ax.set_xticks([0,1], labels=[0,1], rotation=30, ha="right", rotation_mode="anchor")
 # ax.set_yticks(np.arange(states_number))
