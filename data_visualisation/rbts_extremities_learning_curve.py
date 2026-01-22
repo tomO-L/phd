@@ -24,7 +24,7 @@ start_time = time.time()
 
 # defining data folder path and mice list
 # path_to_data_folder is the path of the folder where you store the folders of your different mice.
-path_to_data_folder='/LocalData/ForagingMice/4TowersTaskMethodPaper_Data/AurelienData/'
+path_to_data_folder='/LocalData/ForagingMice/4TowersTaskMethodPaper_Data/Group1Data/'
 # path_to_data_folder='/LocalData/ForagingMice/4TowersTaskMethodPaper_Data/MaudData/'
 
 # Analysing the entire group of mice
@@ -41,26 +41,19 @@ mice_to_analyse = [
 ### Parameters ###
 ##################
 
-first_and_last_session_indexes = [0,20]
+first_and_last_session_indexes = [0,14]
 
 
 ####################
 ### Computations ###
 ####################
 
-# Load data
+int_departure_trap_ratio_persession = {mouse: [] for mouse in mice_to_analyse}
 
-
-# print(f"{n_int_start_trap/n_rbts*100} % start in interior trapezes\n")
-# print(f"{n_ext_start_trap/n_rbts*100} % start in exterior trapezes\n")
-# print(f"{n_int_end_trap/n_rbts*100} % end in interior trapezes\n")
-# print(f"{n_ext_end_trap/n_rbts*100} % end in exterior trapezes\n")
-
-
-int_int_trap_ratio_persession = {mouse: [] for mouse in mice_to_analyse}
-ext_ext_trap_ratio_persession = {mouse: [] for mouse in mice_to_analyse}
-int_ext_trap_ratio_persession = {mouse: [] for mouse in mice_to_analyse}
-ext_int_trap_ratio_persession = {mouse: [] for mouse in mice_to_analyse}
+# int_int_trap_ratio_persession = {mouse: [] for mouse in mice_to_analyse}
+# ext_ext_trap_ratio_persession = {mouse: [] for mouse in mice_to_analyse}
+# int_ext_trap_ratio_persession = {mouse: [] for mouse in mice_to_analyse}
+# ext_int_trap_ratio_persession = {mouse: [] for mouse in mice_to_analyse}
 
 for mouse in mice_to_analyse:
 
@@ -75,8 +68,8 @@ for mouse in mice_to_analyse:
     sessions_to_process = sessions_to_process[first_and_last_session_indexes[0]:first_and_last_session_indexes[1]]
 
     nb_sessions = len(sessions_to_process)
-    print(f'Mouse {mouse}. There is/are {nb_sessions} sessions:')
-    print(sessions_to_process, '\n')
+    # print(f'Mouse {mouse}. There is/are {nb_sessions} sessions:')
+    # print(sessions_to_process, '\n')
 
 
     # Process each session for the current mouse
@@ -91,10 +84,13 @@ for mouse in mice_to_analyse:
         if not os.path.exists(output_pickle_filepath):
             print(f'Pickle file does not exist for session {session_to_process}, skipping .....')
             # Append session Nan data to the respective dictionaries
-            int_int_trap_ratio_persession[mouse].append([session_index + 1, np.nan])
-            ext_ext_trap_ratio_persession[mouse].append([session_index + 1, np.nan])
-            int_ext_trap_ratio_persession[mouse].append([session_index + 1, np.nan])
-            ext_int_trap_ratio_persession[mouse].append([session_index + 1, np.nan])
+            
+            # int_int_trap_ratio_persession[mouse].append([session_index + 1, np.nan])
+            # ext_ext_trap_ratio_persession[mouse].append([session_index + 1, np.nan])
+            # int_ext_trap_ratio_persession[mouse].append([session_index + 1, np.nan])
+            # ext_int_trap_ratio_persession[mouse].append([session_index + 1, np.nan])
+            int_departure_trap_ratio_persession[mouse].append([session_index + 1, np.nan])
+
             continue  # Skip to the next session if the pickle file does not exist
         
         data = load_pickle_data(folder_path_mouse_to_process,session_index)
@@ -105,15 +101,19 @@ for mouse in mice_to_analyse:
 
         extremities_list = compute_rbt_extremities(rbts)
 
-        int_int_trap_ratio = extremities_list.count('intint')/n_rbts
-        int_ext_trap_ratio = extremities_list.count('intext')/n_rbts
-        ext_int_trap_ratio = extremities_list.count('extint')/n_rbts
-        ext_ext_trap_ratio = extremities_list.count('extext')/n_rbts
+        int_departure_trap_ratio = (extremities_list.count('intint') + extremities_list.count('intext'))/n_rbts if n_rbts>0 else np.nan
 
-        int_int_trap_ratio_persession[mouse].append([session_index + 1, int_int_trap_ratio])
-        int_ext_trap_ratio_persession[mouse].append([session_index + 1, int_ext_trap_ratio])
-        ext_int_trap_ratio_persession[mouse].append([session_index + 1, ext_int_trap_ratio])
-        ext_ext_trap_ratio_persession[mouse].append([session_index + 1, ext_ext_trap_ratio])
+        int_departure_trap_ratio_persession[mouse].append([session_index + 1, int_departure_trap_ratio])
+
+        # int_int_trap_ratio = extremities_list.count('intint')/n_rbts if n_rbts>0 else np.nan
+        # int_ext_trap_ratio = extremities_list.count('intext')/n_rbts if n_rbts>0 else np.nan
+        # ext_int_trap_ratio = extremities_list.count('extint')/n_rbts if n_rbts>0 else np.nan
+        # ext_ext_trap_ratio = extremities_list.count('extext')/n_rbts if n_rbts>0 else np.nan
+
+        # int_int_trap_ratio_persession[mouse].append([session_index + 1, int_int_trap_ratio])
+        # int_ext_trap_ratio_persession[mouse].append([session_index + 1, int_ext_trap_ratio])
+        # ext_int_trap_ratio_persession[mouse].append([session_index + 1, ext_int_trap_ratio])
+        # ext_ext_trap_ratio_persession[mouse].append([session_index + 1, ext_ext_trap_ratio])
             
 
 
@@ -122,34 +122,43 @@ for mouse in mice_to_analyse:
 ### Plots ###
 #############
 
-fig=plt.figure(figsize=(4, 7), dpi=300, constrained_layout=False, facecolor='w')
-gs = fig.add_gridspec(1, 1)
-row1 = gs[0].subgridspec(2, 2)
-ax1 = plt.subplot(row1[0,0])
-ax2 = plt.subplot(row1[0,1])
-ax3 = plt.subplot(row1[1,0])
-ax4 = plt.subplot(row1[1,1])
+# fig=plt.figure(figsize=(4, 7), dpi=300, constrained_layout=False, facecolor='w')
+# gs = fig.add_gridspec(1, 1)
+# row1 = gs[0].subgridspec(2, 2)
+# ax1 = plt.subplot(row1[0,0])
+# ax2 = plt.subplot(row1[0,1])
+# ax3 = plt.subplot(row1[1,0])
+# ax4 = plt.subplot(row1[1,1])
 
-plot_learning_curve(int_int_trap_ratio_persession, mice_to_analyse, ax1)
-ax1.set_ylabel('int to int rbt')
+# plot_learning_curve(int_int_trap_ratio_persession, mice_to_analyse, ax1)
+# ax1.set_ylabel('int to int rbt')
+# ax1.set_ylim([0,1])
+# ax1.axhline(0.5,0,20, color='grey', linestyle='--')
+
+# plot_learning_curve(int_ext_trap_ratio_persession, mice_to_analyse, ax2)
+# ax2.set_ylabel('int to ext rbt')
+# ax2.set_ylim([0,1])
+# ax2.axhline(0.5,0,20, color='grey', linestyle='--')
+
+# plot_learning_curve(ext_int_trap_ratio_persession, mice_to_analyse, ax3)
+# ax3.set_ylabel('ext to int rbt')
+# ax3.set_ylim([0,1])
+# ax3.axhline(0.5,0,20, color='grey', linestyle='--')
+
+# plot_learning_curve(ext_ext_trap_ratio_persession, mice_to_analyse, ax4)
+# ax4.set_ylabel('ext to ext rbt')
+# ax4.set_ylim([0,1])
+# ax4.axhline(0.5,0,20, color='grey', linestyle='--')
+
+fig=plt.figure(figsize=(7, 7), dpi=300, constrained_layout=False, facecolor='w')
+gs = fig.add_gridspec(1, 1)
+row1 = gs[0].subgridspec(1, 1)
+ax1 = plt.subplot(row1[0,0])
+
+plot_learning_curve(int_departure_trap_ratio_persession, mice_to_analyse, ax1)
+ax1.set_ylabel('Ratio of RBTs departing from interior trap.')
+ax1.set_xlabel('Session number')
 ax1.set_ylim([0,1])
 ax1.axhline(0.5,0,20, color='grey', linestyle='--')
-
-plot_learning_curve(int_ext_trap_ratio_persession, mice_to_analyse, ax2)
-ax2.set_ylabel('int to ext rbt')
-ax2.set_ylim([0,1])
-ax2.axhline(0.5,0,20, color='grey', linestyle='--')
-
-plot_learning_curve(ext_int_trap_ratio_persession, mice_to_analyse, ax3)
-ax3.set_ylabel('ext to int rbt')
-ax3.set_ylim([0,1])
-ax3.axhline(0.5,0,20, color='grey', linestyle='--')
-
-plot_learning_curve(ext_ext_trap_ratio_persession, mice_to_analyse, ax4)
-ax4.set_ylabel('ext to ext rbt')
-ax4.set_ylim([0,1])
-ax4.axhline(0.5,0,20, color='grey', linestyle='--')
-
-
 
 plt.show()

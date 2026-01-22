@@ -30,9 +30,9 @@ fit_type = 'score'
 
 simulations_folder_path = f'/home/david/Documents/code/DDM_v6_synthetic_data_identical_drifts_{fit_type}_parallel'
 n_simulations = 200
-index = 3
+index = 29
 start_index = 0
-n_states_index = 17
+n_states_index = 8
 
 ################
 ### Analysis ###
@@ -90,7 +90,7 @@ new_transmat = order_matrix(mat, sorted_indexes)
 
 new_mat = new_transmat
 
-for i in range(1000):
+for i in range(len(choices_sequence)):
 
     new_mat = np.matmul(new_mat,new_transmat)
 
@@ -124,13 +124,11 @@ ax1.set_title(f'Transition matrix, {n_simulations} simulations', fontsize=7)
 ax1.set_xlabel('To state')
 ax1.set_ylabel('From state')
 
-ax2.imshow(new_mat, vmin=0, vmax=1)
+ax2.imshow([np.vecmat(new_initial_state_list_distri,new_mat)], vmin=0, vmax=1)
 ax2.set_xticks(np.arange(states_number))
-ax2.set_yticks(np.arange(states_number))
+ax2.set_yticks([])
 
-ax2.set_title(f'Final matrix, {n_simulations} simulations', fontsize=7)
-ax2.set_xlabel('To state')
-ax2.set_ylabel('From state')
+ax2.set_title(f'Final state presence distribution', fontsize=7)
 
 #
 
@@ -235,7 +233,7 @@ for j in range(len(new_emissionmat)):
 with open(f'{simulations_folder_path}/test_average_probability_sequences.pkl', 'rb') as file:
     test_average_probability_sequences = dill.load(file)
 
-test_drift_index = 40
+test_drift_index = 42
 
 test_drift = test_average_probability_sequences[0][test_drift_index]
 mean_trajectory = test_average_probability_sequences[1][test_drift_index]
