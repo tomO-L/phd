@@ -28,7 +28,7 @@ def fit_hmm_fixed_states_number(x_train, x_validate, training_lengths, validatio
                 n_components=n_states, random_state=int(time.time()),
                 init_params='st', params='st', algorithm='viterbi', n_features=n_features)  # don't init transition, set it below
 
-            model.emissionprob_ = np.transpose(np.array([1-np.linspace(0,1,n_states),np.linspace(0,1,n_states)]))
+            model.emissionprob_ = np.transpose(np.array([1-np.linspace(0.01,0.99,n_states),np.linspace(0.01,0.99,n_states)]))
 
         model.fit(x_train, training_lengths)
         score = model.score(x_validate, validation_lengths)
