@@ -205,7 +205,7 @@ def compute_reconstructed_proba_sequence(choices_sequence, model):
 
     for s in states_sequence:
 
-        reconstructed_p_cw_sequence.append(emissionprob[s][2]+emissionprob[s][3])
+        reconstructed_p_cw_sequence.append(emissionprob[s][1])
 
     return reconstructed_p_cw_sequence
 
@@ -332,10 +332,9 @@ def plot_hmm(model,test_data):
 
     n_simulations = len(test_data)
 
-    initial_state_list_distri = compute_initial_state_list_distri(model,test_data)
-
     transmat = model.transmat_
     emissionmat = model.emissionprob_
+    initial_state_list_distri = model.startprob_
 
     fig=plt.figure(figsize=(5, 3), dpi=300, constrained_layout=False, facecolor='w')
     gs = fig.add_gridspec(1, 1)
