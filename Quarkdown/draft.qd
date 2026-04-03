@@ -1,0 +1,23 @@
+.theme {paperwhite} layout:{latex}
+
+
+# Title
+
+$ P_{n+1} = P_n + d_n + \epsilon $
+
+$ d_n = d>0 \text{ if n-th action was rewarded, 0 else} $
+
+$ P_0 = \text{random uniform } [0,1] $
+
+$ [\textcolor{red}{CCW},\textcolor{red}{CCW},\textcolor{red}{CCW},\textcolor{blue}{CW},\textcolor{red}{CCW},\textcolor{blue}{CW}, ...] $
+$ [P_0, P_1, P_2, P_3, P_4, P_5, ...] $
+
+
+$ \textcolor{green}{HMM} $
+
+
+
+$ [S_1, S_2, S_2, S_1, S_1] $
+
+$ [P_1, P_2, P_2, P_1, P_1] $
+

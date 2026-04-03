@@ -40,7 +40,7 @@ def infer_best_model_score_parallel(x_train, x_validate, training_lengths, valid
 
     models_and_scores_list = jl.Parallel(n_jobs=n_jobs)(jl.delayed(fit_hmm_fixed_states_number)(x_train, x_validate, training_lengths, validation_lengths, n_states, 
                                                                                                 fix_probability=fix_probability, n_fits=n_fits, n_features=n_features)
-                                                                                                for n_states in tqdm(n_to_test))
+                                                                                                for n_states in n_to_test)
 
     fit_output = {'models': [variable[0] for variable in models_and_scores_list], 'scores': [variable[1] for variable in models_and_scores_list]}
 
