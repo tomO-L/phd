@@ -20,7 +20,7 @@ plt.style.use('paper.mplstyle')
 ##################
 
 # Meta-parameters
-MAIN_FOLDER_PATH = '/home/david/Documents/code/loop_drift_estimation_output_bis'
+MAIN_FOLDER_PATH = '/home/david/Documents/code/loop_drift_estimation_output_bis2'
 
 # Simulation generation parameters
 
@@ -42,7 +42,7 @@ DEFAULT_ARGS_DICT = {'p_cw_reward': P_CW_REWARD,
              'drift_init': DRIFT_INIT}
 
 
-SIMULATIONS_SET_SIZE = 50
+SIMULATIONS_SET_SIZE = 200
 N_SETS = 100
 SIMULATIONS_SET_SIZE_LIST = [SIMULATIONS_SET_SIZE]*N_SETS
 
@@ -83,6 +83,7 @@ if generate_new_synthetic_data:
             with open(f'{MAIN_FOLDER_PATH}/drift_{n}/simulation_set_{i}.pkl', 'wb') as file:
                 pickle.dump(simulations_set, file)
 
+# Fit HMMs to data
 
 for n, drift in tqdm(enumerate(DRIFT_VALUES_ARR),desc='Drift processed',leave=False):
 

@@ -21,3 +21,4 @@ $ [S_1, S_2, S_2, S_1, S_1] $
 
 $ [P_1, P_2, P_2, P_1, P_1] $
 
+$ MSE = \frac{1}{N}\Sigma^N_n (P_{n}^{test}-\textcolor{green}{P_{n}^{infered}})^2 $

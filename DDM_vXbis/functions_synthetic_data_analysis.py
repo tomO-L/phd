@@ -190,7 +190,8 @@ def generate_test_msd_sequences_identical_drifts(drift_range, args):
 
 def compute_mean_square_error_v2(average_trajectory, reconstructed_average_trajectory):
     
-    mse = (np.sum((average_trajectory - reconstructed_average_trajectory))**2)/len(average_trajectory)
+    # mse = (np.sum((average_trajectory - reconstructed_average_trajectory))**2)/len(average_trajectory)
+    mse = np.mean((average_trajectory - reconstructed_average_trajectory)**2)
 
     return mse
 
